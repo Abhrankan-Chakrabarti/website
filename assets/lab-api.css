@@ -304,3 +304,17 @@ input:focus {
     align-items: flex-start;
   }
 }
+
+footer {
+  width: min(1040px, calc(100% - 32px));
+  margin: 64px auto 0;
+  padding: 2rem 0;
+  border-top: 1px solid var(--lab-line);
+  text-align: center;
+}
+
+footer p {
+  margin: 0;
+  color: var(--lab-muted);
+  font-size: 0.9rem;
+}
