@@ -92,8 +92,8 @@ nav a.active {
 
 .card,
 .project-card {
-    border: 1px solid var(--border);
-    background: var(--card);
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    background: #141b22;
     padding: 1rem;
     border-radius: 6px;
 }
@@ -115,9 +115,9 @@ nav a.active {
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
-    border: 1px solid #3b434c !important;
-    background: var(--card);
-    box-shadow: 0 0 0 1px rgba(59, 67, 76, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.6) !important;
+    background: #141b22;
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2);
 }
 
 .project-summary {
