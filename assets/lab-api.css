@@ -29,6 +29,42 @@ input {
   font: inherit;
 }
 
+header {
+  width: min(1040px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--lab-text);
+}
+
+header .subtitle {
+  margin: 0;
+  color: var(--lab-muted);
+  font-size: 1.05rem;
+}
+
+header nav {
+  margin: 1.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+header nav a {
+  color: var(--lab-muted);
+  margin-right: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+header nav a:hover,
+header nav a.active {
+  color: var(--lab-accent);
+}
+
 .lab-shell {
   width: min(1040px, calc(100% - 32px));
   margin: 0 auto;
