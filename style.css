@@ -76,28 +76,80 @@ nav a.active {
     margin: 1.25rem 0;
 }
 
-@media (max-width: 500px) {
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+}
+
+@media (max-width: 700px) {
+    .project-grid,
     .grid {
         grid-template-columns: 1fr;
     }
 }
 
-.card {
+.card,
+.project-card {
     border: 1px solid var(--border);
     background: var(--card);
     padding: 1rem;
     border-radius: 6px;
 }
 
-.card h3 {
-    margin: 0 0 0.4rem;
+.card h3,
+.project-card h3 {
+    margin: 0 0 0.5rem;
     font-size: 1.05rem;
 }
 
-.card p {
+.card p,
+.project-card p {
     margin: 0;
     font-size: 0.9rem;
     color: var(--dim);
+}
+
+.project-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.project-summary {
+    color: var(--text);
+    line-height: 1.55;
+}
+
+.project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 0.15rem;
+}
+
+.project-links a {
+    font-weight: 600;
+    font-size: 0.82rem;
+}
+
+.project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.1rem;
+}
+
+.project-tags span {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(88, 166, 255, 0.08);
+    color: var(--heading);
+    font-size: 0.72rem;
+    line-height: 1.4;
 }
 
 .list {
