@@ -92,8 +92,10 @@ nav a.active {
 
 .card,
 .project-card {
-    border: 1px solid rgba(148, 163, 184, 0.6);
-    background: #141b22;
+    border: 2px solid #8ea1ad;
+    outline: 2px solid rgba(142, 161, 173, 0.35);
+    outline-offset: -2px;
+    background: #1a212b;
     padding: 1rem;
     border-radius: 6px;
 }
@@ -115,9 +117,11 @@ nav a.active {
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
-    border: 1px solid rgba(148, 163, 184, 0.6) !important;
-    background: #141b22;
-    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2);
+    border: 2px solid #8ea1ad !important;
+    background: #1a212b;
+    outline: 2px solid rgba(142, 161, 173, 0.35);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 1px rgba(120, 134, 148, 0.8);
 }
 
 .project-summary {
