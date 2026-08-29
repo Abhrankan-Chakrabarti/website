@@ -1,0 +1,268 @@
+:root {
+  color-scheme: light dark;
+  --lab-bg: #f7f7f4;
+  --lab-surface: #ffffff;
+  --lab-text: #20211f;
+  --lab-muted: #666a63;
+  --lab-line: #d9ddd2;
+  --lab-accent: #116466;
+  --lab-accent-dark: #0b4546;
+  --lab-danger: #a33434;
+  --lab-success: #1d6b3a;
+  --lab-radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--lab-bg);
+  color: var(--lab-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.lab-shell {
+  width: min(1040px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 64px 0;
+}
+
+.lab-hero {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.lab-kicker,
+.lab-eyebrow {
+  margin: 0 0 6px;
+  color: var(--lab-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.lab-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.2rem, 3.8rem);
+  line-height: 1.04;
+  letter-spacing: 0;
+}
+
+.lab-intro {
+  max-width: 640px;
+  margin: 18px 0 0;
+  color: var(--lab-muted);
+  font-size: 1.05rem;
+}
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.lab-panel {
+  min-width: 0;
+  padding: 22px;
+  background: var(--lab-surface);
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+}
+
+.lab-panel--wide {
+  grid-column: 1 / -1;
+}
+
+.lab-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.lab-panel h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.lab-muted {
+  margin: 0 0 18px;
+  color: var(--lab-muted);
+}
+
+.status-badge {
+  flex: 0 0 auto;
+  min-width: 88px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--lab-line);
+  color: var(--lab-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.status-badge--ok {
+  border-color: color-mix(in srgb, var(--lab-success), transparent 60%);
+  color: var(--lab-success);
+  background: color-mix(in srgb, var(--lab-success), transparent 92%);
+}
+
+.status-badge--error {
+  border-color: color-mix(in srgb, var(--lab-danger), transparent 60%);
+  color: var(--lab-danger);
+  background: color-mix(in srgb, var(--lab-danger), transparent 92%);
+}
+
+.lab-form {
+  display: grid;
+  gap: 12px;
+}
+
+.lab-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--lab-muted);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.lab-inline,
+.lab-actions,
+.lab-auth-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.lab-inline {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.lab-auth-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 18%);
+  color: var(--lab-text);
+}
+
+input:focus {
+  border-color: var(--lab-accent);
+  outline: 3px solid color-mix(in srgb, var(--lab-accent), transparent 78%);
+}
+
+.lab-button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid var(--lab-accent);
+  border-radius: var(--lab-radius);
+  background: var(--lab-accent);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.lab-button:hover {
+  background: var(--lab-accent-dark);
+  border-color: var(--lab-accent-dark);
+}
+
+.lab-button:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.lab-button--secondary {
+  background: transparent;
+  color: var(--lab-accent);
+}
+
+.lab-button--secondary:hover {
+  background: color-mix(in srgb, var(--lab-accent), transparent 92%);
+  color: var(--lab-accent-dark);
+}
+
+.lab-actions {
+  grid-template-columns: auto auto;
+  justify-content: start;
+}
+
+.lab-result {
+  display: block;
+  min-height: 46px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  color: var(--lab-muted);
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 28%);
+}
+
+.lab-result strong {
+  color: var(--lab-text);
+}
+
+.lab-code {
+  min-height: 150px;
+  max-height: 420px;
+  overflow: auto;
+  margin: 16px 0 0;
+  padding: 14px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: #171b1a;
+  color: #f4f7f2;
+  font: 0.92rem/1.5 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  white-space: pre-wrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lab-bg: #111413;
+    --lab-surface: #191d1b;
+    --lab-text: #f2f5ef;
+    --lab-muted: #b0b7ac;
+    --lab-line: #313830;
+    --lab-accent: #55b6a9;
+    --lab-accent-dark: #7acbc0;
+  }
+}
+
+@media (max-width: 720px) {
+  .lab-shell {
+    width: min(100% - 24px, 1040px);
+    padding: 36px 0;
+  }
+
+  .lab-grid,
+  .lab-auth-grid,
+  .lab-inline,
+  .lab-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .lab-panel {
+    padding: 18px;
+  }
+
+  .lab-panel-heading {
+    align-items: flex-start;
+  }
+}

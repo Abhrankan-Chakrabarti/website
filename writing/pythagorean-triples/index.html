@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d1117">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23238636'%3EA%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Almost isosceles Pythagorean triples and a recurrence for generating examples.">
+    <title>Exploring Almost Isosceles Pythagorean Triples · Abhrankan</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav>
+            <a href="/">Home</a>
+            <a href="/projects.html">Projects</a>
+            <a class="active" href="/writing.html">Writing</a>
+            <a href="/now.html">Now</a>
+        </nav>
+    </header>
+
+    <main>
+        <article class="post">
+            <p class="meta">Mathematics · Algorithms · July 3, 2024</p>
+            <h1>Exploring Almost Isosceles Pythagorean Triples</h1>
+
+            <h2>Introduction</h2>
+            <p>Mathematics has always been a treasure trove of fascinating problems and elegant solutions. One such captivating concept is the almost isosceles Pythagorean triple. In this post, we will dive into what they are, their significance, and how they can be generated.</p>
+
+            <h2>What are Pythagorean Triples?</h2>
+            <p>Pythagorean triples are sets of three integers (a, b, c) that satisfy the equation a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>. They are named after the ancient Greek mathematician Pythagoras. A well-known example is the set (3, 4, 5).</p>
+
+            <h2>Introducing Almost Isosceles Pythagorean Triples</h2>
+            <p>Almost isosceles Pythagorean triples are a special subset where the two smaller numbers differ by one. For example, (20, 21, 29) is an almost isosceles Pythagorean triple because 20<sup>2</sup> + 21<sup>2</sup> = 29<sup>2</sup>.</p>
+
+            <h2>Generating Almost Isosceles Pythagorean Triples</h2>
+            <p>One useful recurrence for generating these triples starts from x = 7 and y = 5, then applies:</p>
+            <p class="equation">x' = 3x + 4y</p>
+            <p class="equation">y' = 2x + 3y</p>
+            <p>Then calculate a, b, and c as:</p>
+            <p class="equation">a = (x - 1) / 2</p>
+            <p class="equation">b = a + 1</p>
+            <p class="equation">c = y</p>
+
+            <h2>Example Calculation</h2>
+            <p>Starting with x = 7 and y = 5:</p>
+            <p class="equation">x' = 3(7) + 4(5) = 21 + 20 = 41</p>
+            <p class="equation">y' = 2(7) + 3(5) = 14 + 15 = 29</p>
+            <p class="equation">a = (41 - 1) / 2 = 20</p>
+            <p class="equation">b = 20 + 1 = 21</p>
+            <p class="equation">c = 29</p>
+            <p>Thus, we get the triple (20, 21, 29).</p>
+
+            <h2>Applications and Significance</h2>
+            <p>Almost isosceles Pythagorean triples have applications in fields such as number theory, geometry, and computer algorithms. Their unique properties make them an interesting subject for research and exploration.</p>
+
+            <h2>Conclusion</h2>
+            <p>In this blog post, we explored the world of almost isosceles Pythagorean triples, including their unique properties and a recurrence that generates examples. From classical number theory to modern computational exploration, these triples continue to intrigue and inspire.</p>
+
+            <h2>Further Reading</h2>
+            <ul>
+                <li><a href="https://en.wikipedia.org/wiki/Pythagorean_triple">Wikipedia on Pythagorean Triples</a></li>
+                <li><a href="https://www.britannica.com/topic/mathematics/Ancient-mathematics">Ancient Mathematics and its Influence</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer>
+        <p><a href="/writing.html">Back to writing</a></p>
+    </footer>
+</body>
+</html>

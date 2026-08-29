@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lab API | Abhrankan Chakrabarti</title>
+    <link rel="stylesheet" href="assets/lab-api.css">
+  </head>
+  <body>
+    <main class="lab-shell">
+      <section class="lab-hero" aria-labelledby="lab-title">
+        <p class="lab-kicker">Lab API</p>
+        <h1 id="lab-title">Small public tools and service checks</h1>
+        <p class="lab-intro">
+          A lightweight interface for checking the lab service, looking up Catalan
+          numbers, and viewing an authenticated snapshot.
+        </p>
+      </section>
+
+      <section class="lab-grid" aria-label="Lab API tools">
+        <article class="lab-panel" aria-labelledby="health-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Status</p>
+              <h2 id="health-title">Service health</h2>
+            </div>
+            <span id="health-badge" class="status-badge status-badge--idle">Checking</span>
+          </div>
+          <p id="health-message" class="lab-muted">Contacting the API...</p>
+          <button id="refresh-health" class="lab-button" type="button">Refresh</button>
+        </article>
+
+        <article class="lab-panel" aria-labelledby="catalan-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Lookup</p>
+              <h2 id="catalan-title">Catalan number</h2>
+            </div>
+          </div>
+          <form id="catalan-form" class="lab-form">
+            <label for="catalan-n">Index n</label>
+            <div class="lab-inline">
+              <input id="catalan-n" name="n" type="number" min="0" step="1" value="5" inputmode="numeric" required>
+              <button class="lab-button" type="submit">Calculate</button>
+            </div>
+          </form>
+          <output id="catalan-result" class="lab-result" aria-live="polite">Enter a non-negative integer.</output>
+        </article>
+
+        <article class="lab-panel lab-panel--wide" aria-labelledby="snapshot-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Protected</p>
+              <h2 id="snapshot-title">Snapshot</h2>
+            </div>
+          </div>
+          <form id="snapshot-form" class="lab-form">
+            <div class="lab-auth-grid">
+              <label>
+                Username
+                <input id="snapshot-username" name="username" autocomplete="username" required>
+              </label>
+              <label>
+                Password
+                <input id="snapshot-password" name="password" type="password" autocomplete="current-password" required>
+              </label>
+            </div>
+            <div class="lab-actions">
+              <button class="lab-button" type="submit">Load snapshot</button>
+              <button id="clear-snapshot" class="lab-button lab-button--secondary" type="button">Clear</button>
+            </div>
+          </form>
+          <pre id="snapshot-output" class="lab-code" aria-live="polite">Credentials are sent only with this request and are not stored by this page.</pre>
+        </article>
+      </section>
+    </main>
+
+    <script src="assets/lab-api.js" defer></script>
+  </body>
+</html>
