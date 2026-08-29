@@ -1,5 +1,16 @@
 # Releases
 
+## [v0.2.0] — 2026-08-30
+
+### Added
+- Added public `GET /api/v1/info` for non-sensitive service metadata and endpoint discovery.
+- Added an API information panel to the Lab frontend.
+
+### Backend
+- Reports service name, API version, package version, route list, build profile, and environment label.
+- Keeps the existing authentication model unchanged; only `/api/v1/snapshot` remains protected.
+- No new infrastructure or separate service added.
+
 ## [v1.0.0] — 2026-08-29
 
 **Stable production release: Site navigation, consistent styling, and complete API documentation.**

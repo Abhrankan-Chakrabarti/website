@@ -96,6 +96,46 @@ curl -s "https://abhrankan.duckdns.org/api/v1/catalan/abc"
 
 ---
 
+### `GET /v1/info`
+
+Return non-sensitive application metadata for discovery. No authentication required.
+
+**Request:**
+```bash
+curl -s "https://abhrankan.duckdns.org/api/v1/info"
+```
+
+**Response (200 OK):**
+```json
+{
+  "service": "lab-api",
+  "api": "v1",
+  "version": "0.2.0",
+  "endpoints": [
+    "GET /health",
+    "GET /v1/info",
+    "GET /v1/catalan/:n",
+    "GET /v1/snapshot"
+  ],
+  "build_profile": "release",
+  "environment": "production"
+}
+```
+
+**Status Codes:**
+- `200 OK` — Metadata returned
+- `500 Internal Server Error` — Server error
+
+The response must contain application metadata only. It must not expose credentials,
+hostnames, filesystem paths, environment variables, private addresses, or system
+snapshot data. The `environment` value identifies the build/runtime profile and must
+not contain deployment secrets.
+
+**Use case:** Client discovery, diagnostics, and displaying the service contract in
+the Lab frontend.
+
+---
+
 ### `GET /v1/snapshot`
 
 Authenticated system/service snapshot. **Requires HTTP Basic Auth**.

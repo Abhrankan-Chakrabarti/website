@@ -134,6 +134,38 @@ header nav a.active {
   line-height: 1.2;
 }
 
+.lab-info-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.lab-info-list div {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.35fr) minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--lab-line);
+}
+
+.lab-info-list div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.lab-info-list dt {
+  color: var(--lab-muted);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.lab-info-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
 .lab-muted {
   margin: 0 0 18px;
   color: var(--lab-muted);

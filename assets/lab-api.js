@@ -8,6 +8,7 @@ const refreshHealthButton = document.querySelector("#refresh-health");
 const catalanForm = document.querySelector("#catalan-form");
 const catalanInput = document.querySelector("#catalan-n");
 const catalanResult = document.querySelector("#catalan-result");
+const infoOutput = document.querySelector("#info-output");
 const snapshotForm = document.querySelector("#snapshot-form");
 const snapshotUsername = document.querySelector("#snapshot-username");
 const snapshotPassword = document.querySelector("#snapshot-password");
@@ -104,6 +105,42 @@ async function lookupCatalan(event) {
   }
 }
 
+function renderInfo(data) {
+  const fields = [
+    ["Service", data.service],
+    ["API", data.api],
+    ["Version", data.version],
+    ["Build profile", data.build_profile],
+    ["Environment", data.environment],
+    ["Endpoints", Array.isArray(data.endpoints) ? data.endpoints.join(", ") : data.endpoints],
+  ];
+
+  infoOutput.replaceChildren(...fields.map(([label, value]) => {
+    const row = document.createElement("div");
+    const name = document.createElement("dt");
+    const result = document.createElement("dd");
+    name.textContent = label;
+    result.textContent = value ?? "Not provided";
+    row.append(name, result);
+    return row;
+  }));
+}
+
+async function loadInfo() {
+  try {
+    renderInfo(await fetchJson("/v1/info"));
+  } catch (error) {
+    infoOutput.replaceChildren();
+    const row = document.createElement("div");
+    const name = document.createElement("dt");
+    const result = document.createElement("dd");
+    name.textContent = "Status";
+    result.textContent = error.message;
+    row.append(name, result);
+    infoOutput.append(row);
+  }
+}
+
 async function loadSnapshot(event) {
   event.preventDefault();
 
@@ -145,3 +182,4 @@ snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 
 refreshHealth();
+loadInfo();
