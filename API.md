@@ -325,7 +325,7 @@ The system snapshot endpoint is the only route with protected access. The health
 
 This is the current canonical API contract for the service.
 
-```
+---
 
 ### Nginx Configuration
 
