@@ -8,6 +8,7 @@ const refreshHealthButton = document.querySelector("#refresh-health");
 const catalanForm = document.querySelector("#catalan-form");
 const catalanInput = document.querySelector("#catalan-n");
 const catalanResult = document.querySelector("#catalan-result");
+const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const snapshotForm = document.querySelector("#snapshot-form");
 const snapshotUsername = document.querySelector("#snapshot-username");
@@ -126,7 +127,9 @@ function renderInfo(data) {
   }));
 }
 
-async function loadInfo() {
+async function refreshInfo() {
+  setBusy(refreshInfoButton, true, "Loading");
+
   try {
     renderInfo(await fetchJson("/v1/info"));
   } catch (error) {
@@ -138,6 +141,8 @@ async function loadInfo() {
     result.textContent = error.message;
     row.append(name, result);
     infoOutput.append(row);
+  } finally {
+    setBusy(refreshInfoButton, false, "Loading");
   }
 }
 
@@ -177,9 +182,10 @@ function clearSnapshot() {
 }
 
 refreshHealthButton.addEventListener("click", refreshHealth);
+refreshInfoButton.addEventListener("click", refreshInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 
 refreshHealth();
-loadInfo();
+refreshInfo();
