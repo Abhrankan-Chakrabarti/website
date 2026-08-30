@@ -58,6 +58,16 @@ nav {
     font-size: 0.95rem;
 }
 
+.site-links {
+    margin: -0.75rem 0 1.5rem;
+    font-size: 0.9rem;
+    color: var(--dim);
+}
+
+.site-links a {
+    color: var(--link);
+}
+
 nav a {
     color: var(--dim);
     margin-right: 1rem;
