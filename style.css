@@ -261,6 +261,17 @@ footer {
     color: var(--link);
 }
 
+.markdown-body nav a {
+    color: var(--dim);
+    margin-right: 1rem;
+    font-weight: 500;
+}
+
+.markdown-body nav a:hover,
+.markdown-body nav a.active {
+    color: var(--heading);
+}
+
 .markdown-body ul,
 .markdown-body ol {
     padding-left: 1.5rem;
