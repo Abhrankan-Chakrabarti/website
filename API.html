@@ -434,31 +434,31 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 
 <p>This is the current canonical API contract for the service.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-### Nginx Configuration
+<hr />
 
-Nginx reverse-proxies all `/api/*` requests to the backend:
+<h3 id="nginx-configuration">Nginx Configuration</h3>
 
-```nginx
-upstream lab_api {
-    server 127.0.0.1:8088;
-}
+<p>Nginx reverse-proxies all <code class="language-plaintext highlighter-rouge">/api/*</code> requests to the backend:</p>
 
-server {
-    listen 443 ssl http2;
-    server_name abhrankan.duckdns.org;
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">upstream</span> <span class="s">lab_api</span> <span class="p">{</span>
+    <span class="kn">server</span> <span class="nf">127.0.0.1</span><span class="p">:</span><span class="mi">8088</span><span class="p">;</span>
+<span class="p">}</span>
 
-    ssl_certificate     /path/to/cert;
-    ssl_certificate_key /path/to/key;
+<span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">443</span> <span class="s">ssl</span> <span class="s">http2</span><span class="p">;</span>
+    <span class="kn">server_name</span> <span class="s">abhrankan.duckdns.org</span><span class="p">;</span>
 
-    location /api/ {
-        proxy_pass http://lab_api/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
+    <span class="kn">ssl_certificate</span>     <span class="n">/path/to/cert</span><span class="p">;</span>
+    <span class="kn">ssl_certificate_key</span> <span class="n">/path/to/key</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/api/</span> <span class="p">{</span>
+        <span class="kn">proxy_pass</span> <span class="s">http://lab_api/</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </code></pre></div></div>
 
 <h3 id="security-model-1">Security Model</h3>
@@ -562,12 +562,9 @@ server {
 <strong>Status</strong>: Stable &amp; production-ready</p>
 
 
-      
-      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
-        This site is open source. <a href="https://github.com/Abhrankan-Chakrabarti/website/edit/main/API.md">Improve this page</a>.
-      </div>
-      
-    </div>
+    <footer>
+        <p>&copy; 2026 Abhrankan Chakrabarti</p>
+    </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
   </body>
