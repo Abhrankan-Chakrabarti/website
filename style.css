@@ -289,6 +289,70 @@ footer {
     border-radius: 0;
 }
 
+/* Rouge/GitHub-style syntax highlighting for generated docs */
+.highlight {
+    background: #161b22;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.highlight pre {
+    margin: 0;
+    background: transparent;
+    border: 0;
+    padding: 1rem;
+}
+
+.highlight .hll { background-color: rgba(110, 118, 129, 0.35); }
+.highlight .c,
+.highlight .c1,
+.highlight .cm,
+.highlight .cp,
+.highlight .cs { color: #8b949e; font-style: italic; }
+.highlight .err { color: #f85149; }
+.highlight .k,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kt { color: #ff7b72; }
+.highlight .n,
+.highlight .na,
+.highlight .nb,
+.highlight .nc,
+.highlight .nf,
+.highlight .nn,
+.highlight .no,
+.highlight .nt,
+.highlight .nx,
+.highlight .o,
+.highlight .ow { color: #d0d7de; }
+.highlight .m,
+.highlight .mf,
+.highlight .mh,
+.highlight .mi,
+.highlight .il,
+.highlight .mo { color: #79c0ff; }
+.highlight .s,
+.highlight .s1,
+.highlight .s2,
+.highlight .sa,
+.highlight .sb,
+.highlight .sc,
+.highlight .dl,
+.highlight .sd,
+.highlight .se,
+.highlight .sh,
+.highlight .si { color: #a5d6ff; }
+.highlight .p { color: #d0d7de; }
+.highlight .w { color: #c9d1d9; }
+.highlight .nv,
+.highlight .vc,
+.highlight .vg,
+.highlight .vi { color: #ffa657; }
+.highlight .gd { color: #ff7b72; background-color: rgba(248, 81, 73, 0.15); }
+.highlight .gi { color: #7ee787; background-color: rgba(46, 160, 67, 0.15); }
+
 .markdown-body blockquote {
     margin: 1rem 0;
     padding: 0.5rem 1rem;
