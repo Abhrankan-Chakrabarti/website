@@ -8,6 +8,7 @@
 <meta name="description" content="Calculating pi using Catalan numbers, the arcsine series, and fixed-point arithmetic.">
     <title>Calculating pi with Catalan Numbers · Abhrankan</title>
     <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
 <body>
     <header class="site-header">
@@ -58,7 +59,7 @@
             <h3>Implementation</h3>
             <p>The implementation in Python leverages the <code>gmpy2</code> library for high-precision integer arithmetic:</p>
 
-<pre><code>from gmpy2 import mpz
+<pre><code class="language-python">from gmpy2 import mpz
 import sys
 
 # Input number of digits
@@ -109,5 +110,7 @@ else:
     <footer>
         <p>&copy; 2026 Abhrankan Chakrabarti</p>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 </body>
 </html>
