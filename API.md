@@ -105,10 +105,10 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
   "api": "v1",
   "version": "0.2.0",
   "endpoints": [
-    "GET /api/health",
-    "GET /api/v1/info",
-    "GET /api/v1/catalan/:n",
-    "GET /api/v1/snapshot"
+    "GET /health",
+    "GET /v1/info",
+    "GET /v1/catalan/:n",
+    "GET /v1/snapshot"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -287,14 +287,14 @@ This is the desired deployment pattern because:
 ### Example Nginx auth block
 
 ```nginx
-location /api/ {
+location = /api/v1/snapshot {
     auth_basic "lab-api";
     auth_basic_user_file /etc/nginx/.htpasswd;
-    proxy_pass http://127.0.0.1:8088/;
+    proxy_pass http://127.0.0.1:8088/v1/snapshot;
 }
 ```
 
-This keeps the application simple while allowing Nginx to handle TLS and access control at the public edge.
+This keeps the application simple while allowing Nginx to protect only the snapshot route and leave the public health/info/catalan endpoints open.
 
 ## Security model
 
@@ -324,133 +324,3 @@ The system snapshot endpoint is the only route with protected access. The health
 - If the service is extended later, the contract should be updated in this document first.
 
 This is the current canonical API contract for the service.
-
----
-
-### Nginx Configuration
-
-Nginx reverse-proxies all `/api/*` requests to the backend:
-
-```nginx
-upstream lab_api {
-    server 127.0.0.1:8088;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name abhrankan.duckdns.org;
-
-    ssl_certificate     /path/to/cert;
-    ssl_certificate_key /path/to/key;
-
-    location /api/ {
-        proxy_pass http://lab_api/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-### Security Model
-
-- **Network isolation**: Lab API only listens on `127.0.0.1:8088` (no public access)
-- **HTTPS enforcement**: Nginx enforces SSL/TLS; HTTP is redirected or rejected
-- **Authentication**: Basic Auth over HTTPS only
-- **Rate limiting**: Nginx can be configured with rate limits (not currently enforced)
-- **CORS**: Not applicable (backend is private)
-- **Input validation**: All parameters are sanitized before processing
-
----
-
-## Rate Limiting & Quotas
-
-Currently, no rate limiting is enforced. Recommended production settings:
-
-```nginx
-limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
-
-location /api/ {
-    limit_req zone=api_limit burst=20 nodelay;
-    proxy_pass http://lab_api/;
-}
-```
-
----
-
-## Error Responses
-
-All error responses follow this format:
-
-```json
-{
-  "error": "Error message",
-  "code": "ERROR_CODE",
-  "timestamp": "2026-08-29T14:23:45Z"
-}
-```
-
-**Example:**
-```bash
-curl -s "https://abhrankan.duckdns.org/api/v1/catalan/invalid"
-→ 400 Bad Request
-→ {"error":"Invalid parameter: n must be a non-negative integer","code":"INVALID_PARAMETER","timestamp":"2026-08-29T14:24:10Z"}
-```
-
----
-
-## Examples
-
-### Health Check Monitoring
-
-```bash
-#!/bin/bash
-while true; do
-  response=$(curl -s -o /dev/null -w "%{http_code}" \
-    "https://abhrankan.duckdns.org/api/health")
-  if [ "$response" != "200" ]; then
-    echo "ALERT: Health check failed ($response)"
-  fi
-  sleep 60
-done
-```
-
-### Catalan Number Batch Lookup
-
-```bash
-for n in {0..10}; do
-  result=$(curl -s "https://abhrankan.duckdns.org/api/v1/catalan/$n" | jq .catalan)
-  echo "C($n) = $result"
-done
-```
-
-### Authenticated Snapshot Retrieval
-
-```bash
-snapshot=$(curl -s -u "$SNAPSHOT_USER:$SNAPSHOT_PASS" \
-  "https://abhrankan.duckdns.org/api/v1/snapshot")
-echo "$snapshot" | jq '.services'
-```
-
----
-
-## Limits & Constraints
-
-- **Catalan computation**: Max `n = 34` (u128 limit)
-- **Request timeout**: 30 seconds (Nginx default)
-- **Payload size**: 1 MB (Nginx default)
-- **Connection limit**: Unlimited (Nginx default)
-- **Backend capacity**: Single-threaded, ~100 req/sec sustained
-
----
-
-## Support & Feedback
-
-For bugs, feature requests, or documentation improvements, open an issue on [GitHub](https://github.com/Abhrankan-Chakrabarti/website).
-
----
-
-**Last updated**: August 29, 2026  
-**API Version**: v1.0.0  
-**Status**: Stable & production-ready

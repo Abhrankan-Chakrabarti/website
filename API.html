@@ -12,14 +12,14 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
 <meta property="og:description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
-<link rel="canonical" href="http://abhrankan.dpdns.org/website/API.html" />
-<meta property="og:url" content="http://abhrankan.dpdns.org/website/API.html" />
+<link rel="canonical" href="https://abhrankan.duckdns.org/API.html" />
+<meta property="og:url" content="https://abhrankan.duckdns.org/API.html" />
 <meta property="og:site_name" content="website" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Lab API Documentation" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","description":"Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work.","headline":"Lab API Documentation","url":"http://abhrankan.dpdns.org/website/API.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","description":"Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work.","headline":"Lab API Documentation","url":"https://abhrankan.duckdns.org/API.html"}</script>
 <!-- End Jekyll SEO tag -->
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23238636'%3EA%3C/text%3E%3C/svg%3E">
@@ -214,10 +214,10 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="s2">"GET /api/health"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"GET /api/v1/info"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"GET /api/v1/catalan/:n"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"GET /api/v1/snapshot"</span><span class="w">
+    </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/catalan/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/snapshot"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -393,14 +393,14 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 
 <h3 id="example-nginx-auth-block">Example Nginx auth block</h3>
 
-<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="n">/api/</span> <span class="p">{</span>
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="o">=</span> <span class="n">/api/v1/snapshot</span> <span class="p">{</span>
     <span class="kn">auth_basic</span> <span class="s">"lab-api"</span><span class="p">;</span>
     <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/.htpasswd</span><span class="p">;</span>
-    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088/</span><span class="p">;</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088/v1/snapshot</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>This keeps the application simple while allowing Nginx to handle TLS and access control at the public edge.</p>
+<p>This keeps the application simple while allowing Nginx to protect only the snapshot route and leave the public health, info, and Catalan endpoints open.</p>
 
 <h2 id="security-model">Security model</h2>
 
@@ -433,134 +433,6 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 </ul>
 
 <p>This is the current canonical API contract for the service.</p>
-
-<hr />
-
-<h3 id="nginx-configuration">Nginx Configuration</h3>
-
-<p>Nginx reverse-proxies all <code class="language-plaintext highlighter-rouge">/api/*</code> requests to the backend:</p>
-
-<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">upstream</span> <span class="s">lab_api</span> <span class="p">{</span>
-    <span class="kn">server</span> <span class="nf">127.0.0.1</span><span class="p">:</span><span class="mi">8088</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">server</span> <span class="p">{</span>
-    <span class="kn">listen</span> <span class="mi">443</span> <span class="s">ssl</span> <span class="s">http2</span><span class="p">;</span>
-    <span class="kn">server_name</span> <span class="s">abhrankan.duckdns.org</span><span class="p">;</span>
-
-    <span class="kn">ssl_certificate</span>     <span class="n">/path/to/cert</span><span class="p">;</span>
-    <span class="kn">ssl_certificate_key</span> <span class="n">/path/to/key</span><span class="p">;</span>
-
-    <span class="kn">location</span> <span class="n">/api/</span> <span class="p">{</span>
-        <span class="kn">proxy_pass</span> <span class="s">http://lab_api/</span><span class="p">;</span>
-        <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
-        <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
-        <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-        <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="security-model-1">Security Model</h3>
-
-<ul>
-  <li><strong>Network isolation</strong>: Lab API only listens on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code> (no public access)</li>
-  <li><strong>HTTPS enforcement</strong>: Nginx enforces SSL/TLS; HTTP is redirected or rejected</li>
-  <li><strong>Authentication</strong>: Basic Auth over HTTPS only</li>
-  <li><strong>Rate limiting</strong>: Nginx can be configured with rate limits (not currently enforced)</li>
-  <li><strong>CORS</strong>: Not applicable (backend is private)</li>
-  <li><strong>Input validation</strong>: All parameters are sanitized before processing</li>
-</ul>
-
-<hr />
-
-<h2 id="rate-limiting--quotas">Rate Limiting &amp; Quotas</h2>
-
-<p>Currently, no rate limiting is enforced. Recommended production settings:</p>
-
-<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">limit_req_zone</span> <span class="nv">$binary_remote_addr</span> <span class="s">zone=api_limit:10m</span> <span class="s">rate=10r/s</span><span class="p">;</span>
-
-<span class="k">location</span> <span class="n">/api/</span> <span class="p">{</span>
-    <span class="kn">limit_req</span> <span class="s">zone=api_limit</span> <span class="s">burst=20</span> <span class="s">nodelay</span><span class="p">;</span>
-    <span class="kn">proxy_pass</span> <span class="s">http://lab_api/</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<hr />
-
-<h2 id="error-responses">Error Responses</h2>
-
-<p>All error responses follow this format:</p>
-
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error message"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERROR_CODE"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-29T14:23:45Z"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre></div></div>
-
-<p><strong>Example:</strong></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="s2">"https://abhrankan.duckdns.org/api/v1/catalan/invalid"</span>
-→ 400 Bad Request
-→ <span class="o">{</span><span class="s2">"error"</span>:<span class="s2">"Invalid parameter: n must be a non-negative integer"</span>,<span class="s2">"code"</span>:<span class="s2">"INVALID_PARAMETER"</span>,<span class="s2">"timestamp"</span>:<span class="s2">"2026-08-29T14:24:10Z"</span><span class="o">}</span>
-</code></pre></div></div>
-
-<hr />
-
-<h2 id="examples">Examples</h2>
-
-<h3 id="health-check-monitoring">Health Check Monitoring</h3>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
-<span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do
-  </span><span class="nv">response</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="nt">-o</span> /dev/null <span class="nt">-w</span> <span class="s2">"%{http_code}"</span> <span class="se">\</span>
-    <span class="s2">"https://abhrankan.duckdns.org/api/health"</span><span class="si">)</span>
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$response</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"200"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
-    </span><span class="nb">echo</span> <span class="s2">"ALERT: Health check failed (</span><span class="nv">$response</span><span class="s2">)"</span>
-  <span class="k">fi
-  </span><span class="nb">sleep </span>60
-<span class="k">done</span>
-</code></pre></div></div>
-
-<h3 id="catalan-number-batch-lookup">Catalan Number Batch Lookup</h3>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>n <span class="k">in</span> <span class="o">{</span>0..10<span class="o">}</span><span class="p">;</span> <span class="k">do
-  </span><span class="nv">result</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="s2">"https://abhrankan.duckdns.org/api/v1/catalan/</span><span class="nv">$n</span><span class="s2">"</span> | jq .catalan<span class="si">)</span>
-  <span class="nb">echo</span> <span class="s2">"C(</span><span class="nv">$n</span><span class="s2">) = </span><span class="nv">$result</span><span class="s2">"</span>
-<span class="k">done</span>
-</code></pre></div></div>
-
-<h3 id="authenticated-snapshot-retrieval">Authenticated Snapshot Retrieval</h3>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">snapshot</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="nt">-u</span> <span class="s2">"</span><span class="nv">$SNAPSHOT_USER</span><span class="s2">:</span><span class="nv">$SNAPSHOT_PASS</span><span class="s2">"</span> <span class="se">\</span>
-  <span class="s2">"https://abhrankan.duckdns.org/api/v1/snapshot"</span><span class="si">)</span>
-<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$snapshot</span><span class="s2">"</span> | jq <span class="s1">'.services'</span>
-</code></pre></div></div>
-
-<hr />
-
-<h2 id="limits--constraints">Limits &amp; Constraints</h2>
-
-<ul>
-  <li><strong>Catalan computation</strong>: Max <code class="language-plaintext highlighter-rouge">n = 34</code> (u128 limit)</li>
-  <li><strong>Request timeout</strong>: 30 seconds (Nginx default)</li>
-  <li><strong>Payload size</strong>: 1 MB (Nginx default)</li>
-  <li><strong>Connection limit</strong>: Unlimited (Nginx default)</li>
-  <li><strong>Backend capacity</strong>: Single-threaded, ~100 req/sec sustained</li>
-</ul>
-
-<hr />
-
-<h2 id="support--feedback">Support &amp; Feedback</h2>
-
-<p>For bugs, feature requests, or documentation improvements, open an issue on <a href="https://github.com/Abhrankan-Chakrabarti/website">GitHub</a>.</p>
-
-<hr />
-
-<p><strong>Last updated</strong>: August 29, 2026<br />
-<strong>API Version</strong>: v1.0.0<br />
-<strong>Status</strong>: Stable &amp; production-ready</p>
-
 
     <footer>
         <p>&copy; 2026 Abhrankan Chakrabarti</p>
