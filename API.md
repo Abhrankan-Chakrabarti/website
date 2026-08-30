@@ -1,223 +1,330 @@
 # Lab API Documentation
 
-The Lab API is a small, deliberately minimal service for system health checks, mathematical lookups, and authenticated snapshots. It runs on a private backend and is exposed through Nginx with HTTPS.
+This document describes the current production-facing contract for `lab-api` as it is deployed today.
 
-## Service Architecture
+The service is intentionally small and narrow:
 
+- the Rust application listens only on `127.0.0.1:8088`
+- Nginx is the public entry point over HTTPS
+- the backend is not directly exposed to the Internet
+- the public API is limited to health, application metadata, Catalan number calculation, and authenticated system snapshot data
+
+## Service architecture
+
+```text
+Internet
+   ↓
+HTTPS
+   ↓
+Nginx
+   ↓
+/api/*
+   ↓
+127.0.0.1:8088
+   ↓
+lab-api
+   ↓
+systemd
 ```
-Internet (HTTPS)
-    ↓
-Nginx (reverse proxy)
-    ↓
-/api/* → 127.0.0.1:8088
-    ↓
-lab-api (systemd service)
+
+## Public URL vs local backend URL
+
+### Public URL
+
+```text
+https://abhrankan.duckdns.org/api/health
+https://abhrankan.duckdns.org/api/v1/info
+https://abhrankan.duckdns.org/api/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/snapshot
 ```
 
-## Authentication
+These are consumed through Nginx, which terminates TLS and forwards traffic to the backend.
 
-- **Public endpoints**: No authentication required
-- **Protected endpoints**: HTTP Basic Authentication
-  - Credentials are environment-controlled, not in code
-  - Over HTTPS only (enforced by Nginx)
+### Local backend URL
 
-## Endpoints
+```text
+http://127.0.0.1:8088/health
+http://127.0.0.1:8088/v1/info
+http://127.0.0.1:8088/v1/catalan/10
+http://127.0.0.1:8088/v1/snapshot
+```
 
-### `GET /health`
+The backend itself is only accessible from the local machine. It should not be exposed directly on a public interface or a public port.
 
-Service health check. No authentication required.
+## Endpoint summary
 
-**Request:**
+| Method | Endpoint | Auth | Purpose |
+| --- | --- | --- | --- |
+| GET | /api/health | No | Service health |
+| GET | /api/v1/info | No | Non-sensitive application metadata and endpoint discovery |
+| GET | /api/v1/catalan/:n | No | Catalan number, with `0 ≤ n ≤ 34` |
+| GET | /api/v1/snapshot | Basic Auth | Host/system snapshot |
+
+## HTTP status codes
+
+The API uses the standard HTTP responses implied by the handler behavior:
+
+| Status | Meaning |
+| --- | --- |
+| 200 OK | Successful request |
+| 400 Bad Request | Invalid Catalan input such as `n > 34` |
+| 401 Unauthorized | Missing or invalid HTTP Basic credentials |
+| 404 Not Found | Route not defined |
+| 500 Internal Server Error | Unexpected backend failure |
+
+The most important contract checks are:
+
+- `GET /api/health` succeeds with `200`
+- `GET /api/v1/info` succeeds with `200` and returns non-sensitive metadata
+- `GET /api/v1/catalan/:n` succeeds with `200` when `0 ≤ n ≤ 34`
+- `GET /api/v1/catalan/:n` fails with `400` when `n > 34`
+- `GET /api/v1/snapshot` fails with `401` without valid Basic Auth
+
+## Application information endpoint
+
+### Route
+
+```http
+GET /api/v1/info
+```
+
+This public endpoint describes the running application and its public route surface. It does not require authentication and must not expose hostnames, filesystem paths, credentials, environment variables, or system snapshot data.
+
+### Request examples
+
 ```bash
-curl -s https://abhrankan.duckdns.org/api/health
+curl -sS 'https://abhrankan.duckdns.org/api/v1/info'
+curl -sS 'http://127.0.0.1:8088/v1/info'
 ```
 
-**Response (200 OK):**
-```json
-{
-  "status": "ok"
-}
-```
+### Response
 
-**Status Codes:**
-- `200 OK` — Service is running
-- `500 Internal Server Error` — Service is down or misconfigured
-
-**Use case:** Monitoring, uptime checks, status pages.
-
----
-
-### `GET /v1/catalan/:n`
-
-Calculate the nth Catalan number. No authentication required.
-
-**Request:**
-```bash
-curl -s "https://abhrankan.duckdns.org/api/v1/catalan/5"
-```
-
-**Parameters:**
-- `n` (path parameter, required): Non-negative integer, `0 ≤ n ≤ 34`
-
-**Response (200 OK):**
-```json
-{
-  "n": 5,
-  "catalan": 42
-}
-```
-
-**Status Codes:**
-- `200 OK` — Valid computation completed
-- `400 Bad Request` — Invalid or out-of-range `n`
-- `500 Internal Server Error` — Server error
-
-**Limitations:**
-- Maximum `n = 34` (Catalan numbers grow as $\binom{2n}{n} / (n+1)$; C₃₄ ≈ 1.77 × 10¹⁹, fits in `u128`)
-- Negative or non-integer `n` returns `400 Bad Request`
-- Input sanitization: only alphanumeric and basic symbols
-
-**Examples:**
-```bash
-# Valid request
-curl -s "https://abhrankan.duckdns.org/api/v1/catalan/0"
-→ {"n":0,"catalan":1}
-
-# Out of range
-curl -s "https://abhrankan.duckdns.org/api/v1/catalan/100"
-→ 400 Bad Request
-
-# Invalid input
-curl -s "https://abhrankan.duckdns.org/api/v1/catalan/abc"
-→ 400 Bad Request
-```
-
-**Use case:** Educational demonstrations, algorithm exploration, API testing.
-
----
-
-### `GET /v1/info`
-
-Return non-sensitive application metadata for discovery. No authentication required.
-
-**Request:**
-```bash
-curl -s "https://abhrankan.duckdns.org/api/v1/info"
-```
-
-**Response (200 OK):**
 ```json
 {
   "service": "lab-api",
   "api": "v1",
   "version": "0.2.0",
   "endpoints": [
-    "GET /health",
-    "GET /v1/info",
-    "GET /v1/catalan/:n",
-    "GET /v1/snapshot"
+    "GET /api/health",
+    "GET /api/v1/info",
+    "GET /api/v1/catalan/:n",
+    "GET /api/v1/snapshot"
   ],
   "build_profile": "release",
   "environment": "production"
 }
 ```
 
-**Status Codes:**
+### Status
+
 - `200 OK` — Metadata returned
-- `500 Internal Server Error` — Server error
+- `500 Internal Server Error` — Unexpected backend failure
 
-The response must contain application metadata only. It must not expose credentials,
-hostnames, filesystem paths, environment variables, private addresses, or system
-snapshot data. The `environment` value identifies the build/runtime profile and must
-not contain deployment secrets.
+`version` is taken from the package version at build time. `build_profile` identifies whether the binary was compiled with debug assertions. `environment` is a deployment label and must remain free of secrets.
 
-**Use case:** Client discovery, diagnostics, and displaying the service contract in
-the Lab frontend.
+## Health endpoint
 
----
+### Request
 
-### `GET /v1/snapshot`
-
-Authenticated system/service snapshot. **Requires HTTP Basic Auth**.
-
-**Request:**
 ```bash
-curl -s -u "username:password" \
-  "https://abhrankan.duckdns.org/api/v1/snapshot"
+curl -sS https://abhrankan.duckdns.org/api/health
 ```
 
-**Response (200 OK):**
+### Response
+
 ```json
 {
-  "timestamp": "2026-08-29T14:23:45Z",
-  "hostname": "lab-host",
-  "uptime": 1234567,
-  "memory": {
-    "total": 1073741824,
-    "available": 536870912
-  },
-  "services": {
-    "nginx": "running",
-    "lab-api": "running"
-  }
+  "ok": true,
+  "service": "lab-api"
 }
 ```
 
-**Status Codes:**
-- `200 OK` — Valid credentials, snapshot returned
-- `401 Unauthorized` — Missing or invalid credentials
-- `403 Forbidden` — Credentials valid but insufficient permissions
-- `500 Internal Server Error` — Server error
+### Local backend example
 
-**Authentication Behavior:**
-- Credentials must be passed in the `Authorization` header as Base64-encoded `username:password`
-- Invalid credentials return `401` with a `WWW-Authenticate` challenge
-- Credentials are never logged (except via audit trails if configured)
-- HTTPS is required; HTTP requests are rejected by Nginx
-
-**Example with curl:**
 ```bash
-# Using -u flag (curl encodes automatically)
-curl -s -u "alice:secret" \
-  "https://abhrankan.duckdns.org/api/v1/snapshot"
-
-# Manual Base64 encoding
-curl -s -H "Authorization: Basic YWxpY2U6c2VjcmV0" \
-  "https://abhrankan.duckdns.org/api/v1/snapshot"
+curl -sS http://127.0.0.1:8088/health
 ```
 
-**Use case:** Private monitoring dashboards, authenticated status views, deployment verification.
+### Status
 
----
+- `200 OK`
+- No authentication required
 
-## HTTP Status Codes Reference
+This endpoint is intended to remain publicly readable for simple service checks and monitoring.
 
-| Code | Meaning | Common Cause |
-|------|---------|--------------|
-| 200 | OK | Request succeeded |
-| 400 | Bad Request | Invalid parameter, out of range, malformed input |
-| 401 | Unauthorized | Missing or invalid authentication credentials |
-| 403 | Forbidden | Valid credentials but insufficient permissions |
-| 404 | Not Found | Endpoint does not exist |
-| 500 | Internal Server Error | Server-side failure, service down |
+## Catalan number endpoint
 
----
+### Route
 
-## Deployment & Infrastructure
+```http
+GET /api/v1/catalan/:n
+```
 
-### Systemd Service
-
-The lab-api runs as a systemd service on the backend host:
+### Request examples
 
 ```bash
-# Check status
-systemctl status lab-api
+curl -sS 'https://abhrankan.duckdns.org/api/v1/catalan/0'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/catalan/10'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/catalan/34'
+```
 
-# Restart
-sudo systemctl restart lab-api
+### Success response
 
-# View logs
-journalctl -u lab-api -f
+```json
+{
+  "n": 10,
+  "value": "16796"
+}
+```
+
+The `value` field is the computed Catalan number. The frontend expects exactly this key name and not `catalan`.
+
+### Maximum supported value
+
+The implementation computes Catalan numbers in `u128` and therefore intentionally limits input to:
+
+```text
+0 ≤ n ≤ 34
+```
+
+This is a deliberate product choice, not a general-purpose arbitrary-precision implementation.
+
+### Out-of-range error
+
+```bash
+curl -sS -i 'https://abhrankan.duckdns.org/api/v1/catalan/35'
+```
+
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "error": "n must be <= 34 for this demo (u128 limit)"
+}
+```
+
+### Status
+
+- `200 OK` when `0 ≤ n ≤ 34`
+- `400 Bad Request` when `n > 34`
+- no authentication required
+
+## Snapshot endpoint
+
+### Route
+
+```http
+GET /api/v1/snapshot
+```
+
+This endpoint provides a minimal system summary from the host running `lab-api`.
+
+### Example response
+
+```json
+{
+  "hostname": "ip-172-31-77-184.ec2.internal",
+  "uptime": "up 2 days, 2 hours, 52 minutes",
+  "loadavg": "0.13 0.15 0.13",
+  "mem_available_kb": 580200
+}
+```
+
+### Data collected
+
+- hostname
+- system uptime
+- 1, 5, and 15 minute load averages
+- available memory in KiB
+
+### Request example
+
+```bash
+curl -sS -u 'username:password' https://abhrankan.duckdns.org/api/v1/snapshot
+```
+
+### Local backend example
+
+```bash
+curl -sS -u 'username:password' http://127.0.0.1:8088/v1/snapshot
+```
+
+### Authentication behavior
+
+The snapshot endpoint is protected by Nginx HTTP Basic Authentication.
+
+The Rust application itself does not enforce credentials for this route. Authentication is enforced at the public entry point before traffic reaches the backend.
+
+If the client omits credentials or provides invalid credentials, the response is:
+
+```http
+HTTP/1.1 401 Unauthorized
+```
+
+This is intentional. The endpoint exposes host-level information and is therefore treated as sensitive.
+
+## Authentication model
+
+### Basic Auth behavior
+
+- `GET /api/health` is unauthenticated
+- `GET /api/v1/info` is unauthenticated
+- `GET /api/v1/catalan/:n` is unauthenticated
+- `GET /api/v1/snapshot` requires HTTP Basic Auth
+
+### Auth implementation
+
+The credential check is handled by Nginx, not the Rust application.
+
+This is the desired deployment pattern because:
+
+- the backend remains local-only
+- auth is enforced before proxying
+- the app does not need to store or validate user credentials
+- the public HTTP layer is responsible for access control
+
+### Example Nginx auth block
+
+```nginx
+location /api/ {
+    auth_basic "lab-api";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    proxy_pass http://127.0.0.1:8088/;
+}
+```
+
+This keeps the application simple while allowing Nginx to handle TLS and access control at the public edge.
+
+## Security model
+
+The current security model is intentionally conservative:
+
+- only localhost binding: `127.0.0.1:8088`
+- no public TCP exposure for the Rust process
+- HTTPS termination at Nginx
+- Basic Auth for the system snapshot endpoint
+- no database
+- no application-layer user management
+- no token system, no OAuth, no session handling
+
+This is a small service with a minimal security boundary. The trust boundary is:
+
+```text
+Internet -> HTTPS + Nginx -> local lab-api process -> Linux host
+```
+
+The system snapshot endpoint is the only route with protected access. The health, information, and Catalan endpoints are intentionally public and informational.
+
+## Operational notes
+
+- This API is intentionally small and stable.
+- No additional endpoints should be added without a matching documentation update.
+- The current contract is intentionally deliberate: a health check, public application metadata, a numeric calculation endpoint, and an authenticated snapshot endpoint.
+- If the service is extended later, the contract should be updated in this document first.
+
+This is the current canonical API contract for the service.
+
 ```
 
 ### Nginx Configuration
