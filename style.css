@@ -73,6 +73,10 @@ nav {
     color: var(--link);
 }
 
+.site-links a.active {
+    color: var(--heading);
+}
+
 nav a {
     color: var(--dim);
     margin-right: 1rem;
