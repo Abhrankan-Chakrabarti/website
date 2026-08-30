@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Releases | website</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Releases" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
+<meta property="og:description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
+<link rel="canonical" href="http://abhrankan.dpdns.org/website/RELEASES.html" />
+<meta property="og:url" content="http://abhrankan.dpdns.org/website/RELEASES.html" />
+<meta property="og:site_name" content="website" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Releases" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work.","headline":"Releases","url":"http://abhrankan.dpdns.org/website/RELEASES.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/website/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="http://abhrankan.dpdns.org/website/">website</a></h1>
+      
+
+      <h1 id="releases">Releases</h1>
+
+<h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
+
+<h3 id="added">Added</h3>
+<ul>
+  <li>Added public <code class="language-plaintext highlighter-rouge">GET /api/v1/info</code> for non-sensitive service metadata and endpoint discovery.</li>
+  <li>Added an API information panel to the Lab frontend.</li>
+</ul>
+
+<h3 id="backend">Backend</h3>
+<ul>
+  <li>Reports service name, API version, package version, route list, build profile, and environment label.</li>
+  <li>Keeps the existing authentication model unchanged; only <code class="language-plaintext highlighter-rouge">/api/v1/snapshot</code> remains protected.</li>
+  <li>No new infrastructure or separate service added.</li>
+</ul>
+
+<h2 id="v100--2026-08-29">[v1.0.0] — 2026-08-29</h2>
+
+<p><strong>Stable production release: Site navigation, consistent styling, and complete API documentation.</strong></p>
+
+<h3 id="added-1">Added</h3>
+<ul>
+  <li><strong>Site-wide navigation consistency</strong>: Unified navigation across all pages
+    <ul>
+      <li>Navigation: Home · Projects · Writing · Now · Lab</li>
+      <li>Lab link points to <code class="language-plaintext highlighter-rouge">/lab.html</code></li>
+      <li>Proper <code class="language-plaintext highlighter-rouge">.active</code> state on current page</li>
+      <li>Navigation added to <code class="language-plaintext highlighter-rouge">lab.html</code> header</li>
+    </ul>
+  </li>
+  <li><strong>Lab API page improvements</strong>:
+    <ul>
+      <li>Header with navigation and subtitle</li>
+      <li>Centered layout matching content width</li>
+      <li>Footer with copyright</li>
+      <li>Favicon (site branding)</li>
+      <li>Stylesheet integration with main site</li>
+    </ul>
+  </li>
+  <li><strong>API Documentation</strong> (<code class="language-plaintext highlighter-rouge">API.md</code>):
+    <ul>
+      <li>Complete endpoint reference (health, catalan, snapshot)</li>
+      <li>Request/response examples with curl commands</li>
+      <li>HTTP status codes and error handling</li>
+      <li>Authentication behavior and security model</li>
+      <li>Nginx routing and systemd deployment</li>
+      <li>Rate limiting recommendations</li>
+      <li>Catalan number u128 limitations</li>
+      <li>Integration guide for monitoring and integration</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+<ul>
+  <li>Consistent footer format across all pages (copyright notice)</li>
+  <li>Lab page layout centering</li>
+  <li>CSS cascade for lab-api overrides</li>
+  <li>Body width constraints on lab page</li>
+</ul>
+
+<h3 id="updated-pages">Updated Pages</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">index.html</code> — Navigation link label “Lab API” → “Lab”</li>
+  <li><code class="language-plaintext highlighter-rouge">projects.html</code> — Added Lab to navigation</li>
+  <li><code class="language-plaintext highlighter-rouge">writing.html</code> — Added Lab to navigation; updated footer</li>
+  <li><code class="language-plaintext highlighter-rouge">now.html</code> — Added Lab to navigation</li>
+  <li><code class="language-plaintext highlighter-rouge">lab.html</code> — Complete overhaul (header, nav, footer, favicon, styling)</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/calculating-pi/index.html</code> — Updated footer; added Lab to nav</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/golden-ratio/index.html</code> — Updated footer; added Lab to nav</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/history-of-cryptography/index.html</code> — Updated footer; added Lab to nav</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/pythagorean-triples/index.html</code> — Updated footer; added Lab to nav</li>
+  <li><code class="language-plaintext highlighter-rouge">README.md</code> — Added Lab API section with link to API.md</li>
+  <li><code class="language-plaintext highlighter-rouge">API.md</code> — New: Production-quality API reference documentation</li>
+</ul>
+
+<h3 id="status">Status</h3>
+<ul>
+  <li>✅ Frontend: Consistent navigation, styling, and layout</li>
+  <li>✅ Lab page: Header, nav, footer, favicon, centered layout</li>
+  <li>✅ API: Documented, stable, and production-ready</li>
+  <li>✅ Architecture: Verified Nginx routing, systemd, HTTPS, auth</li>
+  <li>🔒 Frozen: No further feature additions planned</li>
+</ul>
+
+<p><strong>This release marks the completion of the site redesign and API documentation. The Lab API service is intentionally minimal and stable; future development focus will shift to other projects.</strong></p>
+
+
+      
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        This site is open source. <a href="https://github.com/Abhrankan-Chakrabarti/website/edit/main/RELEASES.md">Improve this page</a>.
+      </div>
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

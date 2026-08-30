@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Lab API Documentation | website</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Lab API Documentation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
+<meta property="og:description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
+<link rel="canonical" href="http://abhrankan.dpdns.org/website/API.html" />
+<meta property="og:url" content="http://abhrankan.dpdns.org/website/API.html" />
+<meta property="og:site_name" content="website" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Lab API Documentation" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work.","headline":"Lab API Documentation","url":"http://abhrankan.dpdns.org/website/API.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/website/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="http://abhrankan.dpdns.org/website/">website</a></h1>
+      
+
+      <h1 id="lab-api-documentation">Lab API Documentation</h1>
+
+<p>This document describes the current production-facing contract for <code class="language-plaintext highlighter-rouge">lab-api</code> as it is deployed today.</p>
+
+<p>The service is intentionally small and narrow:</p>
+
+<ul>
+  <li>the Rust application listens only on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code></li>
+  <li>Nginx is the public entry point over HTTPS</li>
+  <li>the backend is not directly exposed to the Internet</li>
+  <li>the public API is limited to health, application metadata, Catalan number calculation, and authenticated system snapshot data</li>
+</ul>
+
+<h2 id="service-architecture">Service architecture</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Internet
+   ↓
+HTTPS
+   ↓
+Nginx
+   ↓
+/api/*
+   ↓
+127.0.0.1:8088
+   ↓
+lab-api
+   ↓
+systemd
+</code></pre></div></div>
+
+<h2 id="public-url-vs-local-backend-url">Public URL vs local backend URL</h2>
+
+<h3 id="public-url">Public URL</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/health
+https://abhrankan.duckdns.org/api/v1/info
+https://abhrankan.duckdns.org/api/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/snapshot
+</code></pre></div></div>
+
+<p>These are consumed through Nginx, which terminates TLS and forwards traffic to the backend.</p>
+
+<h3 id="local-backend-url">Local backend URL</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://127.0.0.1:8088/health
+http://127.0.0.1:8088/v1/info
+http://127.0.0.1:8088/v1/catalan/10
+http://127.0.0.1:8088/v1/snapshot
+</code></pre></div></div>
+
+<p>The backend itself is only accessible from the local machine. It should not be exposed directly on a public interface or a public port.</p>
+
+<h2 id="endpoint-summary">Endpoint summary</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Endpoint</th>
+      <th>Auth</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GET</td>
+      <td>/api/health</td>
+      <td>No</td>
+      <td>Service health</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/api/v1/info</td>
+      <td>No</td>
+      <td>Non-sensitive application metadata and endpoint discovery</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/api/v1/catalan/:n</td>
+      <td>No</td>
+      <td>Catalan number, with <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/api/v1/snapshot</td>
+      <td>Basic Auth</td>
+      <td>Host/system snapshot</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="http-status-codes">HTTP status codes</h2>
+
+<p>The API uses the standard HTTP responses implied by the handler behavior:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>200 OK</td>
+      <td>Successful request</td>
+    </tr>
+    <tr>
+      <td>400 Bad Request</td>
+      <td>Invalid Catalan input such as <code class="language-plaintext highlighter-rouge">n &gt; 34</code></td>
+    </tr>
+    <tr>
+      <td>401 Unauthorized</td>
+      <td>Missing or invalid HTTP Basic credentials</td>
+    </tr>
+    <tr>
+      <td>404 Not Found</td>
+      <td>Route not defined</td>
+    </tr>
+    <tr>
+      <td>500 Internal Server Error</td>
+      <td>Unexpected backend failure</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The most important contract checks are:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/health</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/info</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> and returns non-sensitive metadata</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/snapshot</code> fails with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth</li>
+</ul>
+
+<h2 id="application-information-endpoint">Application information endpoint</h2>
+
+<h3 id="route">Route</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/info
+</span></code></pre></div></div>
+
+<p>This public endpoint describes the running application and its public route surface. It does not require authentication and must not expose hostnames, filesystem paths, credentials, environment variables, or system snapshot data.</p>
+
+<h3 id="request-examples">Request examples</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/info'</span>
+curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info'</span>
+</code></pre></div></div>
+
+<h3 id="response">Response</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"GET /api/health"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /api/v1/info"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /api/v1/catalan/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /api/v1/snapshot"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="status">Status</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">200 OK</code> — Metadata returned</li>
+  <li><code class="language-plaintext highlighter-rouge">500 Internal Server Error</code> — Unexpected backend failure</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">version</code> is taken from the package version at build time. <code class="language-plaintext highlighter-rouge">build_profile</code> identifies whether the binary was compiled with debug assertions. <code class="language-plaintext highlighter-rouge">environment</code> is a deployment label and must remain free of secrets.</p>
+
+<h2 id="health-endpoint">Health endpoint</h2>
+
+<h3 id="request">Request</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> https://abhrankan.duckdns.org/api/health
+</code></pre></div></div>
+
+<h3 id="response-1">Response</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"ok"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="local-backend-example">Local backend example</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> http://127.0.0.1:8088/health
+</code></pre></div></div>
+
+<h3 id="status-1">Status</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">200 OK</code></li>
+  <li>No authentication required</li>
+</ul>
+
+<p>This endpoint is intended to remain publicly readable for simple service checks and monitoring.</p>
+
+<h2 id="catalan-number-endpoint">Catalan number endpoint</h2>
+
+<h3 id="route-1">Route</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/catalan/:n
+</span></code></pre></div></div>
+
+<h3 id="request-examples-1">Request examples</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/0'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/10'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/34'</span>
+</code></pre></div></div>
+
+<h3 id="success-response">Success response</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16796"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">value</code> field is the computed Catalan number. The frontend expects exactly this key name and not <code class="language-plaintext highlighter-rouge">catalan</code>.</p>
+
+<h3 id="maximum-supported-value">Maximum supported value</h3>
+
+<p>The implementation computes Catalan numbers in <code class="language-plaintext highlighter-rouge">u128</code> and therefore intentionally limits input to:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0 ≤ n ≤ 34
+</code></pre></div></div>
+
+<p>This is a deliberate product choice, not a general-purpose arbitrary-precision implementation.</p>
+
+<h3 id="out-of-range-error">Out-of-range error</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-i</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/35'</span>
+</code></pre></div></div>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">400</span> <span class="ne">Bad Request</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"n must be &lt;= 34 for this demo (u128 limit)"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="status-2">Status</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">200 OK</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></li>
+  <li><code class="language-plaintext highlighter-rouge">400 Bad Request</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
+  <li>no authentication required</li>
+</ul>
+
+<h2 id="snapshot-endpoint">Snapshot endpoint</h2>
+
+<h3 id="route-2">Route</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/snapshot
+</span></code></pre></div></div>
+
+<p>This endpoint provides a minimal system summary from the host running <code class="language-plaintext highlighter-rouge">lab-api</code>.</p>
+
+<h3 id="example-response">Example response</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"hostname"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ip-172-31-77-184.ec2.internal"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"uptime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"up 2 days, 2 hours, 52 minutes"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"loadavg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.13 0.15 0.13"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"mem_available_kb"</span><span class="p">:</span><span class="w"> </span><span class="mi">580200</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="data-collected">Data collected</h3>
+
+<ul>
+  <li>hostname</li>
+  <li>system uptime</li>
+  <li>1, 5, and 15 minute load averages</li>
+  <li>available memory in KiB</li>
+</ul>
+
+<h3 id="request-example">Request example</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> https://abhrankan.duckdns.org/api/v1/snapshot
+</code></pre></div></div>
+
+<h3 id="local-backend-example-1">Local backend example</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> http://127.0.0.1:8088/v1/snapshot
+</code></pre></div></div>
+
+<h3 id="authentication-behavior">Authentication behavior</h3>
+
+<p>The snapshot endpoint is protected by Nginx HTTP Basic Authentication.</p>
+
+<p>The Rust application itself does not enforce credentials for this route. Authentication is enforced at the public entry point before traffic reaches the backend.</p>
+
+<p>If the client omits credentials or provides invalid credentials, the response is:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">401</span> <span class="ne">Unauthorized</span>
+</code></pre></div></div>
+
+<p>This is intentional. The endpoint exposes host-level information and is therefore treated as sensitive.</p>
+
+<h2 id="authentication-model">Authentication model</h2>
+
+<h3 id="basic-auth-behavior">Basic Auth behavior</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/health</code> is unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/info</code> is unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> is unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/snapshot</code> requires HTTP Basic Auth</li>
+</ul>
+
+<h3 id="auth-implementation">Auth implementation</h3>
+
+<p>The credential check is handled by Nginx, not the Rust application.</p>
+
+<p>This is the desired deployment pattern because:</p>
+
+<ul>
+  <li>the backend remains local-only</li>
+  <li>auth is enforced before proxying</li>
+  <li>the app does not need to store or validate user credentials</li>
+  <li>the public HTTP layer is responsible for access control</li>
+</ul>
+
+<h3 id="example-nginx-auth-block">Example Nginx auth block</h3>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="n">/api/</span> <span class="p">{</span>
+    <span class="kn">auth_basic</span> <span class="s">"lab-api"</span><span class="p">;</span>
+    <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/.htpasswd</span><span class="p">;</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088/</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This keeps the application simple while allowing Nginx to handle TLS and access control at the public edge.</p>
+
+<h2 id="security-model">Security model</h2>
+
+<p>The current security model is intentionally conservative:</p>
+
+<ul>
+  <li>only localhost binding: <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code></li>
+  <li>no public TCP exposure for the Rust process</li>
+  <li>HTTPS termination at Nginx</li>
+  <li>Basic Auth for the system snapshot endpoint</li>
+  <li>no database</li>
+  <li>no application-layer user management</li>
+  <li>no token system, no OAuth, no session handling</li>
+</ul>
+
+<p>This is a small service with a minimal security boundary. The trust boundary is:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Internet -&gt; HTTPS + Nginx -&gt; local lab-api process -&gt; Linux host
+</code></pre></div></div>
+
+<p>The system snapshot endpoint is the only route with protected access. The health, information, and Catalan endpoints are intentionally public and informational.</p>
+
+<h2 id="operational-notes">Operational notes</h2>
+
+<ul>
+  <li>This API is intentionally small and stable.</li>
+  <li>No additional endpoints should be added without a matching documentation update.</li>
+  <li>The current contract is intentionally deliberate: a health check, public application metadata, a numeric calculation endpoint, and an authenticated snapshot endpoint.</li>
+  <li>If the service is extended later, the contract should be updated in this document first.</li>
+</ul>
+
+<p>This is the current canonical API contract for the service.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+### Nginx Configuration
+
+Nginx reverse-proxies all `/api/*` requests to the backend:
+
+```nginx
+upstream lab_api {
+    server 127.0.0.1:8088;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name abhrankan.duckdns.org;
+
+    ssl_certificate     /path/to/cert;
+    ssl_certificate_key /path/to/key;
+
+    location /api/ {
+        proxy_pass http://lab_api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+</code></pre></div></div>
+
+<h3 id="security-model-1">Security Model</h3>
+
+<ul>
+  <li><strong>Network isolation</strong>: Lab API only listens on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code> (no public access)</li>
+  <li><strong>HTTPS enforcement</strong>: Nginx enforces SSL/TLS; HTTP is redirected or rejected</li>
+  <li><strong>Authentication</strong>: Basic Auth over HTTPS only</li>
+  <li><strong>Rate limiting</strong>: Nginx can be configured with rate limits (not currently enforced)</li>
+  <li><strong>CORS</strong>: Not applicable (backend is private)</li>
+  <li><strong>Input validation</strong>: All parameters are sanitized before processing</li>
+</ul>
+
+<hr />
+
+<h2 id="rate-limiting--quotas">Rate Limiting &amp; Quotas</h2>
+
+<p>Currently, no rate limiting is enforced. Recommended production settings:</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">limit_req_zone</span> <span class="nv">$binary_remote_addr</span> <span class="s">zone=api_limit:10m</span> <span class="s">rate=10r/s</span><span class="p">;</span>
+
+<span class="k">location</span> <span class="n">/api/</span> <span class="p">{</span>
+    <span class="kn">limit_req</span> <span class="s">zone=api_limit</span> <span class="s">burst=20</span> <span class="s">nodelay</span><span class="p">;</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://lab_api/</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="error-responses">Error Responses</h2>
+
+<p>All error responses follow this format:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error message"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERROR_CODE"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-29T14:23:45Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Example:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="s2">"https://abhrankan.duckdns.org/api/v1/catalan/invalid"</span>
+→ 400 Bad Request
+→ <span class="o">{</span><span class="s2">"error"</span>:<span class="s2">"Invalid parameter: n must be a non-negative integer"</span>,<span class="s2">"code"</span>:<span class="s2">"INVALID_PARAMETER"</span>,<span class="s2">"timestamp"</span>:<span class="s2">"2026-08-29T14:24:10Z"</span><span class="o">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="health-check-monitoring">Health Check Monitoring</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do
+  </span><span class="nv">response</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="nt">-o</span> /dev/null <span class="nt">-w</span> <span class="s2">"%{http_code}"</span> <span class="se">\</span>
+    <span class="s2">"https://abhrankan.duckdns.org/api/health"</span><span class="si">)</span>
+  <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$response</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"200"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"ALERT: Health check failed (</span><span class="nv">$response</span><span class="s2">)"</span>
+  <span class="k">fi
+  </span><span class="nb">sleep </span>60
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h3 id="catalan-number-batch-lookup">Catalan Number Batch Lookup</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>n <span class="k">in</span> <span class="o">{</span>0..10<span class="o">}</span><span class="p">;</span> <span class="k">do
+  </span><span class="nv">result</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="s2">"https://abhrankan.duckdns.org/api/v1/catalan/</span><span class="nv">$n</span><span class="s2">"</span> | jq .catalan<span class="si">)</span>
+  <span class="nb">echo</span> <span class="s2">"C(</span><span class="nv">$n</span><span class="s2">) = </span><span class="nv">$result</span><span class="s2">"</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h3 id="authenticated-snapshot-retrieval">Authenticated Snapshot Retrieval</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">snapshot</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="nt">-u</span> <span class="s2">"</span><span class="nv">$SNAPSHOT_USER</span><span class="s2">:</span><span class="nv">$SNAPSHOT_PASS</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="s2">"https://abhrankan.duckdns.org/api/v1/snapshot"</span><span class="si">)</span>
+<span class="nb">echo</span> <span class="s2">"</span><span class="nv">$snapshot</span><span class="s2">"</span> | jq <span class="s1">'.services'</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="limits--constraints">Limits &amp; Constraints</h2>
+
+<ul>
+  <li><strong>Catalan computation</strong>: Max <code class="language-plaintext highlighter-rouge">n = 34</code> (u128 limit)</li>
+  <li><strong>Request timeout</strong>: 30 seconds (Nginx default)</li>
+  <li><strong>Payload size</strong>: 1 MB (Nginx default)</li>
+  <li><strong>Connection limit</strong>: Unlimited (Nginx default)</li>
+  <li><strong>Backend capacity</strong>: Single-threaded, ~100 req/sec sustained</li>
+</ul>
+
+<hr />
+
+<h2 id="support--feedback">Support &amp; Feedback</h2>
+
+<p>For bugs, feature requests, or documentation improvements, open an issue on <a href="https://github.com/Abhrankan-Chakrabarti/website">GitHub</a>.</p>
+
+<hr />
+
+<p><strong>Last updated</strong>: August 29, 2026<br />
+<strong>API Version</strong>: v1.0.0<br />
+<strong>Status</strong>: Stable &amp; production-ready</p>
+
+
+      
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        This site is open source. <a href="https://github.com/Abhrankan-Chakrabarti/website/edit/main/API.md">Improve this page</a>.
+      </div>
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
