@@ -51,8 +51,23 @@ header .subtitle {
 }
 
 header nav {
-  margin: 1.25rem 0 0;
+  margin: 1.25rem 0 0.5rem;
   font-size: 0.95rem;
+}
+
+header .site-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  align-items: center;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+header .site-links a {
+  color: var(--lab-accent);
+  text-decoration: none;
 }
 
 header nav a {
