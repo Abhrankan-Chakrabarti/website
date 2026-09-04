@@ -340,6 +340,7 @@ async function loadSnapshot(event) {
   } catch (error) {
     snapshotOutput.textContent = error.message;
   } finally {
+    snapshotPassword.value = "";
     setBusy(button, false, "Loading");
   }
 }
