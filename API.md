@@ -1,13 +1,14 @@
-# Lab API Documentation
+# API Documentation
 
-This document describes the current production-facing contract for `lab-api` as it is deployed today.
+This document describes the current production-facing contracts for `lab-api` and `crypto-lab` as they are deployed today.
 
 The service is intentionally small and narrow:
 
 - the Rust application listens only on `127.0.0.1:8088`
 - Nginx is the public entry point over HTTPS
 - the backend is not directly exposed to the Internet
-- the public API is limited to health, application metadata, Catalan number calculation, and authenticated system snapshot data
+- `lab-api` provides health, application metadata, Catalan number calculation, and authenticated system snapshot data
+- `crypto-lab` provides authenticated hashing and HMAC operations
 
 ## Service architecture
 
@@ -27,6 +28,18 @@ lab-api
 systemd
 ```
 
+The EC2 instance also hosts `crypto-lab` behind the same Nginx HTTPS boundary:
+
+```text
+Internet
+  ↓
+HTTPS
+  ↓
+Nginx
+  ├── /api/*        → 127.0.0.1:8088 → lab-api
+  └── /crypto-api/* → 127.0.0.1:8089 → crypto-lab
+```
+
 ## Public URL vs local backend URL
 
 ### Public URL
@@ -36,6 +49,10 @@ https://abhrankan.duckdns.org/api/health
 https://abhrankan.duckdns.org/api/v1/info
 https://abhrankan.duckdns.org/api/v1/catalan/10
 https://abhrankan.duckdns.org/api/v1/snapshot
+https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/hash
+https://abhrankan.duckdns.org/crypto-api/v1/hmac
+https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 ```
 
 These are consumed through Nginx, which terminates TLS and forwards traffic to the backend.
@@ -47,6 +64,10 @@ http://127.0.0.1:8088/health
 http://127.0.0.1:8088/v1/info
 http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/snapshot
+http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/hash
+http://127.0.0.1:8089/v1/hmac
+http://127.0.0.1:8089/v1/hmac/verify
 ```
 
 The backend itself is only accessible from the local machine. It should not be exposed directly on a public interface or a public port.
@@ -59,6 +80,15 @@ The backend itself is only accessible from the local machine. It should not be e
 | GET | /api/v1/info | No | Non-sensitive application metadata and endpoint discovery |
 | GET | /api/v1/catalan/:n | No | Catalan number, with `0 ≤ n ≤ 34` |
 | GET | /api/v1/snapshot | Basic Auth | Host/system snapshot |
+
+### crypto-lab
+
+| Method | Endpoint | Auth | Purpose |
+| --- | --- | --- | --- |
+| GET | /crypto-api/health | No | Service health |
+| POST | /crypto-api/v1/hash | Basic Auth | SHA-256 or SHA-512 digest |
+| POST | /crypto-api/v1/hmac | Basic Auth | HMAC generation |
+| POST | /crypto-api/v1/hmac/verify | Basic Auth | Constant-time HMAC verification |
 
 ## HTTP status codes
 
@@ -324,3 +354,124 @@ The system snapshot endpoint is the only route with protected access. The health
 - If the service is extended later, the contract should be updated in this document first.
 
 This is the current canonical API contract for the service.
+
+## crypto-lab API
+
+`crypto-lab` is a separate Rust/Axum service running on `127.0.0.1:8089`. Nginx publishes it under `/crypto-api/`, keeps the health check public, and protects all cryptographic operations with HTTP Basic Authentication.
+
+The repository is available at [foxhackerzdevs/crypto-lab](https://github.com/foxhackerzdevs/crypto-lab).
+
+### Public and local URLs
+
+Public requests use the Nginx prefix:
+
+```text
+https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/hash
+https://abhrankan.duckdns.org/crypto-api/v1/hmac
+https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
+```
+
+Local backend requests omit that prefix:
+
+```text
+http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/hash
+http://127.0.0.1:8089/v1/hmac
+http://127.0.0.1:8089/v1/hmac/verify
+```
+
+### Authentication and routing
+
+`GET /crypto-api/health` is unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:
+
+```nginx
+location = /crypto-api/health {
+    proxy_pass http://127.0.0.1:8089/health;
+}
+
+location /crypto-api/ {
+    auth_basic "crypto-lab";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    proxy_pass http://127.0.0.1:8089/;
+}
+```
+
+The exact health match prevents the public health endpoint from inheriting the operation credentials. The trailing slash on the authenticated location maps `/crypto-api/v1/hash` to `/v1/hash` on the backend.
+
+### Hash
+
+```bash
+curl -sS -u 'username:password' \
+    -H 'Content-Type: application/json' \
+    -d '{"algorithm":"sha256","data":"hello"}' \
+    https://abhrankan.duckdns.org/crypto-api/v1/hash
+```
+
+Response:
+
+```json
+{
+  "algorithm": "sha256",
+  "digest": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+}
+```
+
+### HMAC generation
+
+```bash
+curl -sS -u 'username:password' \
+    -H 'Content-Type: application/json' \
+    -d '{"algorithm":"sha256","key":"secret","data":"message"}' \
+    https://abhrankan.duckdns.org/crypto-api/v1/hmac
+```
+
+Response:
+
+```json
+{
+  "algorithm": "sha256",
+  "mac": "8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b"
+}
+```
+
+### HMAC verification
+
+```bash
+curl -sS -u 'username:password' \
+    -H 'Content-Type: application/json' \
+    -d '{"algorithm":"sha256","key":"secret","data":"message","mac":"8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b"}' \
+    https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
+```
+
+Response:
+
+```json
+{
+  "algorithm": "sha256",
+  "valid": true
+}
+```
+
+Malformed hexadecimal MAC input returns `400 Bad Request`. A well-formed but incorrect MAC returns `200 OK` with `"valid": false`.
+
+### Input contract and status codes
+
+- Supported algorithms are exactly `sha256` and `sha512`.
+- All operation requests require `Content-Type: application/json`.
+- Text fields are interpreted as UTF-8 and operations use their UTF-8 byte representation.
+- Binary input and base64 encoding are outside the current contract.
+- Request bodies are limited to 64 KiB.
+- Each textual input (`data`, `key`, and `mac`) is limited to 32 KiB.
+- `200 OK` indicates a successful operation.
+- `400 Bad Request` indicates an unsupported algorithm or malformed MAC.
+- `401 Unauthorized` indicates missing or invalid Basic Auth at Nginx.
+- `413 Payload Too Large` indicates a body or textual input limit was exceeded.
+- `415 Unsupported Media Type` indicates a non-JSON operation request.
+- `404 Not Found` indicates an undefined route.
+
+### Security boundary
+
+`crypto-lab` binds only to `127.0.0.1:8089`. Nginx terminates HTTPS and protects cryptographic operations before proxying to the service. The service does not store keys, persist requests, or provide wallets, mining, exchange, payment, or key-management functionality. Do not send production private keys or long-lived secrets to it.
+
+The service is supervised by systemd with `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`, namespace restrictions, and kernel protection settings.
