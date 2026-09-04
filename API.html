@@ -6,20 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Lab API Documentation | website</title>
+<title>API Documentation | website</title>
 <meta name="generator" content="Jekyll v3.10.0" />
-<meta property="og:title" content="Lab API Documentation" />
+<meta property="og:title" content="API Documentation" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
-<meta property="og:description" content="Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work." />
+<meta name="description" content="Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing." />
+<meta property="og:description" content="Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing." />
 <link rel="canonical" href="https://abhrankan.duckdns.org/API.html" />
 <meta property="og:url" content="https://abhrankan.duckdns.org/API.html" />
 <meta property="og:site_name" content="website" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Lab API Documentation" />
+<meta property="twitter:title" content="API Documentation" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","description":"Personal website and portfolio of Abhrankan Chakrabarti — projects, writing, and current work.","headline":"Lab API Documentation","url":"https://abhrankan.duckdns.org/API.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","description":"Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing.","headline":"API Documentation","url":"https://abhrankan.duckdns.org/API.html"}</script>
 <!-- End Jekyll SEO tag -->
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23238636'%3EA%3C/text%3E%3C/svg%3E">
@@ -53,9 +53,9 @@
         </p>
       </header>
 
-      <h1 id="lab-api-documentation">Lab API Documentation</h1>
+      <h1 id="api-documentation">API Documentation</h1>
 
-<p>This document describes the current production-facing contract for <code class="language-plaintext highlighter-rouge">lab-api</code> as it is deployed today.</p>
+<p>This document describes the current production-facing contracts for <code class="language-plaintext highlighter-rouge">lab-api</code> and <code class="language-plaintext highlighter-rouge">crypto-lab</code> as they are deployed today.</p>
 
 <p>The service is intentionally small and narrow:</p>
 
@@ -63,7 +63,8 @@
   <li>the Rust application listens only on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code></li>
   <li>Nginx is the public entry point over HTTPS</li>
   <li>the backend is not directly exposed to the Internet</li>
-  <li>the public API is limited to health, application metadata, Catalan number calculation, and authenticated system snapshot data</li>
+  <li><code class="language-plaintext highlighter-rouge">lab-api</code> provides health, application metadata, Catalan number calculation, and authenticated system snapshot data</li>
+  <li><code class="language-plaintext highlighter-rouge">crypto-lab</code> provides authenticated hashing and HMAC operations</li>
 </ul>
 
 <h2 id="service-architecture">Service architecture</h2>
@@ -83,6 +84,17 @@ lab-api
 systemd
 </code></pre></div></div>
 
+<p>The EC2 instance also hosts <code class="language-plaintext highlighter-rouge">crypto-lab</code> behind the same Nginx HTTPS boundary:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Internet
+  ↓
+HTTPS
+  ↓
+Nginx
+  ├── /api/*        → 127.0.0.1:8088 → lab-api
+  └── /crypto-api/* → 127.0.0.1:8089 → crypto-lab
+</code></pre></div></div>
+
 <h2 id="public-url-vs-local-backend-url">Public URL vs local backend URL</h2>
 
 <h3 id="public-url">Public URL</h3>
@@ -91,6 +103,10 @@ systemd
 https://abhrankan.duckdns.org/api/v1/info
 https://abhrankan.duckdns.org/api/v1/catalan/10
 https://abhrankan.duckdns.org/api/v1/snapshot
+https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/hash
+https://abhrankan.duckdns.org/crypto-api/v1/hmac
+https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 </code></pre></div></div>
 
 <p>These are consumed through Nginx, which terminates TLS and forwards traffic to the backend.</p>
@@ -101,6 +117,10 @@ https://abhrankan.duckdns.org/api/v1/snapshot
 http://127.0.0.1:8088/v1/info
 http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/snapshot
+http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/hash
+http://127.0.0.1:8089/v1/hmac
+http://127.0.0.1:8089/v1/hmac/verify
 </code></pre></div></div>
 
 <p>The backend itself is only accessible from the local machine. It should not be exposed directly on a public interface or a public port.</p>
@@ -140,6 +160,45 @@ http://127.0.0.1:8088/v1/snapshot
       <td>/api/v1/snapshot</td>
       <td>Basic Auth</td>
       <td>Host/system snapshot</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="crypto-lab">crypto-lab</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Endpoint</th>
+      <th>Auth</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GET</td>
+      <td>/crypto-api/health</td>
+      <td>No</td>
+      <td>Service health</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/crypto-api/v1/hash</td>
+      <td>Basic Auth</td>
+      <td>SHA-256 or SHA-512 digest</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/crypto-api/v1/hmac</td>
+      <td>Basic Auth</td>
+      <td>HMAC generation</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>/crypto-api/v1/hmac/verify</td>
+      <td>Basic Auth</td>
+      <td>Constant-time HMAC verification</td>
     </tr>
   </tbody>
 </table>
@@ -390,14 +449,14 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 
 <h3 id="example-nginx-auth-block">Example Nginx auth block</h3>
 
-<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="o">=</span> <span class="n">/api/v1/snapshot</span> <span class="p">{</span>
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="p">=</span> <span class="n">/api/v1/snapshot</span> <span class="p">{</span>
     <span class="kn">auth_basic</span> <span class="s">"lab-api"</span><span class="p">;</span>
     <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/.htpasswd</span><span class="p">;</span>
     <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088/v1/snapshot</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>This keeps the application simple while allowing Nginx to protect only the snapshot route and leave the public health, info, and Catalan endpoints open.</p>
+<p>This keeps the application simple while allowing Nginx to protect only the snapshot route and leave the public health/info/catalan endpoints open.</p>
 
 <h2 id="security-model">Security model</h2>
 
@@ -431,6 +490,123 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 
 <p>This is the current canonical API contract for the service.</p>
 
+<h2 id="crypto-lab-api">crypto-lab API</h2>
+
+<p><code class="language-plaintext highlighter-rouge">crypto-lab</code> is a separate Rust/Axum service running on <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>. Nginx publishes it under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>, keeps the health check public, and protects all cryptographic operations with HTTP Basic Authentication.</p>
+
+<p>The repository is available at <a href="https://github.com/foxhackerzdevs/crypto-lab">foxhackerzdevs/crypto-lab</a>.</p>
+
+<h3 id="public-and-local-urls">Public and local URLs</h3>
+
+<p>Public requests use the Nginx prefix:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/hash
+https://abhrankan.duckdns.org/crypto-api/v1/hmac
+https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
+</code></pre></div></div>
+
+<p>Local backend requests omit that prefix:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/hash
+http://127.0.0.1:8089/v1/hmac
+http://127.0.0.1:8089/v1/hmac/verify
+</code></pre></div></div>
+
+<h3 id="authentication-and-routing">Authentication and routing</h3>
+
+<p><code class="language-plaintext highlighter-rouge">GET /crypto-api/health</code> is unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="p">=</span> <span class="n">/crypto-api/health</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/health</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">location</span> <span class="n">/crypto-api/</span> <span class="p">{</span>
+    <span class="kn">auth_basic</span> <span class="s">"crypto-lab"</span><span class="p">;</span>
+    <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/.htpasswd</span><span class="p">;</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The exact health match prevents the public health endpoint from inheriting the operation credentials. The trailing slash on the authenticated location maps <code class="language-plaintext highlighter-rouge">/crypto-api/v1/hash</code> to <code class="language-plaintext highlighter-rouge">/v1/hash</code> on the backend.</p>
+
+<h3 id="hash">Hash</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> <span class="se">\</span>
+    <span class="nt">-H</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+    <span class="nt">-d</span> <span class="s1">'{"algorithm":"sha256","data":"hello"}'</span> <span class="se">\</span>
+    https://abhrankan.duckdns.org/crypto-api/v1/hash
+</code></pre></div></div>
+
+<p>Response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"algorithm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sha256"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"digest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="hmac-generation">HMAC generation</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> <span class="se">\</span>
+    <span class="nt">-H</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+    <span class="nt">-d</span> <span class="s1">'{"algorithm":"sha256","key":"secret","data":"message"}'</span> <span class="se">\</span>
+    https://abhrankan.duckdns.org/crypto-api/v1/hmac
+</code></pre></div></div>
+
+<p>Response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"algorithm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sha256"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"mac"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="hmac-verification">HMAC verification</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> <span class="se">\</span>
+    <span class="nt">-H</span> <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+    <span class="nt">-d</span> <span class="s1">'{"algorithm":"sha256","key":"secret","data":"message","mac":"8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b"}'</span> <span class="se">\</span>
+    https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
+</code></pre></div></div>
+
+<p>Response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"algorithm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sha256"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"valid"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Malformed hexadecimal MAC input returns <code class="language-plaintext highlighter-rouge">400 Bad Request</code>. A well-formed but incorrect MAC returns <code class="language-plaintext highlighter-rouge">200 OK</code> with <code class="language-plaintext highlighter-rouge">"valid": false</code>.</p>
+
+<h3 id="input-contract-and-status-codes">Input contract and status codes</h3>
+
+<ul>
+  <li>Supported algorithms are exactly <code class="language-plaintext highlighter-rouge">sha256</code> and <code class="language-plaintext highlighter-rouge">sha512</code>.</li>
+  <li>All operation requests require <code class="language-plaintext highlighter-rouge">Content-Type: application/json</code>.</li>
+  <li>Text fields are interpreted as UTF-8 and operations use their UTF-8 byte representation.</li>
+  <li>Binary input and base64 encoding are outside the current contract.</li>
+  <li>Request bodies are limited to 64 KiB.</li>
+  <li>Each textual input (<code class="language-plaintext highlighter-rouge">data</code>, <code class="language-plaintext highlighter-rouge">key</code>, and <code class="language-plaintext highlighter-rouge">mac</code>) is limited to 32 KiB.</li>
+  <li><code class="language-plaintext highlighter-rouge">200 OK</code> indicates a successful operation.</li>
+  <li><code class="language-plaintext highlighter-rouge">400 Bad Request</code> indicates an unsupported algorithm or malformed MAC.</li>
+  <li><code class="language-plaintext highlighter-rouge">401 Unauthorized</code> indicates missing or invalid Basic Auth at Nginx.</li>
+  <li><code class="language-plaintext highlighter-rouge">413 Payload Too Large</code> indicates a body or textual input limit was exceeded.</li>
+  <li><code class="language-plaintext highlighter-rouge">415 Unsupported Media Type</code> indicates a non-JSON operation request.</li>
+  <li><code class="language-plaintext highlighter-rouge">404 Not Found</code> indicates an undefined route.</li>
+</ul>
+
+<h3 id="security-boundary">Security boundary</h3>
+
+<p><code class="language-plaintext highlighter-rouge">crypto-lab</code> binds only to <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>. Nginx terminates HTTPS and protects cryptographic operations before proxying to the service. The service does not store keys, persist requests, or provide wallets, mining, exchange, payment, or key-management functionality. Do not send production private keys or long-lived secrets to it.</p>
+
+<p>The service is supervised by systemd with <code class="language-plaintext highlighter-rouge">ProtectSystem=strict</code>, <code class="language-plaintext highlighter-rouge">ProtectHome</code>, <code class="language-plaintext highlighter-rouge">PrivateTmp</code>, namespace restrictions, and kernel protection settings.</p>
+
+
+      
+    </div>
     <footer>
         <p>&copy; 2026 Abhrankan Chakrabarti</p>
     </footer>
