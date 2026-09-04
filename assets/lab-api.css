@@ -31,6 +31,51 @@ input {
   font: inherit;
 }
 
+select,
+textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 18%);
+  color: var(--lab-text);
+}
+
+select {
+  min-height: 42px;
+}
+
+textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+select:focus,
+textarea:focus {
+  border-color: var(--lab-accent);
+  outline: 3px solid color-mix(in srgb, var(--lab-accent), transparent 78%);
+}
+
+.crypto-tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.crypto-tool {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 20%);
+}
+
+.crypto-tool h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
 header {
   width: min(1040px, calc(100% - 32px));
   margin: 0 auto;
@@ -337,6 +382,7 @@ input:focus {
   }
 
   .lab-grid,
+  .crypto-tools,
   .lab-auth-grid,
   .lab-inline,
   .lab-actions {

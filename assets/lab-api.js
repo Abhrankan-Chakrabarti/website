@@ -1,6 +1,11 @@
 const API_BASE =
   window.LAB_API_BASE ||
   (window.location.protocol === "file:" ? "https://abhrankan.duckdns.org/api" : "/api");
+const CRYPTO_API_BASE =
+  window.CRYPTO_API_BASE ||
+  (window.location.protocol === "file:"
+    ? "https://abhrankan.duckdns.org/crypto-api"
+    : "/crypto-api");
 
 const healthBadge = document.querySelector("#health-badge");
 const healthMessage = document.querySelector("#health-message");
@@ -15,6 +20,24 @@ const snapshotUsername = document.querySelector("#snapshot-username");
 const snapshotPassword = document.querySelector("#snapshot-password");
 const snapshotOutput = document.querySelector("#snapshot-output");
 const clearSnapshotButton = document.querySelector("#clear-snapshot");
+const hashForm = document.querySelector("#hash-form");
+const hashAlgorithm = document.querySelector("#hash-algorithm");
+const hashData = document.querySelector("#hash-data");
+const hashUsername = document.querySelector("#hash-username");
+const hashPassword = document.querySelector("#hash-password");
+const hashResult = document.querySelector("#hash-result");
+const hmacForm = document.querySelector("#hmac-form");
+const hmacOperation = document.querySelector("#hmac-operation");
+const hmacAlgorithm = document.querySelector("#hmac-algorithm");
+const hmacKey = document.querySelector("#hmac-key");
+const hmacData = document.querySelector("#hmac-data");
+const hmacMacLabel = document.querySelector("#hmac-mac-label");
+const hmacMac = document.querySelector("#hmac-mac");
+const hmacUsername = document.querySelector("#hmac-username");
+const hmacPassword = document.querySelector("#hmac-password");
+const hmacResult = document.querySelector("#hmac-result");
+const cryptoHealthBadge = document.querySelector("#crypto-health-badge");
+const cryptoHealthMessage = document.querySelector("#crypto-health-message");
 
 function endpoint(path) {
   return `${API_BASE.replace(/\/$/, "")}${path}`;
@@ -57,6 +80,147 @@ async function fetchJson(path, options = {}) {
   }
 
   return body;
+}
+
+async function fetchCryptoJson(path, options = {}) {
+  const response = await fetch(`${CRYPTO_API_BASE.replace(/\/$/, "")}${path}`, {
+    headers: {
+      Accept: "application/json",
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  const text = await response.text();
+  let body = null;
+
+  if (text) {
+    try {
+      body = JSON.parse(text);
+    } catch {
+      body = text;
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      body && typeof body === "object" && "error" in body
+        ? body.error
+        : `Request failed with HTTP ${response.status}`;
+    throw new Error(message);
+  }
+
+  return body;
+}
+
+function basicAuth(username, password) {
+  return `Basic ${btoa(`${username}:${password}`)}`;
+}
+
+function operationOptions(username, password, payload) {
+  return {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: basicAuth(username, password),
+    },
+    body: JSON.stringify(payload),
+  };
+}
+
+async function runHash(event) {
+  event.preventDefault();
+  const button = hashForm.querySelector("button");
+  const username = hashUsername.value.trim();
+  const password = hashPassword.value;
+
+  hashResult.textContent = "Hashing...";
+  setBusy(button, true, "Hashing");
+
+  try {
+    const data = await fetchCryptoJson(
+      "/v1/hash",
+      operationOptions(username, password, {
+        algorithm: hashAlgorithm.value,
+        data: hashData.value,
+      }),
+    );
+    hashResult.textContent = data.digest;
+  } catch (error) {
+    hashResult.textContent = error.message;
+  } finally {
+    hashPassword.value = "";
+    setBusy(button, false, "Hashing");
+  }
+}
+
+async function refreshCryptoHealth() {
+  cryptoHealthBadge.textContent = "Checking";
+  cryptoHealthBadge.className = "status-badge status-badge--idle";
+
+  try {
+    const data = await fetchCryptoJson("/health");
+    cryptoHealthBadge.textContent = data?.ok ? "Online" : "Unknown";
+    cryptoHealthBadge.className = data?.ok
+      ? "status-badge status-badge--ok"
+      : "status-badge status-badge--idle";
+    cryptoHealthMessage.textContent = data?.service
+      ? `${data.service} responded successfully.`
+      : "The service responded successfully.";
+  } catch (error) {
+    cryptoHealthBadge.textContent = "Offline";
+    cryptoHealthBadge.className = "status-badge status-badge--error";
+    cryptoHealthMessage.textContent = error.message;
+  }
+}
+
+function syncHmacForm() {
+  const verifying = hmacOperation.value === "verify";
+  hmacMacLabel.hidden = !verifying;
+  hmacMac.hidden = !verifying;
+  hmacMac.required = verifying;
+  hmacForm.querySelector("button").textContent = verifying
+    ? "Verify HMAC"
+    : "Generate HMAC";
+}
+
+async function runHmac(event) {
+  event.preventDefault();
+  const button = hmacForm.querySelector("button");
+  const username = hmacUsername.value.trim();
+  const password = hmacPassword.value;
+  const verifying = hmacOperation.value === "verify";
+  const payload = {
+    algorithm: hmacAlgorithm.value,
+    key: hmacKey.value,
+    data: hmacData.value,
+  };
+
+  if (verifying) {
+    payload.mac = hmacMac.value;
+  }
+
+  hmacResult.textContent = verifying ? "Verifying..." : "Generating...";
+  setBusy(button, true, verifying ? "Verifying" : "Generating");
+
+  try {
+    const data = await fetchCryptoJson(
+      verifying ? "/v1/hmac/verify" : "/v1/hmac",
+      operationOptions(username, password, payload),
+    );
+    hmacResult.textContent = verifying
+      ? data.valid
+        ? "Valid MAC"
+        : "Invalid MAC"
+      : data.mac;
+  } catch (error) {
+    hmacResult.textContent = error.message;
+  } finally {
+    hmacKey.value = "";
+    hmacPassword.value = "";
+    setBusy(button, false, verifying ? "Verifying" : "Generating");
+  }
 }
 
 async function refreshHealth() {
@@ -186,6 +350,11 @@ refreshInfoButton.addEventListener("click", refreshInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
+hashForm.addEventListener("submit", runHash);
+hmacForm.addEventListener("submit", runHmac);
+hmacOperation.addEventListener("change", syncHmacForm);
 
 refreshHealth();
 refreshInfo();
+refreshCryptoHealth();
+syncHmacForm();

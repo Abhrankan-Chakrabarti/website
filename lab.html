@@ -78,6 +78,84 @@
           </dl>
         </article>
 
+        <article class="lab-panel lab-panel--wide" aria-labelledby="crypto-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Crypto lab</p>
+              <h2 id="crypto-title">Hash and HMAC tools</h2>
+            </div>
+            <span id="crypto-health-badge" class="status-badge status-badge--idle">Checking</span>
+          </div>
+          <p class="lab-muted">
+            Operations use UTF-8 text and require Basic Auth. Credentials are requested per action,
+            sent only with that request, and cleared immediately afterward.
+          </p>
+          <p id="crypto-health-message" class="lab-muted">Contacting crypto-lab...</p>
+
+          <div class="crypto-tools">
+            <form id="hash-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Digest</p>
+                <h3>Hash text</h3>
+              </div>
+              <label for="hash-algorithm">Algorithm</label>
+              <select id="hash-algorithm" name="algorithm">
+                <option value="sha256">SHA-256</option>
+                <option value="sha512">SHA-512</option>
+              </select>
+              <label for="hash-data">Text</label>
+              <textarea id="hash-data" name="data" rows="4" maxlength="32768" required>hello</textarea>
+              <div class="lab-auth-grid">
+                <label>
+                  Username
+                  <input id="hash-username" name="username" autocomplete="username" required>
+                </label>
+                <label>
+                  Password
+                  <input id="hash-password" name="password" type="password" autocomplete="current-password" required>
+                </label>
+              </div>
+              <button class="lab-button" type="submit">Hash text</button>
+              <output id="hash-result" class="lab-result" aria-live="polite">Your digest will appear here.</output>
+            </form>
+
+            <form id="hmac-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Message authentication</p>
+                <h3>Generate or verify HMAC</h3>
+              </div>
+              <label for="hmac-operation">Operation</label>
+              <select id="hmac-operation" name="operation">
+                <option value="generate">Generate MAC</option>
+                <option value="verify">Verify MAC</option>
+              </select>
+              <label for="hmac-algorithm">Algorithm</label>
+              <select id="hmac-algorithm" name="algorithm">
+                <option value="sha256">SHA-256</option>
+                <option value="sha512">SHA-512</option>
+              </select>
+              <label for="hmac-key">Secret key</label>
+              <input id="hmac-key" name="key" type="password" maxlength="32768" autocomplete="off" required>
+              <label for="hmac-data">Message</label>
+              <textarea id="hmac-data" name="data" rows="3" maxlength="32768" required>message</textarea>
+              <label id="hmac-mac-label" for="hmac-mac">MAC to verify</label>
+              <input id="hmac-mac" name="mac" maxlength="32768" autocomplete="off">
+              <div class="lab-auth-grid">
+                <label>
+                  Username
+                  <input id="hmac-username" name="username" autocomplete="username" required>
+                </label>
+                <label>
+                  Password
+                  <input id="hmac-password" name="password" type="password" autocomplete="current-password" required>
+                </label>
+              </div>
+              <button class="lab-button" type="submit">Generate HMAC</button>
+              <output id="hmac-result" class="lab-result" aria-live="polite">Your MAC result will appear here.</output>
+            </form>
+          </div>
+        </article>
+
         <article class="lab-panel lab-panel--wide" aria-labelledby="snapshot-title">
           <div class="lab-panel-heading">
             <div>
