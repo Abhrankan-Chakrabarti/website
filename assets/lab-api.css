@@ -350,6 +350,8 @@ input:focus {
 
 .lab-result {
   display: block;
+  min-width: 0;
+  max-width: 100%;
   min-height: 46px;
   margin-top: 14px;
   padding: 12px;
@@ -357,6 +359,8 @@ input:focus {
   border-radius: var(--lab-radius);
   color: var(--lab-muted);
   background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 28%);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .lab-result strong {
