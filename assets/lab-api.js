@@ -297,6 +297,14 @@ function renderInfo(data) {
 }
 
 async function refreshInfo() {
+  infoOutput.replaceChildren();
+  const statusRow = document.createElement("div");
+  const statusName = document.createElement("dt");
+  const statusValue = document.createElement("dd");
+  statusName.textContent = "Status";
+  statusValue.textContent = "Contacting the API...";
+  statusRow.append(statusName, statusValue);
+  infoOutput.append(statusRow);
   setBusy(refreshInfoButton, true, "Loading");
 
   try {
