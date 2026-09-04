@@ -276,6 +276,10 @@ header nav a.active {
   font-weight: 650;
 }
 
+.lab-form [hidden] {
+  display: none;
+}
+
 .lab-inline,
 .lab-actions,
 .lab-auth-grid {
