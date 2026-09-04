@@ -70,6 +70,63 @@
   <li>No new infrastructure or separate service added.</li>
 </ul>
 
+<h2 id="v010--2026-08-29">[v0.1.0] — 2026-08-29</h2>
+
+<p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
+
+<h3 id="added-1">Added</h3>
+<ul>
+  <li>SHA-256 hashing endpoint.</li>
+  <li>SHA-512 hashing endpoint.</li>
+  <li>HMAC-SHA256 generation.</li>
+  <li>HMAC-SHA512 generation.</li>
+  <li>Constant-time HMAC verification.</li>
+  <li>Public health endpoint.</li>
+  <li>JSON-based HTTP API built with Axum and Tokio.</li>
+  <li>Input and request body size limits.</li>
+  <li>Production-oriented systemd service configuration.</li>
+  <li>Nginx reverse-proxy deployment under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>.</li>
+</ul>
+
+<h3 id="api">API</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">GET /health</code></li>
+  <li><code class="language-plaintext highlighter-rouge">POST /v1/hash</code></li>
+  <li><code class="language-plaintext highlighter-rouge">POST /v1/hmac</code></li>
+  <li><code class="language-plaintext highlighter-rouge">POST /v1/hmac/verify</code></li>
+</ul>
+
+<h3 id="security">Security</h3>
+<ul>
+  <li>HMAC verification uses constant-time comparison.</li>
+  <li>Crypto operations are protected by Nginx Basic Authentication.</li>
+  <li>The service binds only to <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>.</li>
+  <li>Request bodies are limited to 64 KiB.</li>
+  <li>Individual textual inputs are limited to 32 KiB.</li>
+  <li>No private key storage, wallet functionality, payment processing, or other credential-management features are included.</li>
+</ul>
+
+<h3 id="infrastructure">Infrastructure</h3>
+<ul>
+  <li>Runs as a dedicated systemd service.</li>
+  <li>Exposed through the existing Nginx HTTPS endpoint.</li>
+  <li>Reuses the existing authentication configuration.</li>
+  <li>Requires no database, queue, container stack, or additional monitoring infrastructure.</li>
+</ul>
+
+<h3 id="status">Status</h3>
+<ul>
+  <li>✅ SHA-256/SHA-512 hashing</li>
+  <li>✅ HMAC generation and verification</li>
+  <li>✅ Constant-time verification</li>
+  <li>✅ Request size limits</li>
+  <li>✅ Systemd deployment</li>
+  <li>✅ Nginx HTTPS integration</li>
+  <li>🔒 v0.1.0 scope frozen</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">crypto-lab</code> is intentionally minimal and focused on cryptographic hashing and HMAC experimentation.</strong></p>
+
 <h2 id="v100--2026-08-29">[v1.0.0] — 2026-08-29</h2>
 
 <p><strong>Stable production release: Site navigation, consistent styling, and complete API documentation.</strong></p>
