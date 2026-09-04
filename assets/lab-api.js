@@ -159,6 +159,7 @@ async function runHash(event) {
 async function refreshCryptoHealth() {
   cryptoHealthBadge.textContent = "Checking";
   cryptoHealthBadge.className = "status-badge status-badge--idle";
+  cryptoHealthMessage.textContent = "Contacting the API...";
   setBusy(refreshCryptoHealthButton, true, "Checking");
 
   try {
