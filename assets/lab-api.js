@@ -38,6 +38,7 @@ const hmacPassword = document.querySelector("#hmac-password");
 const hmacResult = document.querySelector("#hmac-result");
 const cryptoHealthBadge = document.querySelector("#crypto-health-badge");
 const cryptoHealthMessage = document.querySelector("#crypto-health-message");
+const refreshCryptoHealthButton = document.querySelector("#refresh-crypto-health");
 
 function endpoint(path) {
   return `${API_BASE.replace(/\/$/, "")}${path}`;
@@ -158,6 +159,7 @@ async function runHash(event) {
 async function refreshCryptoHealth() {
   cryptoHealthBadge.textContent = "Checking";
   cryptoHealthBadge.className = "status-badge status-badge--idle";
+  setBusy(refreshCryptoHealthButton, true, "Checking");
 
   try {
     const data = await fetchCryptoJson("/health");
@@ -172,6 +174,8 @@ async function refreshCryptoHealth() {
     cryptoHealthBadge.textContent = "Offline";
     cryptoHealthBadge.className = "status-badge status-badge--error";
     cryptoHealthMessage.textContent = error.message;
+  } finally {
+    setBusy(refreshCryptoHealthButton, false, "Checking");
   }
 }
 
@@ -346,6 +350,7 @@ function clearSnapshot() {
 }
 
 refreshHealthButton.addEventListener("click", refreshHealth);
+refreshCryptoHealthButton.addEventListener("click", refreshCryptoHealth);
 refreshInfoButton.addEventListener("click", refreshInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
 snapshotForm.addEventListener("submit", loadSnapshot);

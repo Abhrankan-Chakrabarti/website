@@ -243,6 +243,14 @@ header nav a.active {
   text-align: center;
 }
 
+.lab-health-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .status-badge--ok {
   border-color: color-mix(in srgb, var(--lab-success), transparent 60%);
   color: var(--lab-success);
@@ -307,6 +315,12 @@ input:focus {
   color: #ffffff;
   cursor: pointer;
   font-weight: 750;
+}
+
+.lab-button--compact {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
 }
 
 .lab-button:hover {
