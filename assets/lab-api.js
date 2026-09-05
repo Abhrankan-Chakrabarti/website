@@ -160,12 +160,12 @@ async function runHash(event) {
 }
 
 function clearCatalan() {
-  catalanInput.value = "";
+  catalanInput.value = "5";
   catalanResult.textContent = "Enter a non-negative integer.";
 }
 
 function clearHash() {
-  hashData.value = "";
+  hashData.value = "hello";
   hashUsername.value = "";
   hashPassword.value = "";
   hashResult.textContent = "Your digest will appear here.";
@@ -247,7 +247,7 @@ function clearHmac() {
   hmacOperation.value = "generate";
   hmacAlgorithm.value = "sha256";
   hmacKey.value = "";
-  hmacData.value = "";
+  hmacData.value = "message";
   hmacMac.value = "";
   hmacUsername.value = "";
   hmacPassword.value = "";
