@@ -59,7 +59,10 @@
             <label for="catalan-n">Index n</label>
             <div class="lab-inline">
               <input id="catalan-n" name="n" type="number" min="0" step="1" value="5" inputmode="numeric" required>
-              <button class="lab-button" type="submit">Calculate</button>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Calculate</button>
+                <button id="clear-catalan" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
             </div>
           </form>
           <output id="catalan-result" class="lab-result" aria-live="polite">Enter a non-negative integer.</output>
@@ -118,7 +121,10 @@
                   <input id="hash-password" name="password" type="password" autocomplete="current-password" required>
                 </label>
               </div>
-              <button class="lab-button" type="submit">Hash text</button>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Hash text</button>
+                <button id="clear-hash" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
               <output id="hash-result" class="lab-result" aria-live="polite">Your digest will appear here.</output>
             </form>
 
@@ -153,7 +159,10 @@
                   <input id="hmac-password" name="password" type="password" autocomplete="current-password" required>
                 </label>
               </div>
-              <button class="lab-button" type="submit">Generate HMAC</button>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Generate HMAC</button>
+                <button id="clear-hmac" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
               <output id="hmac-result" class="lab-result" aria-live="polite">Your MAC result will appear here.</output>
             </form>
           </div>

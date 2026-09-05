@@ -13,6 +13,7 @@ const refreshHealthButton = document.querySelector("#refresh-health");
 const catalanForm = document.querySelector("#catalan-form");
 const catalanInput = document.querySelector("#catalan-n");
 const catalanResult = document.querySelector("#catalan-result");
+const clearCatalanButton = document.querySelector("#clear-catalan");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const snapshotForm = document.querySelector("#snapshot-form");
@@ -26,6 +27,7 @@ const hashData = document.querySelector("#hash-data");
 const hashUsername = document.querySelector("#hash-username");
 const hashPassword = document.querySelector("#hash-password");
 const hashResult = document.querySelector("#hash-result");
+const clearHashButton = document.querySelector("#clear-hash");
 const hmacForm = document.querySelector("#hmac-form");
 const hmacOperation = document.querySelector("#hmac-operation");
 const hmacAlgorithm = document.querySelector("#hmac-algorithm");
@@ -36,6 +38,7 @@ const hmacMac = document.querySelector("#hmac-mac");
 const hmacUsername = document.querySelector("#hmac-username");
 const hmacPassword = document.querySelector("#hmac-password");
 const hmacResult = document.querySelector("#hmac-result");
+const clearHmacButton = document.querySelector("#clear-hmac");
 const cryptoHealthBadge = document.querySelector("#crypto-health-badge");
 const cryptoHealthMessage = document.querySelector("#crypto-health-message");
 const refreshCryptoHealthButton = document.querySelector("#refresh-crypto-health");
@@ -156,6 +159,18 @@ async function runHash(event) {
   }
 }
 
+function clearCatalan() {
+  catalanInput.value = "";
+  catalanResult.textContent = "Enter a non-negative integer.";
+}
+
+function clearHash() {
+  hashData.value = "";
+  hashUsername.value = "";
+  hashPassword.value = "";
+  hashResult.textContent = "Your digest will appear here.";
+}
+
 async function refreshCryptoHealth() {
   cryptoHealthBadge.textContent = "Checking";
   cryptoHealthBadge.className = "status-badge status-badge--idle";
@@ -226,6 +241,18 @@ async function runHmac(event) {
     hmacPassword.value = "";
     setBusy(button, false, verifying ? "Verifying" : "Generating");
   }
+}
+
+function clearHmac() {
+  hmacOperation.value = "generate";
+  hmacAlgorithm.value = "sha256";
+  hmacKey.value = "";
+  hmacData.value = "";
+  hmacMac.value = "";
+  hmacUsername.value = "";
+  hmacPassword.value = "";
+  hmacResult.textContent = "Your MAC result will appear here.";
+  syncHmacForm();
 }
 
 async function refreshHealth() {
@@ -363,10 +390,13 @@ refreshHealthButton.addEventListener("click", refreshHealth);
 refreshCryptoHealthButton.addEventListener("click", refreshCryptoHealth);
 refreshInfoButton.addEventListener("click", refreshInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
+clearCatalanButton.addEventListener("click", clearCatalan);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
+clearHashButton.addEventListener("click", clearHash);
 hmacForm.addEventListener("submit", runHmac);
+clearHmacButton.addEventListener("click", clearHmac);
 hmacOperation.addEventListener("change", syncHmacForm);
 
 refreshHealth();
