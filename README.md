@@ -10,11 +10,12 @@ complete endpoint documentation, examples, and deployment details.
 ## crypto-lab
 
 The Lab page also includes a small frontend for the separate `crypto-lab` service.
-It uses the public health endpoint and prompts for Basic Auth credentials only when
-calling protected hash and HMAC operations. Credentials are not stored by the page.
+It uses the public health and API information endpoints and prompts for Basic Auth
+credentials only when calling protected hash and HMAC operations. Credentials are
+not stored by the page.
 
 The static site expects Nginx to proxy `/crypto-api/` to `127.0.0.1:8089`, with the
-health route left public and operation routes protected:
+health and information routes left public and operation routes protected:
 
 ```nginx
 location = /crypto-api/health {
