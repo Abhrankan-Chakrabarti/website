@@ -64,7 +64,7 @@
   <li>Nginx is the public entry point over HTTPS</li>
   <li>the backend is not directly exposed to the Internet</li>
   <li><code class="language-plaintext highlighter-rouge">lab-api</code> provides health, application metadata, Catalan number calculation, and authenticated system snapshot data</li>
-  <li><code class="language-plaintext highlighter-rouge">crypto-lab</code> provides authenticated hashing and HMAC operations</li>
+  <li><code class="language-plaintext highlighter-rouge">crypto-lab</code> provides public application metadata plus authenticated hashing and HMAC operations</li>
 </ul>
 
 <h2 id="service-architecture">Service architecture</h2>
@@ -185,6 +185,12 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>Service health</td>
     </tr>
     <tr>
+      <td>GET</td>
+      <td>/crypto-api/v1/info</td>
+      <td>No</td>
+      <td>Non-sensitive application metadata and endpoint discovery</td>
+    </tr>
+    <tr>
       <td>POST</td>
       <td>/crypto-api/v1/hash</td>
       <td>Basic Auth</td>
@@ -248,6 +254,9 @@ http://127.0.0.1:8089/v1/hmac/verify
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/snapshot</code> fails with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/health</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/info</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> and returns non-sensitive metadata</li>
+  <li><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code>, <code class="language-plaintext highlighter-rouge">/v1/hmac</code>, and <code class="language-plaintext highlighter-rouge">/v1/hmac/verify</code> require Basic Auth</li>
 </ul>
 
 <h2 id="application-information-endpoint">Application information endpoint</h2>
@@ -494,7 +503,7 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 
 <h2 id="crypto-lab-api">crypto-lab API</h2>
 
-<p><code class="language-plaintext highlighter-rouge">crypto-lab</code> is a separate Rust/Axum service running on <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>. Nginx publishes it under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>, keeps the health check public, and protects all cryptographic operations with HTTP Basic Authentication.</p>
+<p><code class="language-plaintext highlighter-rouge">crypto-lab</code> is a separate Rust/Axum service running on <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>. Nginx publishes it under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>, keeps the health and information endpoints public, and protects all cryptographic operations with HTTP Basic Authentication.</p>
 
 <p>The repository is available at <a href="https://github.com/foxhackerzdevs/crypto-lab">foxhackerzdevs/crypto-lab</a>.</p>
 
@@ -503,6 +512,7 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 <p>Public requests use the Nginx prefix:</p>
 
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
@@ -511,6 +521,7 @@ https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 <p>Local backend requests omit that prefix:</p>
 
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
 http://127.0.0.1:8089/v1/hmac
 http://127.0.0.1:8089/v1/hmac/verify
