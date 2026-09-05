@@ -381,6 +381,7 @@ async function loadSnapshot(event) {
 }
 
 function clearSnapshot() {
+  snapshotUsername.value = "";
   snapshotPassword.value = "";
   snapshotOutput.textContent =
     "Credentials are sent only with this request and are not stored by this page.";
