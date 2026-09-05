@@ -104,6 +104,7 @@ https://abhrankan.duckdns.org/api/v1/info
 https://abhrankan.duckdns.org/api/v1/catalan/10
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
@@ -118,6 +119,7 @@ http://127.0.0.1:8088/v1/info
 http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
 http://127.0.0.1:8089/v1/hmac
 http://127.0.0.1:8089/v1/hmac/verify
@@ -516,10 +518,14 @@ http://127.0.0.1:8089/v1/hmac/verify
 
 <h3 id="authentication-and-routing">Authentication and routing</h3>
 
-<p><code class="language-plaintext highlighter-rouge">GET /crypto-api/health</code> is unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:</p>
+<p><code class="language-plaintext highlighter-rouge">GET /crypto-api/health</code> and <code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/info</code> are unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:</p>
 
 <div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="p">=</span> <span class="n">/crypto-api/health</span> <span class="p">{</span>
     <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/health</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">location</span> <span class="p">=</span> <span class="n">/crypto-api/v1/info</span> <span class="p">{</span>
+  <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/v1/info</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="k">location</span> <span class="n">/crypto-api/</span> <span class="p">{</span>
@@ -529,7 +535,32 @@ http://127.0.0.1:8089/v1/hmac/verify
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>The exact health match prevents the public health endpoint from inheriting the operation credentials. The trailing slash on the authenticated location maps <code class="language-plaintext highlighter-rouge">/crypto-api/v1/hash</code> to <code class="language-plaintext highlighter-rouge">/v1/hash</code> on the backend.</p>
+<p>The exact health and info matches prevent the public endpoints from inheriting the operation credentials. The trailing slash on the authenticated location maps <code class="language-plaintext highlighter-rouge">/crypto-api/v1/hash</code> to <code class="language-plaintext highlighter-rouge">/v1/hash</code> on the backend.</p>
+
+<h3 id="application-information">Application information</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> https://abhrankan.duckdns.org/crypto-api/v1/info
+</code></pre></div></div>
+
+<p>Response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.1.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/hash"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/hmac"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/hmac/verify"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This endpoint returns non-sensitive application metadata and does not require authentication. <code class="language-plaintext highlighter-rouge">environment</code> comes from the optional <code class="language-plaintext highlighter-rouge">LAB_API_ENV</code> deployment label and defaults to <code class="language-plaintext highlighter-rouge">unknown</code>; it must remain free of secrets.</p>
 
 <h3 id="hash">Hash</h3>
 

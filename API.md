@@ -8,7 +8,7 @@ The service is intentionally small and narrow:
 - Nginx is the public entry point over HTTPS
 - the backend is not directly exposed to the Internet
 - `lab-api` provides health, application metadata, Catalan number calculation, and authenticated system snapshot data
-- `crypto-lab` provides authenticated hashing and HMAC operations
+- `crypto-lab` provides public application metadata plus authenticated hashing and HMAC operations
 
 ## Service architecture
 
@@ -88,6 +88,7 @@ The backend itself is only accessible from the local machine. It should not be e
 | Method | Endpoint | Auth | Purpose |
 | --- | --- | --- | --- |
 | GET | /crypto-api/health | No | Service health |
+| GET | /crypto-api/v1/info | No | Non-sensitive application metadata and endpoint discovery |
 | POST | /crypto-api/v1/hash | Basic Auth | SHA-256 or SHA-512 digest |
 | POST | /crypto-api/v1/hmac | Basic Auth | HMAC generation |
 | POST | /crypto-api/v1/hmac/verify | Basic Auth | Constant-time HMAC verification |
@@ -111,6 +112,9 @@ The most important contract checks are:
 - `GET /api/v1/catalan/:n` succeeds with `200` when `0 ≤ n ≤ 34`
 - `GET /api/v1/catalan/:n` fails with `400` when `n > 34`
 - `GET /api/v1/snapshot` fails with `401` without valid Basic Auth
+- `GET /crypto-api/health` succeeds with `200`
+- `GET /crypto-api/v1/info` succeeds with `200` and returns non-sensitive metadata
+- `POST /crypto-api/v1/hash`, `/v1/hmac`, and `/v1/hmac/verify` require Basic Auth
 
 ## Application information endpoint
 
@@ -359,7 +363,7 @@ This is the current canonical API contract for the service.
 
 ## crypto-lab API
 
-`crypto-lab` is a separate Rust/Axum service running on `127.0.0.1:8089`. Nginx publishes it under `/crypto-api/`, keeps the health check public, and protects all cryptographic operations with HTTP Basic Authentication.
+`crypto-lab` is a separate Rust/Axum service running on `127.0.0.1:8089`. Nginx publishes it under `/crypto-api/`, keeps the health and information endpoints public, and protects all cryptographic operations with HTTP Basic Authentication.
 
 The repository is available at [foxhackerzdevs/crypto-lab](https://github.com/foxhackerzdevs/crypto-lab).
 
@@ -369,6 +373,7 @@ Public requests use the Nginx prefix:
 
 ```text
 https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
@@ -378,6 +383,7 @@ Local backend requests omit that prefix:
 
 ```text
 http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
 http://127.0.0.1:8089/v1/hmac
 http://127.0.0.1:8089/v1/hmac/verify
