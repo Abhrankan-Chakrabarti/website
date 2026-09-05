@@ -16,6 +16,8 @@ const catalanResult = document.querySelector("#catalan-result");
 const clearCatalanButton = document.querySelector("#clear-catalan");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
+const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
+const cryptoInfoOutput = document.querySelector("#crypto-info-output");
 const snapshotForm = document.querySelector("#snapshot-form");
 const snapshotUsername = document.querySelector("#snapshot-username");
 const snapshotPassword = document.querySelector("#snapshot-password");
@@ -323,6 +325,27 @@ function renderInfo(data) {
   }));
 }
 
+function renderCryptoInfo(data) {
+  const fields = [
+    ["Service", data.service],
+    ["API", data.api],
+    ["Version", data.version],
+    ["Build profile", data.build_profile],
+    ["Environment", data.environment],
+    ["Endpoints", Array.isArray(data.endpoints) ? data.endpoints.join(", ") : data.endpoints],
+  ];
+
+  cryptoInfoOutput.replaceChildren(...fields.map(([label, value]) => {
+    const row = document.createElement("div");
+    const name = document.createElement("dt");
+    const result = document.createElement("dd");
+    name.textContent = label;
+    result.textContent = value ?? "Not provided";
+    row.append(name, result);
+    return row;
+  }));
+}
+
 async function refreshInfo() {
   infoOutput.replaceChildren();
   const statusRow = document.createElement("div");
@@ -347,6 +370,33 @@ async function refreshInfo() {
     infoOutput.append(row);
   } finally {
     setBusy(refreshInfoButton, false, "Loading");
+  }
+}
+
+async function refreshCryptoInfo() {
+  cryptoInfoOutput.replaceChildren();
+  const statusRow = document.createElement("div");
+  const statusName = document.createElement("dt");
+  const statusValue = document.createElement("dd");
+  statusName.textContent = "Status";
+  statusValue.textContent = "Contacting the API...";
+  statusRow.append(statusName, statusValue);
+  cryptoInfoOutput.append(statusRow);
+  setBusy(refreshCryptoInfoButton, true, "Loading");
+
+  try {
+    renderCryptoInfo(await fetchCryptoJson("/v1/info"));
+  } catch (error) {
+    cryptoInfoOutput.replaceChildren();
+    const row = document.createElement("div");
+    const name = document.createElement("dt");
+    const result = document.createElement("dd");
+    name.textContent = "Status";
+    result.textContent = error.message;
+    row.append(name, result);
+    cryptoInfoOutput.append(row);
+  } finally {
+    setBusy(refreshCryptoInfoButton, false, "Loading");
   }
 }
 
@@ -390,6 +440,7 @@ function clearSnapshot() {
 refreshHealthButton.addEventListener("click", refreshHealth);
 refreshCryptoHealthButton.addEventListener("click", refreshCryptoHealth);
 refreshInfoButton.addEventListener("click", refreshInfo);
+refreshCryptoInfoButton.addEventListener("click", refreshCryptoInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
 clearCatalanButton.addEventListener("click", clearCatalan);
 snapshotForm.addEventListener("submit", loadSnapshot);
@@ -403,4 +454,5 @@ hmacOperation.addEventListener("change", syncHmacForm);
 refreshHealth();
 refreshInfo();
 refreshCryptoHealth();
+refreshCryptoInfo();
 syncHmacForm();
