@@ -50,6 +50,7 @@ https://abhrankan.duckdns.org/api/v1/info
 https://abhrankan.duckdns.org/api/v1/catalan/10
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/crypto-api/health
+https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
@@ -65,6 +66,7 @@ http://127.0.0.1:8088/v1/info
 http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8089/health
+http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
 http://127.0.0.1:8089/v1/hmac
 http://127.0.0.1:8089/v1/hmac/verify
@@ -383,11 +385,15 @@ http://127.0.0.1:8089/v1/hmac/verify
 
 ### Authentication and routing
 
-`GET /crypto-api/health` is unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:
+`GET /crypto-api/health` and `GET /crypto-api/v1/info` are unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:
 
 ```nginx
 location = /crypto-api/health {
     proxy_pass http://127.0.0.1:8089/health;
+}
+
+location = /crypto-api/v1/info {
+  proxy_pass http://127.0.0.1:8089/v1/info;
 }
 
 location /crypto-api/ {
@@ -397,7 +403,34 @@ location /crypto-api/ {
 }
 ```
 
-The exact health match prevents the public health endpoint from inheriting the operation credentials. The trailing slash on the authenticated location maps `/crypto-api/v1/hash` to `/v1/hash` on the backend.
+The exact health and info matches prevent the public endpoints from inheriting the operation credentials. The trailing slash on the authenticated location maps `/crypto-api/v1/hash` to `/v1/hash` on the backend.
+
+### Application information
+
+```bash
+curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
+```
+
+Response:
+
+```json
+{
+  "service": "crypto-lab",
+  "api": "v1",
+  "version": "0.1.0",
+  "endpoints": [
+    "GET /health",
+    "GET /v1/info",
+    "POST /v1/hash",
+    "POST /v1/hmac",
+    "POST /v1/hmac/verify"
+  ],
+  "build_profile": "release",
+  "environment": "production"
+}
+```
+
+This endpoint returns non-sensitive application metadata and does not require authentication. `environment` comes from the optional `LAB_API_ENV` deployment label and defaults to `unknown`; it must remain free of secrets.
 
 ### Hash
 

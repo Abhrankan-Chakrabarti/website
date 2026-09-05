@@ -21,6 +21,10 @@ location = /crypto-api/health {
 	proxy_pass http://127.0.0.1:8089/health;
 }
 
+location = /crypto-api/v1/info {
+	proxy_pass http://127.0.0.1:8089/v1/info;
+}
+
 location /crypto-api/ {
 	auth_basic "crypto-lab";
 	auth_basic_user_file /etc/nginx/.htpasswd;
