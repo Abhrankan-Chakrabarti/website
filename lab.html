@@ -31,7 +31,7 @@
         <h1 id="lab-title">Small public tools and service checks</h1>
         <p class="lab-intro">
           A lightweight interface for checking the lab service, looking up Catalan
-          numbers, and viewing an authenticated snapshot.
+          numbers, Fibonacci numbers, GCD values, and an authenticated snapshot.
         </p>
       </section>
 
@@ -66,6 +66,52 @@
             </div>
           </form>
           <output id="catalan-result" class="lab-result" aria-live="polite">Enter a non-negative integer.</output>
+        </article>
+
+        <article class="lab-panel" aria-labelledby="fibonacci-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Lookup</p>
+              <h2 id="fibonacci-title">Fibonacci number</h2>
+            </div>
+          </div>
+          <form id="fibonacci-form" class="lab-form">
+            <label for="fibonacci-n">Index n</label>
+            <div class="lab-inline">
+              <input id="fibonacci-n" name="n" type="number" min="0" max="186" step="1" value="10" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Calculate</button>
+                <button id="clear-fibonacci" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+            </div>
+          </form>
+          <output id="fibonacci-result" class="lab-result" aria-live="polite">Enter a non-negative integer.</output>
+        </article>
+
+        <article class="lab-panel" aria-labelledby="gcd-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Calculation</p>
+              <h2 id="gcd-title">Greatest common divisor</h2>
+            </div>
+          </div>
+          <form id="gcd-form" class="lab-form">
+            <div class="lab-auth-grid">
+              <label for="gcd-a">
+                Value a
+                <input id="gcd-a" name="a" type="number" min="0" step="1" value="84" inputmode="numeric" required>
+              </label>
+              <label for="gcd-b">
+                Value b
+                <input id="gcd-b" name="b" type="number" min="0" step="1" value="30" inputmode="numeric" required>
+              </label>
+            </div>
+            <div class="lab-actions">
+              <button class="lab-button" type="submit">Calculate</button>
+              <button id="clear-gcd" class="lab-button lab-button--secondary" type="button">Clear</button>
+            </div>
+          </form>
+          <output id="gcd-result" class="lab-result" aria-live="polite">Enter two non-negative integers.</output>
         </article>
 
         <article class="lab-panel" aria-labelledby="info-title">

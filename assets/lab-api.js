@@ -14,6 +14,15 @@ const catalanForm = document.querySelector("#catalan-form");
 const catalanInput = document.querySelector("#catalan-n");
 const catalanResult = document.querySelector("#catalan-result");
 const clearCatalanButton = document.querySelector("#clear-catalan");
+const fibonacciForm = document.querySelector("#fibonacci-form");
+const fibonacciInput = document.querySelector("#fibonacci-n");
+const fibonacciResult = document.querySelector("#fibonacci-result");
+const clearFibonacciButton = document.querySelector("#clear-fibonacci");
+const gcdForm = document.querySelector("#gcd-form");
+const gcdAInput = document.querySelector("#gcd-a");
+const gcdBInput = document.querySelector("#gcd-b");
+const gcdResult = document.querySelector("#gcd-result");
+const clearGcdButton = document.querySelector("#clear-gcd");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -171,6 +180,64 @@ function clearHash() {
   hashUsername.value = "";
   hashPassword.value = "";
   hashResult.textContent = "Your digest will appear here.";
+}
+
+async function lookupFibonacci(event) {
+  event.preventDefault();
+
+  const n = Number(fibonacciInput.value);
+  if (!Number.isInteger(n) || n < 0 || n > 186) {
+    fibonacciResult.textContent = "Enter an integer from 0 to 186.";
+    return;
+  }
+
+  const button = fibonacciForm.querySelector("button[type='submit']");
+  fibonacciResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+
+  try {
+    const data = await fetchJson(`/v1/math/fibonacci/${n}`);
+    fibonacciResult.innerHTML = `F<sub>${data.n}</sub> = <strong>${data.value}</strong>`;
+  } catch (error) {
+    fibonacciResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
+async function lookupGcd(event) {
+  event.preventDefault();
+
+  const a = Number(gcdAInput.value);
+  const b = Number(gcdBInput.value);
+  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(b) || a < 0 || b < 0) {
+    gcdResult.textContent = "Enter two non-negative integers.";
+    return;
+  }
+
+  const button = gcdForm.querySelector("button[type='submit']");
+  gcdResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+
+  try {
+    const data = await fetchJson(`/v1/math/gcd/${a}/${b}`);
+    gcdResult.innerHTML = `gcd(${data.a}, ${data.b}) = <strong>${data.gcd}</strong>`;
+  } catch (error) {
+    gcdResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
+function clearFibonacci() {
+  fibonacciInput.value = "10";
+  fibonacciResult.textContent = "Enter a non-negative integer.";
+}
+
+function clearGcd() {
+  gcdAInput.value = "84";
+  gcdBInput.value = "30";
+  gcdResult.textContent = "Enter two non-negative integers.";
 }
 
 async function refreshCryptoHealth() {
@@ -443,6 +510,10 @@ refreshInfoButton.addEventListener("click", refreshInfo);
 refreshCryptoInfoButton.addEventListener("click", refreshCryptoInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
 clearCatalanButton.addEventListener("click", clearCatalan);
+fibonacciForm.addEventListener("submit", lookupFibonacci);
+clearFibonacciButton.addEventListener("click", clearFibonacci);
+gcdForm.addEventListener("submit", lookupGcd);
+clearGcdButton.addEventListener("click", clearGcd);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
