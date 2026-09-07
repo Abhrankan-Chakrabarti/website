@@ -374,8 +374,8 @@ async function lookupCatalan(event) {
 function renderInfo(data) {
   const fields = [
     ["Service", data.service],
-    ["API", data.api],
-    ["Version", data.version],
+    ["API", data.api ?? data.api_version],
+    ["Version", data.version ?? data.app_version],
     ["Build profile", data.build_profile],
     ["Environment", data.environment],
     ["Endpoints", Array.isArray(data.endpoints) ? data.endpoints.join(", ") : data.endpoints],
