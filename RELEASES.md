@@ -1,63 +1,5 @@
 # Releases
 
-## [v0.2.0] — 2026-08-30
-
-### Added
-- Added public `GET /api/v1/info` for non-sensitive service metadata and endpoint discovery.
-- Added an API information panel to the Lab frontend.
-
-### Backend
-- Reports service name, API version, package version, route list, build profile, and environment label.
-- Keeps the existing authentication model unchanged; only `/api/v1/snapshot` remains protected.
-- No new infrastructure or separate service added.
-
-## [v0.1.0] — 2026-08-29
-
-**Initial release of `crypto-lab`, a small self-hosted Rust cryptography API.**
-
-### Added
-- SHA-256 hashing endpoint.
-- SHA-512 hashing endpoint.
-- HMAC-SHA256 generation.
-- HMAC-SHA512 generation.
-- Constant-time HMAC verification.
-- Public health endpoint.
-- JSON-based HTTP API built with Axum and Tokio.
-- Input and request body size limits.
-- Production-oriented systemd service configuration.
-- Nginx reverse-proxy deployment under `/crypto-api/`.
-
-### API
-- `GET /health`
-- `POST /v1/hash`
-- `POST /v1/hmac`
-- `POST /v1/hmac/verify`
-
-### Security
-- HMAC verification uses constant-time comparison.
-- Crypto operations are protected by Nginx Basic Authentication.
-- The service binds only to `127.0.0.1:8089`.
-- Request bodies are limited to 64 KiB.
-- Individual textual inputs are limited to 32 KiB.
-- No private key storage, wallet functionality, payment processing, or other credential-management features are included.
-
-### Infrastructure
-- Runs as a dedicated systemd service.
-- Exposed through the existing Nginx HTTPS endpoint.
-- Reuses the existing authentication configuration.
-- Requires no database, queue, container stack, or additional monitoring infrastructure.
-
-### Status
-- ✅ SHA-256/SHA-512 hashing
-- ✅ HMAC generation and verification
-- ✅ Constant-time verification
-- ✅ Request size limits
-- ✅ Systemd deployment
-- ✅ Nginx HTTPS integration
-- 🔒 v0.1.0 scope frozen
-
-**`crypto-lab` is intentionally minimal and focused on cryptographic hashing and HMAC experimentation.**
-
 ## [v1.0.0] — 2026-08-29
 
 **Stable production release: Site navigation, consistent styling, and complete API documentation.**
@@ -83,7 +25,7 @@
   - Authentication behavior and security model
   - Nginx routing and systemd deployment
   - Rate limiting recommendations
-  - Catalan number u128 limitations
+  - Catalan number `u128` limitations
   - Integration guide for monitoring and integration
 
 ### Fixed
@@ -102,7 +44,7 @@
 - `writing/golden-ratio/index.html` — Updated footer; added Lab to nav
 - `writing/history-of-cryptography/index.html` — Updated footer; added Lab to nav
 - `writing/pythagorean-triples/index.html` — Updated footer; added Lab to nav
-- `README.md` — Added Lab API section with link to API.md
+- `README.md` — Added Lab API section with link to `API.md`
 - `API.md` — New: Production-quality API reference documentation
 
 ### Status
@@ -113,3 +55,68 @@
 - 🔒 Frozen: No further feature additions planned
 
 **This release marks the completion of the site redesign and API documentation. The Lab API service is intentionally minimal and stable; future development focus will shift to other projects.**
+
+---
+
+## [v0.1.0] — 2026-08-29
+
+**Initial release of `crypto-lab`, a small self-hosted Rust cryptography API.**
+
+### Added
+- SHA-256 hashing endpoint.
+- SHA-512 hashing endpoint.
+- HMAC-SHA256 generation.
+- HMAC-SHA512 generation.
+- Constant-time HMAC verification.
+- Public health endpoint.
+- Public service information endpoint.
+- JSON-based HTTP API built with Axum and Tokio.
+- Input and request body size limits.
+- Production-oriented systemd service configuration.
+- Nginx reverse-proxy deployment under `/crypto-api/`.
+
+### API
+- `GET /health`
+- `GET /v1/info`
+- `POST /v1/hash`
+- `POST /v1/hmac`
+- `POST /v1/hmac/verify`
+
+### Security
+- HMAC verification uses constant-time comparison.
+- Crypto operations are protected by Nginx Basic Authentication.
+- The service binds only to `127.0.0.1:8089`.
+- Request bodies are limited to 64 KiB.
+- Individual textual inputs are limited to 32 KiB.
+- No private key storage, wallet functionality, payment processing, or other credential-management features are included.
+
+### Infrastructure
+- Runs as a dedicated systemd service.
+- Exposed through the existing Nginx HTTPS endpoint.
+- Reuses the existing authentication configuration.
+- Requires no database, queue, container stack, or additional monitoring infrastructure.
+
+### Status
+- ✅ SHA-256/SHA-512 hashing
+- ✅ HMAC generation and verification
+- ✅ Constant-time verification
+- ✅ Public service metadata
+- ✅ Request size limits
+- ✅ Systemd deployment
+- ✅ Nginx HTTPS integration
+- 🔒 v0.1.0 scope frozen
+
+**`crypto-lab` is intentionally minimal and focused on cryptographic hashing and HMAC experimentation.**
+
+---
+
+## [v0.2.0] — 2026-08-30
+
+### Added
+- Added public `GET /api/v1/info` for non-sensitive service metadata and endpoint discovery.
+- Added an API information panel to the Lab frontend.
+
+### Backend
+- Reports service name, API version, package version, route list, build profile, and environment label.
+- Keeps the existing authentication model unchanged; only `/api/v1/snapshot` remains protected.
+- No new infrastructure or separate service added.
