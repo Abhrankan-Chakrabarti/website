@@ -55,76 +55,434 @@
 
       <h1 id="releases">Releases</h1>
 
-<h2 id="v100--2026-08-29">[v1.0.0] — 2026-08-29</h2>
+<h2 id="v051--2026-09-12">[v0.5.1] — 2026-09-12</h2>
 
-<p><strong>Stable production release: Site navigation, consistent styling, and complete API documentation.</strong></p>
+<p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
 <h3 id="added">Added</h3>
+
 <ul>
-  <li><strong>Site-wide navigation consistency</strong>: Unified navigation across all pages
+  <li>Added a one-shot School Database importer:
     <ul>
-      <li>Navigation: Home · Projects · Writing · Now · Lab</li>
-      <li>Lab link points to <code class="language-plaintext highlighter-rouge">/lab.html</code></li>
-      <li>Proper <code class="language-plaintext highlighter-rouge">.active</code> state on current page</li>
-      <li>Navigation added to <code class="language-plaintext highlighter-rouge">lab.html</code> header</li>
+      <li><code class="language-plaintext highlighter-rouge">lab-api import &lt;candidate.db&gt;</code></li>
     </ul>
   </li>
-  <li><strong>Lab API page improvements</strong>:
-    <ul>
-      <li>Header with navigation and subtitle</li>
-      <li>Centered layout matching content width</li>
-      <li>Footer with copyright</li>
-      <li>Favicon (site branding)</li>
-      <li>Stylesheet integration with main site</li>
-    </ul>
-  </li>
-  <li><strong>API Documentation</strong> (<code class="language-plaintext highlighter-rouge">API.md</code>):
-    <ul>
-      <li>Complete endpoint reference (health, catalan, snapshot)</li>
-      <li>Request/response examples with curl commands</li>
-      <li>HTTP status codes and error handling</li>
-      <li>Authentication behavior and security model</li>
-      <li>Nginx routing and systemd deployment</li>
-      <li>Rate limiting recommendations</li>
-      <li>Catalan number <code class="language-plaintext highlighter-rouge">u128</code> limitations</li>
-      <li>Integration guide for monitoring and integration</li>
-    </ul>
-  </li>
+  <li>Added SQLite integrity validation before activation.</li>
+  <li>Added schema validation for imported School Database files.</li>
+  <li>Added safe activation of validated database files.</li>
+  <li>Added Unix atomic-rename activation.</li>
+  <li>Added rollback-safe activation behavior for Windows.</li>
+  <li>Failed imports leave the currently active database unchanged.</li>
+  <li>Added importer tests covering validation and activation behavior.</li>
 </ul>
 
-<h3 id="fixed">Fixed</h3>
+<h3 id="security-and-reliability">Security and Reliability</h3>
+
 <ul>
-  <li>Consistent footer format across all pages (copyright notice)</li>
-  <li>Lab page layout centering</li>
-  <li>CSS cascade for lab-api overrides</li>
-  <li>Body width constraints on lab page</li>
+  <li>Imported databases are validated before becoming active.</li>
+  <li>SQLite integrity checks prevent corrupted databases from being activated.</li>
+  <li>Schema validation ensures compatibility with the School Database API.</li>
+  <li>Database replacement is performed only after successful validation.</li>
+  <li>The running API continues using the existing database if import validation fails.</li>
+  <li>The importer does not start the HTTP server.</li>
 </ul>
 
-<h3 id="updated-pages">Updated Pages</h3>
+<h3 id="configuration">Configuration</h3>
+
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">index.html</code> — Navigation link label “Lab API” → “Lab”</li>
-  <li><code class="language-plaintext highlighter-rouge">projects.html</code> — Added Lab to navigation</li>
-  <li><code class="language-plaintext highlighter-rouge">writing.html</code> — Added Lab to navigation; updated footer</li>
-  <li><code class="language-plaintext highlighter-rouge">now.html</code> — Added Lab to navigation</li>
-  <li><code class="language-plaintext highlighter-rouge">lab.html</code> — Complete overhaul (header, nav, footer, favicon, styling)</li>
-  <li><code class="language-plaintext highlighter-rouge">writing/calculating-pi/index.html</code> — Updated footer; added Lab to nav</li>
-  <li><code class="language-plaintext highlighter-rouge">writing/golden-ratio/index.html</code> — Updated footer; added Lab to nav</li>
-  <li><code class="language-plaintext highlighter-rouge">writing/history-of-cryptography/index.html</code> — Updated footer; added Lab to nav</li>
-  <li><code class="language-plaintext highlighter-rouge">writing/pythagorean-triples/index.html</code> — Updated footer; added Lab to nav</li>
-  <li><code class="language-plaintext highlighter-rouge">README.md</code> — Added Lab API section with link to <code class="language-plaintext highlighter-rouge">API.md</code></li>
-  <li><code class="language-plaintext highlighter-rouge">API.md</code> — New: Production-quality API reference documentation</li>
+  <li>The importer uses the configured <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code>.</li>
+  <li>
+    <p>Production School Database location:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/var/lib/lab-api/School.db
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The API continues to bind to:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>127.0.0.1:8088
+</code></pre></div>    </div>
+  </li>
+  <li>Public access remains behind the existing Nginx HTTPS and Basic Authentication boundary.</li>
+</ul>
+
+<h3 id="compatibility">Compatibility</h3>
+
+<ul>
+  <li>Existing core API endpoints remain unchanged.</li>
+  <li>Existing School Database API routes remain available.</li>
+  <li>Existing deployment architecture remains unchanged.</li>
+  <li>No additional database server, queue, container stack, or external service is required.</li>
+</ul>
+
+<h3 id="validation">Validation</h3>
+
+<ul>
+  <li>All 39 tests passed.</li>
+  <li><code class="language-plaintext highlighter-rouge">cargo clippy -- -D warnings</code> completed successfully.</li>
+  <li>The importer was tested against a real School Database file.</li>
+  <li>Production deployment and database activation were verified.</li>
 </ul>
 
 <h3 id="status">Status</h3>
+
 <ul>
-  <li>✅ Frontend: Consistent navigation, styling, and layout</li>
-  <li>✅ Lab page: Header, nav, footer, favicon, centered layout</li>
-  <li>✅ API: Documented, stable, and production-ready</li>
-  <li>✅ Architecture: Verified Nginx routing, systemd, HTTPS, auth</li>
-  <li>🔒 Frozen: No further feature additions planned</li>
+  <li>✅ Validated School Database importer</li>
+  <li>✅ SQLite integrity and schema validation</li>
+  <li>✅ Safe database activation</li>
+  <li>✅ Rollback-safe replacement behavior</li>
+  <li>✅ One-shot import CLI</li>
+  <li>✅ Existing API compatibility maintained</li>
+  <li>🔒 Runtime remains read-only</li>
 </ul>
 
-<p><strong>This release marks the completion of the site redesign and API documentation. The Lab API service is intentionally minimal and stable; future development focus will shift to other projects.</strong></p>
+<hr />
+
+<h2 id="v050--2026-09-08">[v0.5.0] — 2026-09-08</h2>
+
+<p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
+
+<h3 id="added-1">Added</h3>
+
+<ul>
+  <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
+  <li>Added debounced School Database search.</li>
+  <li>Added clickable student rows in the School frontend.</li>
+  <li>Added a student-detail route.</li>
+  <li>Added safe student-detail responses.</li>
+  <li>Added deterministic ordering for School Database results.</li>
+  <li>Added tests for pagination, search, ordering, and student-detail behavior.</li>
+</ul>
+
+<h3 id="security">Security</h3>
+
+<ul>
+  <li>Student details are returned through controlled, read-only API responses.</li>
+  <li>Search remains bounded and uses literal substring matching.</li>
+  <li>Database access continues to use safe column handling and parameterized SQL.</li>
+  <li>Existing Nginx HTTPS and Basic Authentication protections remain unchanged.</li>
+</ul>
+
+<h3 id="compatibility-1">Compatibility</h3>
+
+<ul>
+  <li>Existing API endpoints remain unchanged.</li>
+  <li>Existing table discovery and schema routes remain available.</li>
+  <li>Existing deployment architecture remains unchanged.</li>
+  <li>No additional runtime service or database infrastructure is required.</li>
+</ul>
+
+<h3 id="validation-1">Validation</h3>
+
+<ul>
+  <li>Pagination totals were verified.</li>
+  <li>Deterministic ordering was verified.</li>
+  <li>Pagination results were checked for consistency and non-overlap.</li>
+  <li>School Database API and frontend behavior were tested.</li>
+</ul>
+
+<h3 id="status-1">Status</h3>
+
+<ul>
+  <li>✅ Improved School Database pagination</li>
+  <li>✅ Debounced search</li>
+  <li>✅ Clickable student rows</li>
+  <li>✅ Student-detail route</li>
+  <li>✅ Safe student-detail responses</li>
+  <li>✅ Deterministic result ordering</li>
+  <li>🔒 School Database runtime remains read-only</li>
+</ul>
+
+<hr />
+
+<h2 id="v040--2026-09-08">[v0.4.0] — 2026-09-08</h2>
+
+<p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
+
+<h3 id="added-2">Added</h3>
+
+<ul>
+  <li>Added a read-only School Database API backed by SQLite.</li>
+  <li>
+    <p>Added dynamic table discovery:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/tables
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Added dynamic schema discovery:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/tables/{table}/schema
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Added paginated table access:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/tables/{table}
+</span></code></pre></div>    </div>
+  </li>
+  <li>Added bounded literal substring search.</li>
+  <li>
+    <p>Added School Database health endpoint:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/health
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Added the School Database web portal:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/school/
+</code></pre></div>    </div>
+  </li>
+  <li>Added comprehensive database-layer tests covering:
+    <ul>
+      <li>Table and column validation</li>
+      <li>Pagination</li>
+      <li>Search</li>
+      <li>Schema discovery</li>
+      <li>Table discovery</li>
+      <li>Deterministic ordering</li>
+      <li>Sensitive-column filtering</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="security-1">Security</h3>
+
+<ul>
+  <li>School Database access is strictly read-only.</li>
+  <li>SQLite is opened using read-only flags.</li>
+  <li>Only approved columns are exposed.</li>
+  <li>Table and column identifiers are validated and safely quoted.</li>
+  <li>SQL queries use parameterized values.</li>
+  <li><code class="language-plaintext highlighter-rouge">LIKE</code> patterns are escaped safely.</li>
+  <li>Pagination and search inputs are bounded.</li>
+  <li>Public access remains protected by Nginx HTTPS and Basic Authentication.</li>
+  <li>The database is stored outside the repository and is not directly exposed.</li>
+</ul>
+
+<h3 id="configuration-1">Configuration</h3>
+
+<ul>
+  <li>
+    <p>Database path is configured through:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SCHOOL_DB_PATH
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Production database path:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/var/lib/lab-api/School.db
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The API binds to:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>127.0.0.1:8088
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Nginx remains the public HTTPS and authentication boundary.</p>
+  </li>
+</ul>
+
+<h3 id="compatibility-2">Compatibility</h3>
+
+<ul>
+  <li>Existing API endpoints remain unchanged.</li>
+  <li>The Catalan compatibility alias remains available.</li>
+  <li>Existing deployment architecture remains unchanged.</li>
+  <li>No additional runtime, database server, container, or external service is required.</li>
+</ul>
+
+<h3 id="validation-2">Validation</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">cargo fmt</code> completed successfully.</li>
+  <li>Debug test suite passed: 22/22.</li>
+  <li>Release test suite passed: 22/22.</li>
+  <li>Debug and release builds completed successfully.</li>
+</ul>
+
+<h3 id="status-2">Status</h3>
+
+<ul>
+  <li>✅ Read-only School Database API</li>
+  <li>✅ Dynamic table and schema discovery</li>
+  <li>✅ Pagination and bounded search</li>
+  <li>✅ School Database web portal</li>
+  <li>✅ Database-layer test coverage</li>
+  <li>✅ Nginx HTTPS and Basic Authentication integration</li>
+  <li>🔒 School Database scope frozen</li>
+  <li>🔒 Runtime remains read-only</li>
+</ul>
+
+<hr />
+
+<h2 id="v030--2026-09-08">[v0.3.0] — 2026-09-08</h2>
+
+<p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
+
+<h3 id="added-3">Added</h3>
+
+<ul>
+  <li>Added Catalan number endpoint.</li>
+  <li>Added Fibonacci number endpoint.</li>
+  <li>Added greatest-common-divisor endpoint.</li>
+  <li>Added tests for the new mathematical endpoints.</li>
+  <li>Added a Catalan compatibility alias.</li>
+  <li>
+    <p>Added public API information at:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/info
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Added protected API snapshot endpoint:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/snapshot
+</span></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="compatibility-3">Compatibility</h3>
+
+<ul>
+  <li>Existing API routes remain available.</li>
+  <li>Existing deployment and authentication architecture remains unchanged.</li>
+  <li>The service remains lightweight and self-hosted.</li>
+</ul>
+
+<h3 id="status-3">Status</h3>
+
+<ul>
+  <li>✅ Catalan numbers</li>
+  <li>✅ Fibonacci numbers</li>
+  <li>✅ Greatest common divisor</li>
+  <li>✅ Public API information</li>
+  <li>✅ Protected API snapshot</li>
+  <li>🔒 Read-only API scope maintained</li>
+</ul>
+
+<hr />
+
+<h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
+
+<h3 id="added-4">Added</h3>
+
+<ul>
+  <li>
+    <p>Added public service metadata endpoint:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/info
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Added an API information panel to the Lab frontend.</p>
+  </li>
+</ul>
+
+<h3 id="backend">Backend</h3>
+
+<ul>
+  <li>Reports service name, API version, package version, route list, build profile, and environment label.</li>
+  <li>Keeps the existing authentication model unchanged.</li>
+  <li>Only <code class="language-plaintext highlighter-rouge">/api/v1/snapshot</code> remains protected.</li>
+  <li>No new infrastructure or separate service was added.</li>
+</ul>
+
+<hr />
+
+<h2 id="v100--2026-08-29">[v1.0.0] — 2026-08-29</h2>
+
+<p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
+
+<h3 id="added-5">Added</h3>
+
+<h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
+
+<ul>
+  <li>Unified navigation across all pages:
+    <ul>
+      <li>Home</li>
+      <li>Projects</li>
+      <li>Writing</li>
+      <li>Now</li>
+      <li>Lab</li>
+    </ul>
+  </li>
+  <li>Lab navigation link points to <code class="language-plaintext highlighter-rouge">/lab.html</code>.</li>
+  <li>Added the proper <code class="language-plaintext highlighter-rouge">.active</code> state on the current page.</li>
+  <li>Added navigation to the <code class="language-plaintext highlighter-rouge">lab.html</code> header.</li>
+</ul>
+
+<h4 id="lab-api-page-improvements">Lab API Page Improvements</h4>
+
+<ul>
+  <li>Added a header with navigation and subtitle.</li>
+  <li>Added a centered layout matching the main content width.</li>
+  <li>Added a footer with copyright information.</li>
+  <li>Added a favicon for site branding.</li>
+  <li>Integrated the main site stylesheet.</li>
+</ul>
+
+<h4 id="api-documentation">API Documentation</h4>
+
+<p>Added complete <code class="language-plaintext highlighter-rouge">API.md</code> documentation covering:</p>
+
+<ul>
+  <li>Health, Catalan, and snapshot endpoints</li>
+  <li>Request and response examples</li>
+  <li><code class="language-plaintext highlighter-rouge">curl</code> commands</li>
+  <li>HTTP status codes</li>
+  <li>Error handling</li>
+  <li>Authentication behavior</li>
+  <li>Security model</li>
+  <li>Nginx routing</li>
+  <li>systemd deployment</li>
+  <li>Rate-limiting recommendations</li>
+  <li>Catalan number <code class="language-plaintext highlighter-rouge">u128</code> limitations</li>
+  <li>Monitoring and integration guidance</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+
+<ul>
+  <li>Standardized the footer format across all pages.</li>
+  <li>Fixed Lab page layout centering.</li>
+  <li>Fixed the CSS cascade for Lab API overrides.</li>
+  <li>Fixed body-width constraints on the Lab page.</li>
+</ul>
+
+<h3 id="updated-pages">Updated Pages</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">index.html</code> — Renamed navigation label from “Lab API” to “Lab”.</li>
+  <li><code class="language-plaintext highlighter-rouge">projects.html</code> — Added Lab to navigation.</li>
+  <li><code class="language-plaintext highlighter-rouge">writing.html</code> — Added Lab to navigation and updated the footer.</li>
+  <li><code class="language-plaintext highlighter-rouge">now.html</code> — Added Lab to navigation.</li>
+  <li><code class="language-plaintext highlighter-rouge">lab.html</code> — Complete overhaul with header, navigation, footer, favicon, and styling.</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/calculating-pi/index.html</code> — Updated footer and added Lab navigation.</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/golden-ratio/index.html</code> — Updated footer and added Lab navigation.</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/history-of-cryptography/index.html</code> — Updated footer and added Lab navigation.</li>
+  <li><code class="language-plaintext highlighter-rouge">writing/pythagorean-triples/index.html</code> — Updated footer and added Lab navigation.</li>
+  <li><code class="language-plaintext highlighter-rouge">README.md</code> — Added the Lab API section with a link to <code class="language-plaintext highlighter-rouge">API.md</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">API.md</code> — Added production-quality API reference documentation.</li>
+</ul>
+
+<h3 id="status-4">Status</h3>
+
+<ul>
+  <li>✅ Frontend navigation is consistent.</li>
+  <li>✅ Site styling and layouts are consistent.</li>
+  <li>✅ Lab page includes header, navigation, footer, favicon, and centered layout.</li>
+  <li>✅ API is documented and production-ready.</li>
+  <li>✅ Nginx routing, systemd, HTTPS, and authentication were verified.</li>
+  <li>🔒 No further v1.0.0 feature additions planned.</li>
+</ul>
+
+<p><strong>This release marked the completion of the site redesign and API documentation.</strong></p>
 
 <hr />
 
@@ -132,7 +490,8 @@
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-1">Added</h3>
+<h3 id="added-6">Added</h3>
+
 <ul>
   <li>SHA-256 hashing endpoint.</li>
   <li>SHA-512 hashing endpoint.</li>
@@ -142,12 +501,13 @@
   <li>Public health endpoint.</li>
   <li>Public service information endpoint.</li>
   <li>JSON-based HTTP API built with Axum and Tokio.</li>
-  <li>Input and request body size limits.</li>
+  <li>Input and request-body size limits.</li>
   <li>Production-oriented systemd service configuration.</li>
   <li>Nginx reverse-proxy deployment under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>.</li>
 </ul>
 
 <h3 id="api">API</h3>
+
 <ul>
   <li><code class="language-plaintext highlighter-rouge">GET /health</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/info</code></li>
@@ -156,17 +516,19 @@
   <li><code class="language-plaintext highlighter-rouge">POST /v1/hmac/verify</code></li>
 </ul>
 
-<h3 id="security">Security</h3>
+<h3 id="security-2">Security</h3>
+
 <ul>
   <li>HMAC verification uses constant-time comparison.</li>
-  <li>Crypto operations are protected by Nginx Basic Authentication.</li>
+  <li>Cryptographic operations are protected by Nginx Basic Authentication.</li>
   <li>The service binds only to <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>.</li>
   <li>Request bodies are limited to 64 KiB.</li>
   <li>Individual textual inputs are limited to 32 KiB.</li>
-  <li>No private key storage, wallet functionality, payment processing, or other credential-management features are included.</li>
+  <li>No private-key storage, wallet functionality, payment processing, or credential-management features are included.</li>
 </ul>
 
 <h3 id="infrastructure">Infrastructure</h3>
+
 <ul>
   <li>Runs as a dedicated systemd service.</li>
   <li>Exposed through the existing Nginx HTTPS endpoint.</li>
@@ -174,42 +536,28 @@
   <li>Requires no database, queue, container stack, or additional monitoring infrastructure.</li>
 </ul>
 
-<h3 id="status-1">Status</h3>
+<h3 id="status-5">Status</h3>
+
 <ul>
-  <li>✅ SHA-256/SHA-512 hashing</li>
+  <li>✅ SHA-256 and SHA-512 hashing</li>
   <li>✅ HMAC generation and verification</li>
   <li>✅ Constant-time verification</li>
   <li>✅ Public service metadata</li>
-  <li>✅ Request size limits</li>
-  <li>✅ Systemd deployment</li>
+  <li>✅ Request-size limits</li>
+  <li>✅ systemd deployment</li>
   <li>✅ Nginx HTTPS integration</li>
   <li>🔒 v0.1.0 scope frozen</li>
 </ul>
 
 <p><strong><code class="language-plaintext highlighter-rouge">crypto-lab</code> is intentionally minimal and focused on cryptographic hashing and HMAC experimentation.</strong></p>
 
-<hr />
-
-<h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
-
-<h3 id="added-2">Added</h3>
-<ul>
-  <li>Added public <code class="language-plaintext highlighter-rouge">GET /api/v1/info</code> for non-sensitive service metadata and endpoint discovery.</li>
-  <li>Added an API information panel to the Lab frontend.</li>
-</ul>
-
-<h3 id="backend">Backend</h3>
-<ul>
-  <li>Reports service name, API version, package version, route list, build profile, and environment label.</li>
-  <li>Keeps the existing authentication model unchanged; only <code class="language-plaintext highlighter-rouge">/api/v1/snapshot</code> remains protected.</li>
-  <li>No new infrastructure or separate service added.</li>
-</ul>
 
     </div>
 
     <footer>
         <p>&copy; 2026 Abhrankan Chakrabarti</p>
     </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
   </body>
