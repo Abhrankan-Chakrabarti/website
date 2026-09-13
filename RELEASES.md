@@ -1,5 +1,79 @@
 # Releases
 
+## [v0.6.0] — 2026-09-13
+
+**Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.**
+
+### Added
+
+- Added schema-driven student identification for student-detail lookups.
+- Added dynamic discovery of a table's single-column primary key.
+- Added support for student tables using `Roll No` as the primary key instead of requiring `Student Code`.
+- Added schema-driven student-detail column selection.
+- Added privacy-aware student-detail responses that include ordinary student information while excluding highly sensitive fields.
+- Added support for ordinary detail fields such as `Father Name` and `Mother Name`.
+- Updated the School Database portal to use the discovered primary key instead of assuming `Student Code`.
+- Added tests for primary-key discovery, missing primary keys, alternate primary keys, and student-detail lookup using `Roll No`.
+- Added API coverage for the updated student-detail privacy boundary.
+
+### Security
+
+- Student identifiers are discovered from SQLite primary-key metadata rather than being hard-coded.
+- Student-detail queries safely quote dynamically discovered identifiers and use parameterized values.
+- Missing and composite primary keys are rejected for student-detail lookup.
+- Unsafe student identifier columns are rejected.
+- Student-detail responses exclude highly sensitive fields, including:
+
+  - `Guardian Number`
+  - `Student Contact Number`
+  - `Guardian Contact Number`
+  - `Bank IFS Code`
+  - `Bank A/C number`
+  - `Aadhaar Y/N`
+
+- The normal School Database list and pagination API retains its more restrictive safe-column policy.
+- Existing read-only SQLite access, bounded search, SQL identifier validation, and parameterized queries remain unchanged.
+- Existing Nginx HTTPS and Basic Authentication boundaries remain unchanged.
+
+### Compatibility
+
+- Existing School Database table and schema discovery endpoints remain available.
+- Existing pagination and search behavior remains unchanged.
+- Existing student-detail URL structure remains available:
+
+  ```http
+  GET /school/api/tables/{table}/students/{student_id}
+  ```
+
+- Student-detail lookup is no longer tied specifically to a `Student Code` column.
+- Existing health, mathematical, metadata, snapshot, and importer functionality remains unchanged.
+- The existing localhost/systemd/Nginx deployment shape remains unchanged.
+- No additional application runtime, database server, container, or external service is required.
+
+### Validation
+
+- `cargo fmt` passes.
+- Debug test suite: **44/44 tests passed**.
+- Database-focused test suite: **29/29 tests passed**.
+- Verified primary-key discovery for both `Student Code` and `Roll No`.
+- Verified rejection of missing and composite primary keys.
+- Verified student-detail responses exclude highly sensitive fields.
+- Verified ordinary student information, including `Father Name` and `Mother Name`, is available through the detail endpoint.
+- Verified the updated School Database API tests pass.
+
+### Status
+
+- ✅ Schema-driven student identification
+- ✅ Dynamic primary-key discovery
+- ✅ `Roll No`-based student-detail support
+- ✅ Privacy-aware student-detail responses
+- ✅ Sensitive-field exclusion
+- ✅ Schema-driven School Database portal behavior
+- ✅ Expanded database and API test coverage
+- 🔒 School Database runtime remains read-only
+
+---
+
 ## [v0.5.1] — 2026-09-12
 
 **School Database importer with validation and rollback-safe activation.**
