@@ -55,11 +55,86 @@
 
       <h1 id="releases">Releases</h1>
 
+<h2 id="v070--2026-09-28">[v0.7.0] — 2026-09-28</h2>
+
+<p><strong>Admin-only full student details with authenticated-user authorization.</strong></p>
+
+<h3 id="added">Added</h3>
+
+<ul>
+  <li>Added a <code class="language-plaintext highlighter-rouge">student_detail_full(table, student_id)</code> database method for retrieving complete student records.</li>
+  <li>Added schema-driven full student-detail retrieval using the table’s dynamically discovered columns.</li>
+  <li>
+    <p>Added an admin-only student-detail endpoint:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/admin/tables/{table}/students/{student_code}
+</span></code></pre></div>    </div>
+  </li>
+  <li>Added application-level admin authorization using the authenticated Nginx user.</li>
+  <li>Added configurable administrator allowlisting through <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code>.</li>
+  <li>Added support for returning sensitive student fields through the explicitly protected admin endpoint.</li>
+  <li>Added tests covering full student-detail retrieval, <code class="language-plaintext highlighter-rouge">Roll No</code>-based lookup, missing students, admin access, non-admin access, and missing authentication headers.</li>
+</ul>
+
+<h3 id="security">Security</h3>
+
+<ul>
+  <li>The existing privacy-filtered student-detail endpoint remains unchanged.</li>
+  <li>Full student details are available only through the dedicated admin endpoint.</li>
+  <li>Requests without an authenticated user are rejected with HTTP 403.</li>
+  <li>Requests from users not included in <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> are rejected with HTTP 403.</li>
+  <li>Nginx injects <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code> from the authenticated Basic Auth username for the protected <code class="language-plaintext highlighter-rouge">/school/</code> location.</li>
+  <li>The public <code class="language-plaintext highlighter-rouge">/school/api/health</code> endpoint remains outside the authenticated-user header boundary.</li>
+  <li>The lab API continues to bind to localhost, keeping the authenticated Nginx proxy as the external access boundary.</li>
+</ul>
+
+<h3 id="configuration">Configuration</h3>
+
+<ul>
+  <li>
+    <p>Administrator usernames are configured through:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LAB_API_ADMIN_USERS=abhrankan,teacher1,principal
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The existing Nginx HTTPS and Basic Authentication deployment remains in use.</p>
+  </li>
+</ul>
+
+<h3 id="compatibility">Compatibility</h3>
+
+<ul>
+  <li>
+    <p>The existing privacy-aware student-detail endpoint remains available:</p>
+
+    <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/tables/{table}/students/{student_id}
+</span></code></pre></div>    </div>
+  </li>
+  <li>Existing School Database table discovery, schema discovery, pagination, search, and health endpoints remain available.</li>
+  <li>Existing read-only database behavior remains unchanged for normal School Database access.</li>
+  <li>No additional database server, container stack, or external service is required.</li>
+</ul>
+
+<h3 id="status">Status</h3>
+
+<ul>
+  <li>✅ Admin-only full student-detail endpoint</li>
+  <li>✅ Configurable admin allowlist</li>
+  <li>✅ Authenticated-user propagation from Nginx</li>
+  <li>✅ 403 enforcement for unauthenticated/non-admin users</li>
+  <li>✅ Existing privacy-filtered endpoint preserved</li>
+  <li>🔒 Sensitive fields remain restricted to the admin endpoint</li>
+  <li>🔒 School Database runtime remains read-only</li>
+</ul>
+
+<hr />
+
 <h2 id="v060--2026-09-13">[v0.6.0] — 2026-09-13</h2>
 
 <p><strong>Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.</strong></p>
 
-<h3 id="added">Added</h3>
+<h3 id="added-1">Added</h3>
 
 <ul>
   <li>Added schema-driven student identification for student-detail lookups.</li>
@@ -73,7 +148,7 @@
   <li>Added API coverage for the updated student-detail privacy boundary.</li>
 </ul>
 
-<h3 id="security">Security</h3>
+<h3 id="security-1">Security</h3>
 
 <ul>
   <li>Student identifiers are discovered from SQLite primary-key metadata rather than being hard-coded.</li>
@@ -97,7 +172,7 @@
   <li>Existing Nginx HTTPS and Basic Authentication boundaries remain unchanged.</li>
 </ul>
 
-<h3 id="compatibility">Compatibility</h3>
+<h3 id="compatibility-1">Compatibility</h3>
 
 <ul>
   <li>Existing School Database table and schema discovery endpoints remain available.</li>
@@ -127,7 +202,7 @@
   <li>Verified the updated School Database API tests pass.</li>
 </ul>
 
-<h3 id="status">Status</h3>
+<h3 id="status-1">Status</h3>
 
 <ul>
   <li>✅ Schema-driven student identification</li>
@@ -146,7 +221,7 @@
 
 <p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
-<h3 id="added-1">Added</h3>
+<h3 id="added-2">Added</h3>
 
 <ul>
   <li>Added a one-shot School Database importer:
@@ -174,7 +249,7 @@
   <li>The importer does not start the HTTP server.</li>
 </ul>
 
-<h3 id="configuration">Configuration</h3>
+<h3 id="configuration-1">Configuration</h3>
 
 <ul>
   <li>The importer uses the configured <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code>.</li>
@@ -193,7 +268,7 @@
   <li>Public access remains behind the existing Nginx HTTPS and Basic Authentication boundary.</li>
 </ul>
 
-<h3 id="compatibility-1">Compatibility</h3>
+<h3 id="compatibility-2">Compatibility</h3>
 
 <ul>
   <li>Existing core API endpoints remain unchanged.</li>
@@ -211,7 +286,7 @@
   <li>Production deployment and database activation were verified.</li>
 </ul>
 
-<h3 id="status-1">Status</h3>
+<h3 id="status-2">Status</h3>
 
 <ul>
   <li>✅ Validated School Database importer</li>
@@ -229,7 +304,7 @@
 
 <p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
 
-<h3 id="added-2">Added</h3>
+<h3 id="added-3">Added</h3>
 
 <ul>
   <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
@@ -241,7 +316,7 @@
   <li>Added tests for pagination, search, ordering, and student-detail behavior.</li>
 </ul>
 
-<h3 id="security-1">Security</h3>
+<h3 id="security-2">Security</h3>
 
 <ul>
   <li>Student details are returned through controlled, read-only API responses.</li>
@@ -250,7 +325,7 @@
   <li>Existing Nginx HTTPS and Basic Authentication protections remain unchanged.</li>
 </ul>
 
-<h3 id="compatibility-2">Compatibility</h3>
+<h3 id="compatibility-3">Compatibility</h3>
 
 <ul>
   <li>Existing API endpoints remain unchanged.</li>
@@ -268,7 +343,7 @@
   <li>School Database API and frontend behavior were tested.</li>
 </ul>
 
-<h3 id="status-2">Status</h3>
+<h3 id="status-3">Status</h3>
 
 <ul>
   <li>✅ Improved School Database pagination</li>
@@ -286,7 +361,7 @@
 
 <p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
 
-<h3 id="added-3">Added</h3>
+<h3 id="added-4">Added</h3>
 
 <ul>
   <li>Added a read-only School Database API backed by SQLite.</li>
@@ -334,7 +409,7 @@
   </li>
 </ul>
 
-<h3 id="security-2">Security</h3>
+<h3 id="security-3">Security</h3>
 
 <ul>
   <li>School Database access is strictly read-only.</li>
@@ -348,7 +423,7 @@
   <li>The database is stored outside the repository and is not directly exposed.</li>
 </ul>
 
-<h3 id="configuration-1">Configuration</h3>
+<h3 id="configuration-2">Configuration</h3>
 
 <ul>
   <li>
@@ -374,7 +449,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-3">Compatibility</h3>
+<h3 id="compatibility-4">Compatibility</h3>
 
 <ul>
   <li>Existing API endpoints remain unchanged.</li>
@@ -392,7 +467,7 @@
   <li>Debug and release builds completed successfully.</li>
 </ul>
 
-<h3 id="status-3">Status</h3>
+<h3 id="status-4">Status</h3>
 
 <ul>
   <li>✅ Read-only School Database API</li>
@@ -411,7 +486,7 @@
 
 <p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
 
-<h3 id="added-4">Added</h3>
+<h3 id="added-5">Added</h3>
 
 <ul>
   <li>Added Catalan number endpoint.</li>
@@ -433,7 +508,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-4">Compatibility</h3>
+<h3 id="compatibility-5">Compatibility</h3>
 
 <ul>
   <li>Existing API routes remain available.</li>
@@ -441,7 +516,7 @@
   <li>The service remains lightweight and self-hosted.</li>
 </ul>
 
-<h3 id="status-4">Status</h3>
+<h3 id="status-5">Status</h3>
 
 <ul>
   <li>✅ Catalan numbers</li>
@@ -456,7 +531,7 @@
 
 <h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
 
-<h3 id="added-5">Added</h3>
+<h3 id="added-6">Added</h3>
 
 <ul>
   <li>
@@ -485,7 +560,7 @@
 
 <p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
 
-<h3 id="added-6">Added</h3>
+<h3 id="added-7">Added</h3>
 
 <h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
 
@@ -558,7 +633,7 @@
   <li><code class="language-plaintext highlighter-rouge">API.md</code> — Added production-quality API reference documentation.</li>
 </ul>
 
-<h3 id="status-5">Status</h3>
+<h3 id="status-6">Status</h3>
 
 <ul>
   <li>✅ Frontend navigation is consistent.</li>
@@ -577,7 +652,7 @@
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-7">Added</h3>
+<h3 id="added-8">Added</h3>
 
 <ul>
   <li>SHA-256 hashing endpoint.</li>
@@ -603,7 +678,7 @@
   <li><code class="language-plaintext highlighter-rouge">POST /v1/hmac/verify</code></li>
 </ul>
 
-<h3 id="security-3">Security</h3>
+<h3 id="security-4">Security</h3>
 
 <ul>
   <li>HMAC verification uses constant-time comparison.</li>
@@ -623,7 +698,7 @@
   <li>Requires no database, queue, container stack, or additional monitoring infrastructure.</li>
 </ul>
 
-<h3 id="status-6">Status</h3>
+<h3 id="status-7">Status</h3>
 
 <ul>
   <li>✅ SHA-256 and SHA-512 hashing</li>
