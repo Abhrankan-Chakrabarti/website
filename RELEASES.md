@@ -1,5 +1,68 @@
 # Releases
 
+## [v0.7.0] — 2026-09-28
+
+**Admin-only full student details with authenticated-user authorization.**
+
+### Added
+
+- Added a `student_detail_full(table, student_id)` database method for retrieving complete student records.
+- Added schema-driven full student-detail retrieval using the table's dynamically discovered columns.
+- Added an admin-only student-detail endpoint:
+
+  ```http
+  GET /school/api/admin/tables/{table}/students/{student_code}
+  ```
+
+- Added application-level admin authorization using the authenticated Nginx user.
+- Added configurable administrator allowlisting through `LAB_API_ADMIN_USERS`.
+- Added support for returning sensitive student fields through the explicitly protected admin endpoint.
+- Added tests covering full student-detail retrieval, `Roll No`-based lookup, missing students, admin access, non-admin access, and missing authentication headers.
+
+### Security
+
+- The existing privacy-filtered student-detail endpoint remains unchanged.
+- Full student details are available only through the dedicated admin endpoint.
+- Requests without an authenticated user are rejected with HTTP 403.
+- Requests from users not included in `LAB_API_ADMIN_USERS` are rejected with HTTP 403.
+- Nginx injects `X-Authenticated-User` from the authenticated Basic Auth username for the protected `/school/` location.
+- The public `/school/api/health` endpoint remains outside the authenticated-user header boundary.
+- The lab API continues to bind to localhost, keeping the authenticated Nginx proxy as the external access boundary.
+
+### Configuration
+
+- Administrator usernames are configured through:
+
+  ```text
+  LAB_API_ADMIN_USERS=abhrankan,teacher1,principal
+  ```
+
+- The existing Nginx HTTPS and Basic Authentication deployment remains in use.
+
+### Compatibility
+
+- The existing privacy-aware student-detail endpoint remains available:
+
+  ```http
+  GET /school/api/tables/{table}/students/{student_id}
+  ```
+
+- Existing School Database table discovery, schema discovery, pagination, search, and health endpoints remain available.
+- Existing read-only database behavior remains unchanged for normal School Database access.
+- No additional database server, container stack, or external service is required.
+
+### Status
+
+- ✅ Admin-only full student-detail endpoint
+- ✅ Configurable admin allowlist
+- ✅ Authenticated-user propagation from Nginx
+- ✅ 403 enforcement for unauthenticated/non-admin users
+- ✅ Existing privacy-filtered endpoint preserved
+- 🔒 Sensitive fields remain restricted to the admin endpoint
+- 🔒 School Database runtime remains read-only
+
+---
+
 ## [v0.6.0] — 2026-09-13
 
 **Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.**
