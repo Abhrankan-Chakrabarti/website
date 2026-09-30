@@ -18,6 +18,8 @@
 - Added configurable administrator allowlisting through `LAB_API_ADMIN_USERS`.
 - Added support for returning sensitive student fields through the explicitly protected admin endpoint.
 - Added tests covering full student-detail retrieval, `Roll No`-based lookup, missing students, admin access, non-admin access, and missing authentication headers.
+- Updated the School Database frontend to try the admin full-detail endpoint first and fall back to the privacy-filtered endpoint for non-admin users.
+- Added explicit frontend access-state indicators for full admin records and privacy-filtered records.
 
 ### Security
 
@@ -25,6 +27,7 @@
 - Full student details are available only through the dedicated admin endpoint.
 - Requests without an authenticated user are rejected with HTTP 403.
 - Requests from users not included in `LAB_API_ADMIN_USERS` are rejected with HTTP 403.
+- The portal does not determine admin privileges itself; a `403` from the admin endpoint is treated as the authorization boundary and triggers the safe fallback.
 - Nginx injects `X-Authenticated-User` from the authenticated Basic Auth username for the protected `/school/` location.
 - The public `/school/api/health` endpoint remains outside the authenticated-user header boundary.
 - The lab API continues to bind to localhost, keeping the authenticated Nginx proxy as the external access boundary.
