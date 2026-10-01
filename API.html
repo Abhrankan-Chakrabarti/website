@@ -63,7 +63,8 @@
   <li>the Rust application listens only on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code></li>
   <li>Nginx is the public entry point over HTTPS</li>
   <li>the backend is not directly exposed to the Internet</li>
-  <li><code class="language-plaintext highlighter-rouge">lab-api</code> provides health, application metadata, Catalan number calculation, and authenticated system snapshot data</li>
+  <li><code class="language-plaintext highlighter-rouge">lab-api</code> provides health, application metadata, read-only math routes, and an authenticated system snapshot; its core <code class="language-plaintext highlighter-rouge">/api/*</code> service has no database</li>
+  <li>the separate <code class="language-plaintext highlighter-rouge">/school/*</code> surface is a read-only SQLite API configured by <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code></li>
   <li><code class="language-plaintext highlighter-rouge">crypto-lab</code> provides public application metadata plus authenticated hashing and HMAC operations</li>
 </ul>
 
@@ -102,7 +103,12 @@ Nginx
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/health
 https://abhrankan.duckdns.org/api/v1/info
 https://abhrankan.duckdns.org/api/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/fibonacci/10
+https://abhrankan.duckdns.org/api/v1/math/gcd/84/30
 https://abhrankan.duckdns.org/api/v1/snapshot
+https://abhrankan.duckdns.org/school/api/tables/students/students/12345
+https://abhrankan.duckdns.org/school/api/admin/tables/students/students/12345
 https://abhrankan.duckdns.org/crypto-api/health
 https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
@@ -117,7 +123,12 @@ https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://127.0.0.1:8088/health
 http://127.0.0.1:8088/v1/info
 http://127.0.0.1:8088/v1/catalan/10
+http://127.0.0.1:8088/v1/math/catalan/10
+http://127.0.0.1:8088/v1/math/fibonacci/10
+http://127.0.0.1:8088/v1/math/gcd/84/30
 http://127.0.0.1:8088/v1/snapshot
+http://127.0.0.1:8088/school/api/tables/students/students/12345
+http://127.0.0.1:8088/school/api/admin/tables/students/students/12345
 http://127.0.0.1:8089/health
 http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
@@ -128,6 +139,8 @@ http://127.0.0.1:8089/v1/hmac/verify
 <p>The backend itself is only accessible from the local machine. It should not be exposed directly on a public interface or a public port.</p>
 
 <h2 id="endpoint-summary">Endpoint summary</h2>
+
+<p>The core and School tables below use backend paths. Public clients prefix core routes with <code class="language-plaintext highlighter-rouge">/api</code>, while School routes are published under <code class="language-plaintext highlighter-rouge">/school</code>. The crypto-lab table uses its public <code class="language-plaintext highlighter-rouge">/crypto-api</code> paths.</p>
 
 <table>
   <thead>
@@ -141,30 +154,92 @@ http://127.0.0.1:8089/v1/hmac/verify
   <tbody>
     <tr>
       <td>GET</td>
-      <td>/api/health</td>
+      <td>/health</td>
       <td>No</td>
       <td>Service health</td>
     </tr>
     <tr>
       <td>GET</td>
-      <td>/api/v1/info</td>
+      <td>/v1/info</td>
       <td>No</td>
       <td>Non-sensitive application metadata and endpoint discovery</td>
     </tr>
     <tr>
       <td>GET</td>
-      <td>/api/v1/catalan/:n</td>
+      <td>/v1/math/catalan/:n</td>
       <td>No</td>
       <td>Catalan number, with <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></td>
     </tr>
     <tr>
       <td>GET</td>
-      <td>/api/v1/snapshot</td>
+      <td>/v1/math/fibonacci/:n</td>
+      <td>No</td>
+      <td>Fibonacci number, with <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 186</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/v1/math/gcd/:a/:b</td>
+      <td>No</td>
+      <td>Greatest common divisor of two <code class="language-plaintext highlighter-rouge">u64</code> values</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/v1/catalan/:n</td>
+      <td>No</td>
+      <td>Catalan number compatibility alias</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/v1/snapshot</td>
       <td>Basic Auth</td>
       <td>Host/system snapshot</td>
     </tr>
   </tbody>
 </table>
+
+<h3 id="school-api">School API</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Endpoint</th>
+      <th>Auth</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GET</td>
+      <td>/school/api/tables/{table}/students/{student_code}</td>
+      <td>No</td>
+      <td>Privacy-filtered student detail</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/school/api/admin/tables/{table}/students/{student_code}</td>
+      <td>Basic Auth + admin allowlist</td>
+      <td>Full student detail</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The core <code class="language-plaintext highlighter-rouge">/api/*</code> service has no database. The separate School API under <code class="language-plaintext highlighter-rouge">/school/</code> reads SQLite from <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code> and is read-only during normal runtime.</p>
+
+<p>The normal student-detail route excludes explicitly sensitive contact, financial, and identity fields. The admin detail route returns every column in the selected table and requires Nginx Basic Auth plus an authenticated username listed in <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code>.</p>
+
+<p>For example, configure the backend allowlist with a comma-separated value:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SCHOOL_DB_PATH=/srv/school/data/school.sqlite
+LAB_API_ADMIN_USERS=abhrankan,teacher1,principal
+</code></pre></div></div>
+
+<p>Inside the authenticated <code class="language-plaintext highlighter-rouge">/school/</code> location, Nginx must pass the identity to the local backend:</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">proxy_set_header</span> <span class="s">X-Authenticated-User</span> <span class="nv">$remote_user</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Do not expose the backend directly on a public interface.</p>
 
 <h3 id="crypto-lab">crypto-lab</h3>
 
@@ -229,7 +304,7 @@ http://127.0.0.1:8089/v1/hmac/verify
     </tr>
     <tr>
       <td>400 Bad Request</td>
-      <td>Invalid Catalan input such as <code class="language-plaintext highlighter-rouge">n &gt; 34</code></td>
+      <td>Catalan <code class="language-plaintext highlighter-rouge">n &gt; 34</code> or Fibonacci <code class="language-plaintext highlighter-rouge">n &gt; 186</code></td>
     </tr>
     <tr>
       <td>401 Unauthorized</td>
@@ -251,8 +326,12 @@ http://127.0.0.1:8089/v1/hmac/verify
 <ul>
   <li><code class="language-plaintext highlighter-rouge">GET /api/health</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/info</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> and returns non-sensitive metadata</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/catalan/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/fibonacci/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 186</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/gcd/:a/:b</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> for valid <code class="language-plaintext highlighter-rouge">u64</code> path values</li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/fibonacci/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 186</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/snapshot</code> fails with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth</li>
   <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/health</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/info</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> and returns non-sensitive metadata</li>
@@ -266,7 +345,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/info
 </span></code></pre></div></div>
 
-<p>This public endpoint describes the running application and its public route surface. It does not require authentication and must not expose hostnames, filesystem paths, credentials, environment variables, or system snapshot data.</p>
+<p>This public endpoint describes the running application and its public route surface. It does not require authentication and must not expose hostnames, filesystem paths, credentials, secret environment variables, or system snapshot data. The <code class="language-plaintext highlighter-rouge">environment</code> field is only a non-secret deployment label.</p>
 
 <h3 id="request-examples">Request examples</h3>
 
@@ -278,11 +357,14 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"api_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.7.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/catalan/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/fibonacci/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/gcd/:a/:b"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/catalan/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/snapshot"</span><span class="w">
   </span><span class="p">],</span><span class="w">
@@ -298,7 +380,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
   <li><code class="language-plaintext highlighter-rouge">500 Internal Server Error</code> — Unexpected backend failure</li>
 </ul>
 
-<p><code class="language-plaintext highlighter-rouge">version</code> is taken from the package version at build time. <code class="language-plaintext highlighter-rouge">build_profile</code> identifies whether the binary was compiled with debug assertions. <code class="language-plaintext highlighter-rouge">environment</code> is a deployment label and must remain free of secrets.</p>
+<p><code class="language-plaintext highlighter-rouge">app_version</code> is taken from the package version at build time. <code class="language-plaintext highlighter-rouge">build_profile</code> identifies whether the binary was compiled with debug assertions. <code class="language-plaintext highlighter-rouge">environment</code> is an optional <code class="language-plaintext highlighter-rouge">LAB_API_ENV</code> deployment label, defaults to <code class="language-plaintext highlighter-rouge">unknown</code>, and must remain free of secrets.</p>
 
 <h2 id="health-endpoint">Health endpoint</h2>
 
@@ -383,6 +465,43 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
   <li>no authentication required</li>
 </ul>
 
+<h2 id="math-endpoints">Math endpoints</h2>
+
+<p>The math routes are public, read-only GET endpoints. Catalan and Fibonacci results use <code class="language-plaintext highlighter-rouge">u128</code> arithmetic and are returned as decimal strings. The legacy <code class="language-plaintext highlighter-rouge">/api/v1/catalan/:n</code> route remains available as an alias for the nested Catalan route.</p>
+
+<h3 id="fibonacci">Fibonacci</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/math/fibonacci/:n
+</span></code></pre></div></div>
+
+<p>Supports <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 186</code>. <code class="language-plaintext highlighter-rouge">F(186)</code> is the largest value representable within the implemented <code class="language-plaintext highlighter-rouge">u128</code> boundary; <code class="language-plaintext highlighter-rouge">n &gt; 186</code> returns <code class="language-plaintext highlighter-rouge">400 Bad Request</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/fibonacci/10'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"55"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="greatest-common-divisor">Greatest common divisor</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /api/v1/math/gcd/:a/:b
+</span></code></pre></div></div>
+
+<p>Computes the GCD of two <code class="language-plaintext highlighter-rouge">u64</code> values using the Euclidean algorithm. Zero is valid, including <code class="language-plaintext highlighter-rouge">gcd(0, 0) = 0</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/gcd/84/30'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">84</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"b"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"gcd"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
 <h2 id="snapshot-endpoint">Snapshot endpoint</h2>
 
 <h3 id="route-2">Route</h3>
@@ -441,33 +560,45 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 <ul>
   <li><code class="language-plaintext highlighter-rouge">GET /api/health</code> is unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/info</code> is unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/catalan/:n</code> is unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/fibonacci/:n</code> is unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /api/v1/math/gcd/:a/:b</code> is unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/catalan/:n</code> is unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /api/v1/snapshot</code> requires HTTP Basic Auth</li>
 </ul>
 
 <h3 id="auth-implementation">Auth implementation</h3>
 
-<p>The credential check is handled by Nginx, not the Rust application.</p>
+<p>For <code class="language-plaintext highlighter-rouge">/v1/snapshot</code>, Nginx enforces HTTP Basic Authentication before proxying; the core Rust handler does not validate those credentials. The separate School admin endpoint also checks the forwarded <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code> against <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> after Nginx authentication.</p>
 
-<p>This is the desired deployment pattern because:</p>
-
-<ul>
-  <li>the backend remains local-only</li>
-  <li>auth is enforced before proxying</li>
-  <li>the app does not need to store or validate user credentials</li>
-  <li>the public HTTP layer is responsible for access control</li>
-</ul>
+<p>This keeps the backend local-only while placing public Basic Auth at the HTTPS edge and School-specific authorization in the School handler.</p>
 
 <h3 id="example-nginx-auth-block">Example Nginx auth block</h3>
 
 <div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="p">=</span> <span class="n">/api/v1/snapshot</span> <span class="p">{</span>
-    <span class="kn">auth_basic</span> <span class="s">"lab-api"</span><span class="p">;</span>
-    <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/.htpasswd</span><span class="p">;</span>
+    <span class="kn">auth_basic</span> <span class="s">"Private</span> <span class="s">API"</span><span class="p">;</span>
+    <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/status.htpasswd</span><span class="p">;</span>
     <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088/v1/snapshot</span><span class="p">;</span>
+
+    <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">location</span> <span class="n">/api/</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088/</span><span class="p">;</span>
+
+      <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+      <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+      <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+      <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+      <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>This keeps the application simple while allowing Nginx to protect only the snapshot route and leave the public health/info/catalan endpoints open.</p>
+<p>Only the exact snapshot route requires Basic Auth. Health, info, math, and the Catalan compatibility alias remain public.</p>
 
 <h2 id="security-model">Security model</h2>
 
@@ -478,7 +609,7 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
   <li>no public TCP exposure for the Rust process</li>
   <li>HTTPS termination at Nginx</li>
   <li>Basic Auth for the system snapshot endpoint</li>
-  <li>no database</li>
+  <li>no database for the core <code class="language-plaintext highlighter-rouge">/api/*</code> service; the separate <code class="language-plaintext highlighter-rouge">/school/*</code> surface is read-only SQLite configured by <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code></li>
   <li>no application-layer user management</li>
   <li>no token system, no OAuth, no session handling</li>
 </ul>
@@ -488,14 +619,14 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Internet -&gt; HTTPS + Nginx -&gt; local lab-api process -&gt; Linux host
 </code></pre></div></div>
 
-<p>The system snapshot endpoint is the only route with protected access. The health, information, and Catalan endpoints are intentionally public and informational.</p>
+<p>The system snapshot endpoint is the only protected route in the core <code class="language-plaintext highlighter-rouge">/api/*</code> service. Health, info, math routes, and the Catalan alias are public. The School admin detail endpoint separately requires Basic Auth and the <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> allowlist.</p>
 
 <h2 id="operational-notes">Operational notes</h2>
 
 <ul>
   <li>This API is intentionally small and stable.</li>
   <li>No additional endpoints should be added without a matching documentation update.</li>
-  <li>The current contract is intentionally deliberate: a health check, public application metadata, a numeric calculation endpoint, and an authenticated snapshot endpoint.</li>
+  <li>The current contract is intentionally deliberate: health, public application metadata, math routes, an authenticated snapshot, and the separate read-only School API under <code class="language-plaintext highlighter-rouge">/school/</code>.</li>
   <li>If the service is extended later, the contract should be updated in this document first.</li>
 </ul>
 
