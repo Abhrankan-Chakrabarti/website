@@ -7,7 +7,8 @@ The service is intentionally small and narrow:
 - the Rust application listens only on `127.0.0.1:8088`
 - Nginx is the public entry point over HTTPS
 - the backend is not directly exposed to the Internet
-- `lab-api` provides health, application metadata, Catalan number calculation, and authenticated system snapshot data
+- `lab-api` provides health, application metadata, read-only math routes, and an authenticated system snapshot; its core `/api/*` service has no database
+- the separate `/school/*` surface is a read-only SQLite API configured by `SCHOOL_DB_PATH`
 - `crypto-lab` provides public application metadata plus authenticated hashing and HMAC operations
 
 ## Service architecture
@@ -48,7 +49,12 @@ Nginx
 https://abhrankan.duckdns.org/api/health
 https://abhrankan.duckdns.org/api/v1/info
 https://abhrankan.duckdns.org/api/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/fibonacci/10
+https://abhrankan.duckdns.org/api/v1/math/gcd/84/30
 https://abhrankan.duckdns.org/api/v1/snapshot
+https://abhrankan.duckdns.org/school/api/tables/students/students/12345
+https://abhrankan.duckdns.org/school/api/admin/tables/students/students/12345
 https://abhrankan.duckdns.org/crypto-api/health
 https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
@@ -64,7 +70,12 @@ These are consumed through Nginx, which terminates TLS and forwards traffic to t
 http://127.0.0.1:8088/health
 http://127.0.0.1:8088/v1/info
 http://127.0.0.1:8088/v1/catalan/10
+http://127.0.0.1:8088/v1/math/catalan/10
+http://127.0.0.1:8088/v1/math/fibonacci/10
+http://127.0.0.1:8088/v1/math/gcd/84/30
 http://127.0.0.1:8088/v1/snapshot
+http://127.0.0.1:8088/school/api/tables/students/students/12345
+http://127.0.0.1:8088/school/api/admin/tables/students/students/12345
 http://127.0.0.1:8089/health
 http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
@@ -76,12 +87,43 @@ The backend itself is only accessible from the local machine. It should not be e
 
 ## Endpoint summary
 
+The core and School tables below use backend paths. Public clients prefix core routes with `/api`, while School routes are published under `/school`. The crypto-lab table uses its public `/crypto-api` paths.
+
 | Method | Endpoint | Auth | Purpose |
 | --- | --- | --- | --- |
-| GET | /api/health | No | Service health |
-| GET | /api/v1/info | No | Non-sensitive application metadata and endpoint discovery |
-| GET | /api/v1/catalan/:n | No | Catalan number, with `0 ≤ n ≤ 34` |
-| GET | /api/v1/snapshot | Basic Auth | Host/system snapshot |
+| GET | /health | No | Service health |
+| GET | /v1/info | No | Non-sensitive application metadata and endpoint discovery |
+| GET | /v1/math/catalan/:n | No | Catalan number, with `0 ≤ n ≤ 34` |
+| GET | /v1/math/fibonacci/:n | No | Fibonacci number, with `0 ≤ n ≤ 186` |
+| GET | /v1/math/gcd/:a/:b | No | Greatest common divisor of two `u64` values |
+| GET | /v1/catalan/:n | No | Catalan number compatibility alias |
+| GET | /v1/snapshot | Basic Auth | Host/system snapshot |
+
+### School API
+
+| Method | Endpoint | Auth | Purpose |
+| --- | --- | --- | --- |
+| GET | /school/api/tables/{table}/students/{student_code} | No | Privacy-filtered student detail |
+| GET | /school/api/admin/tables/{table}/students/{student_code} | Basic Auth + admin allowlist | Full student detail |
+
+The core `/api/*` service has no database. The separate School API under `/school/` reads SQLite from `SCHOOL_DB_PATH` and is read-only during normal runtime.
+
+The normal student-detail route excludes explicitly sensitive contact, financial, and identity fields. The admin detail route returns every column in the selected table and requires Nginx Basic Auth plus an authenticated username listed in `LAB_API_ADMIN_USERS`.
+
+For example, configure the backend allowlist with a comma-separated value:
+
+```text
+SCHOOL_DB_PATH=/srv/school/data/school.sqlite
+LAB_API_ADMIN_USERS=abhrankan,teacher1,principal
+```
+
+Inside the authenticated `/school/` location, Nginx must pass the identity to the local backend:
+
+```nginx
+proxy_set_header X-Authenticated-User $remote_user;
+```
+
+Do not expose the backend directly on a public interface.
 
 ### crypto-lab
 
@@ -100,7 +142,7 @@ The API uses the standard HTTP responses implied by the handler behavior:
 | Status | Meaning |
 | --- | --- |
 | 200 OK | Successful request |
-| 400 Bad Request | Invalid Catalan input such as `n > 34` |
+| 400 Bad Request | Catalan `n > 34` or Fibonacci `n > 186` |
 | 401 Unauthorized | Missing or invalid HTTP Basic credentials |
 | 404 Not Found | Route not defined |
 | 500 Internal Server Error | Unexpected backend failure |
@@ -109,8 +151,12 @@ The most important contract checks are:
 
 - `GET /api/health` succeeds with `200`
 - `GET /api/v1/info` succeeds with `200` and returns non-sensitive metadata
+- `GET /api/v1/math/catalan/:n` succeeds with `200` when `0 ≤ n ≤ 34`
+- `GET /api/v1/math/fibonacci/:n` succeeds with `200` when `0 ≤ n ≤ 186`
+- `GET /api/v1/math/gcd/:a/:b` succeeds with `200` for valid `u64` path values
 - `GET /api/v1/catalan/:n` succeeds with `200` when `0 ≤ n ≤ 34`
 - `GET /api/v1/catalan/:n` fails with `400` when `n > 34`
+- `GET /api/v1/math/fibonacci/:n` fails with `400` when `n > 186`
 - `GET /api/v1/snapshot` fails with `401` without valid Basic Auth
 - `GET /crypto-api/health` succeeds with `200`
 - `GET /crypto-api/v1/info` succeeds with `200` and returns non-sensitive metadata
@@ -124,7 +170,7 @@ The most important contract checks are:
 GET /api/v1/info
 ```
 
-This public endpoint describes the running application and its public route surface. It does not require authentication and must not expose hostnames, filesystem paths, credentials, environment variables, or system snapshot data.
+This public endpoint describes the running application and its public route surface. It does not require authentication and must not expose hostnames, filesystem paths, credentials, secret environment variables, or system snapshot data. The `environment` field is only a non-secret deployment label.
 
 ### Request examples
 
@@ -138,11 +184,14 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
 ```json
 {
   "service": "lab-api",
-  "api": "v1",
-  "version": "0.2.0",
+  "api_version": "v1",
+  "app_version": "0.7.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
+    "GET /v1/math/catalan/:n",
+    "GET /v1/math/fibonacci/:n",
+    "GET /v1/math/gcd/:a/:b",
     "GET /v1/catalan/:n",
     "GET /v1/snapshot"
   ],
@@ -156,7 +205,7 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
 - `200 OK` — Metadata returned
 - `500 Internal Server Error` — Unexpected backend failure
 
-`version` is taken from the package version at build time. `build_profile` identifies whether the binary was compiled with debug assertions. `environment` is a deployment label and must remain free of secrets.
+`app_version` is taken from the package version at build time. `build_profile` identifies whether the binary was compiled with debug assertions. `environment` is an optional `LAB_API_ENV` deployment label, defaults to `unknown`, and must remain free of secrets.
 
 ## Health endpoint
 
@@ -246,6 +295,49 @@ Content-Type: application/json
 - `400 Bad Request` when `n > 34`
 - no authentication required
 
+## Math endpoints
+
+The math routes are public, read-only GET endpoints. Catalan and Fibonacci results use `u128` arithmetic and are returned as decimal strings. The legacy `/api/v1/catalan/:n` route remains available as an alias for the nested Catalan route.
+
+### Fibonacci
+
+```http
+GET /api/v1/math/fibonacci/:n
+```
+
+Supports `0 ≤ n ≤ 186`. `F(186)` is the largest value representable within the implemented `u128` boundary; `n > 186` returns `400 Bad Request`.
+
+```bash
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/fibonacci/10'
+```
+
+```json
+{
+  "n": 10,
+  "value": "55"
+}
+```
+
+### Greatest common divisor
+
+```http
+GET /api/v1/math/gcd/:a/:b
+```
+
+Computes the GCD of two `u64` values using the Euclidean algorithm. Zero is valid, including `gcd(0, 0) = 0`.
+
+```bash
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/gcd/84/30'
+```
+
+```json
+{
+  "a": 84,
+  "b": 30,
+  "gcd": 6
+}
+```
+
 ## Snapshot endpoint
 
 ### Route
@@ -306,31 +398,45 @@ This is intentional. The endpoint exposes host-level information and is therefor
 
 - `GET /api/health` is unauthenticated
 - `GET /api/v1/info` is unauthenticated
+- `GET /api/v1/math/catalan/:n` is unauthenticated
+- `GET /api/v1/math/fibonacci/:n` is unauthenticated
+- `GET /api/v1/math/gcd/:a/:b` is unauthenticated
 - `GET /api/v1/catalan/:n` is unauthenticated
 - `GET /api/v1/snapshot` requires HTTP Basic Auth
 
 ### Auth implementation
 
-The credential check is handled by Nginx, not the Rust application.
+For `/v1/snapshot`, Nginx enforces HTTP Basic Authentication before proxying; the core Rust handler does not validate those credentials. The separate School admin endpoint also checks the forwarded `X-Authenticated-User` against `LAB_API_ADMIN_USERS` after Nginx authentication.
 
-This is the desired deployment pattern because:
-
-- the backend remains local-only
-- auth is enforced before proxying
-- the app does not need to store or validate user credentials
-- the public HTTP layer is responsible for access control
+This keeps the backend local-only while placing public Basic Auth at the HTTPS edge and School-specific authorization in the School handler.
 
 ### Example Nginx auth block
 
 ```nginx
 location = /api/v1/snapshot {
-    auth_basic "lab-api";
-    auth_basic_user_file /etc/nginx/.htpasswd;
+    auth_basic "Private API";
+    auth_basic_user_file /etc/nginx/status.htpasswd;
     proxy_pass http://127.0.0.1:8088/v1/snapshot;
+
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location /api/ {
+    proxy_pass http://127.0.0.1:8088/;
+
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
 
-This keeps the application simple while allowing Nginx to protect only the snapshot route and leave the public health/info/catalan endpoints open.
+Only the exact snapshot route requires Basic Auth. Health, info, math, and the Catalan compatibility alias remain public.
 
 ## Security model
 
@@ -340,7 +446,7 @@ The current security model is intentionally conservative:
 - no public TCP exposure for the Rust process
 - HTTPS termination at Nginx
 - Basic Auth for the system snapshot endpoint
-- no database
+- no database for the core `/api/*` service; the separate `/school/*` surface is read-only SQLite configured by `SCHOOL_DB_PATH`
 - no application-layer user management
 - no token system, no OAuth, no session handling
 
@@ -350,13 +456,13 @@ This is a small service with a minimal security boundary. The trust boundary is:
 Internet -> HTTPS + Nginx -> local lab-api process -> Linux host
 ```
 
-The system snapshot endpoint is the only route with protected access. The health, information, and Catalan endpoints are intentionally public and informational.
+The system snapshot endpoint is the only protected route in the core `/api/*` service. Health, info, math routes, and the Catalan alias are public. The School admin detail endpoint separately requires Basic Auth and the `LAB_API_ADMIN_USERS` allowlist.
 
 ## Operational notes
 
 - This API is intentionally small and stable.
 - No additional endpoints should be added without a matching documentation update.
-- The current contract is intentionally deliberate: a health check, public application metadata, a numeric calculation endpoint, and an authenticated snapshot endpoint.
+- The current contract is intentionally deliberate: health, public application metadata, math routes, an authenticated snapshot, and the separate read-only School API under `/school/`.
 - If the service is extended later, the contract should be updated in this document first.
 
 This is the current canonical API contract for the service.
