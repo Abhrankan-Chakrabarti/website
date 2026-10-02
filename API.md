@@ -1,6 +1,6 @@
-# lab-api API contract
+# API contracts: lab-api and crypto-lab
 
-This document describes the current production-facing contract for `lab-api` as it is deployed today.
+This document describes the current production-facing contracts for `lab-api` and `crypto-lab` as deployed today.
 
 The service is intentionally small and intentionally narrow:
 
@@ -19,12 +19,8 @@ Internet
 HTTPS
    ↓
 Nginx
-   ├── /api/*     → 127.0.0.1:8088  (lab-api core)
-   └── /school/*  → 127.0.0.1:8088  (School module)
-          ↓
-      lab-api
-          ↓
-      systemd
+  ├── /api/* and /school/* → 127.0.0.1:8088 → lab-api → systemd
+  └── /crypto-api/*        → 127.0.0.1:8089 → crypto-lab → systemd
 ```
 
 ## Public URL vs local backend URL
@@ -550,13 +546,15 @@ http://127.0.0.1:8089/v1/hmac/verify
 
 `GET /crypto-api/health` and `GET /crypto-api/v1/info` are unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:
 
+The htpasswd path below is an example; use the credential-file path configured by your Nginx site.
+
 ```nginx
 location = /crypto-api/health {
     proxy_pass http://127.0.0.1:8089/health;
 }
 
 location = /crypto-api/v1/info {
-  proxy_pass http://127.0.0.1:8089/v1/info;
+    proxy_pass http://127.0.0.1:8089/v1/info;
 }
 
 location /crypto-api/ {
