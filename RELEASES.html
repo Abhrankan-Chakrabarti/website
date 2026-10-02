@@ -55,11 +55,31 @@
 
       <h1 id="releases">Releases</h1>
 
+<h2 id="v071--2026-10-02">[v0.7.1] — 2026-10-02</h2>
+
+<p><strong>School Database student-view toggle for privacy-filtered and admin detail modes.</strong></p>
+
+<h3 id="added">Added</h3>
+
+<ul>
+  <li>Added a portal control to switch between privacy-filtered student details and full admin details when authorized.</li>
+  <li>Preserved the existing safe-detail fallback for users without admin access.</li>
+</ul>
+
+<h3 id="security">Security</h3>
+
+<ul>
+  <li>Full student details remain behind Nginx Basic Authentication and the <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> allowlist.</li>
+  <li>The toggle does not grant privileges; backend authorization remains authoritative.</li>
+</ul>
+
+<hr />
+
 <h2 id="v070--2026-09-28">[v0.7.0] — 2026-09-28</h2>
 
 <p><strong>Admin-only full student details with authenticated-user authorization.</strong></p>
 
-<h3 id="added">Added</h3>
+<h3 id="added-1">Added</h3>
 
 <ul>
   <li>Added a <code class="language-plaintext highlighter-rouge">student_detail_full(table, student_id)</code> database method for retrieving complete student records.</li>
@@ -78,7 +98,7 @@
   <li>Added explicit frontend access-state indicators for full admin records and privacy-filtered records.</li>
 </ul>
 
-<h3 id="security">Security</h3>
+<h3 id="security-1">Security</h3>
 
 <ul>
   <li>The existing privacy-filtered student-detail endpoint remains unchanged.</li>
@@ -137,7 +157,7 @@
 
 <p><strong>Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.</strong></p>
 
-<h3 id="added-1">Added</h3>
+<h3 id="added-2">Added</h3>
 
 <ul>
   <li>Added schema-driven student identification for student-detail lookups.</li>
@@ -151,7 +171,7 @@
   <li>Added API coverage for the updated student-detail privacy boundary.</li>
 </ul>
 
-<h3 id="security-1">Security</h3>
+<h3 id="security-2">Security</h3>
 
 <ul>
   <li>Student identifiers are discovered from SQLite primary-key metadata rather than being hard-coded.</li>
@@ -224,7 +244,7 @@
 
 <p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
-<h3 id="added-2">Added</h3>
+<h3 id="added-3">Added</h3>
 
 <ul>
   <li>Added a one-shot School Database importer:
@@ -307,7 +327,7 @@
 
 <p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
 
-<h3 id="added-3">Added</h3>
+<h3 id="added-4">Added</h3>
 
 <ul>
   <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
@@ -319,7 +339,7 @@
   <li>Added tests for pagination, search, ordering, and student-detail behavior.</li>
 </ul>
 
-<h3 id="security-2">Security</h3>
+<h3 id="security-3">Security</h3>
 
 <ul>
   <li>Student details are returned through controlled, read-only API responses.</li>
@@ -364,7 +384,7 @@
 
 <p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
 
-<h3 id="added-4">Added</h3>
+<h3 id="added-5">Added</h3>
 
 <ul>
   <li>Added a read-only School Database API backed by SQLite.</li>
@@ -412,7 +432,7 @@
   </li>
 </ul>
 
-<h3 id="security-3">Security</h3>
+<h3 id="security-4">Security</h3>
 
 <ul>
   <li>School Database access is strictly read-only.</li>
@@ -489,7 +509,7 @@
 
 <p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
 
-<h3 id="added-5">Added</h3>
+<h3 id="added-6">Added</h3>
 
 <ul>
   <li>Added Catalan number endpoint.</li>
@@ -534,7 +554,7 @@
 
 <h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
 
-<h3 id="added-6">Added</h3>
+<h3 id="added-7">Added</h3>
 
 <ul>
   <li>
@@ -563,7 +583,7 @@
 
 <p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
 
-<h3 id="added-7">Added</h3>
+<h3 id="added-8">Added</h3>
 
 <h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
 
@@ -655,7 +675,7 @@
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-8">Added</h3>
+<h3 id="added-9">Added</h3>
 
 <ul>
   <li>SHA-256 hashing endpoint.</li>
@@ -681,7 +701,7 @@
   <li><code class="language-plaintext highlighter-rouge">POST /v1/hmac/verify</code></li>
 </ul>
 
-<h3 id="security-4">Security</h3>
+<h3 id="security-5">Security</h3>
 
 <ul>
   <li>HMAC verification uses constant-time comparison.</li>
