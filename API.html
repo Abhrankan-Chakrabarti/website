@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>lab-api API contract | website</title>
+<title>API contracts: lab-api and crypto-lab | website</title>
 <meta name="generator" content="Jekyll v3.10.0" />
-<meta property="og:title" content="lab-api API contract" />
+<meta property="og:title" content="API contracts: lab-api and crypto-lab" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing." />
 <meta property="og:description" content="Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing." />
@@ -17,9 +17,9 @@
 <meta property="og:site_name" content="website" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="lab-api API contract" />
+<meta property="twitter:title" content="API contracts: lab-api and crypto-lab" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","description":"Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing.","headline":"lab-api API contract","url":"https://abhrankan.duckdns.org/API.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","description":"Personal website of Abhrankan Chakrabarti — cybersecurity, mathematics, software engineering, projects, and writing.","headline":"API contracts: lab-api and crypto-lab","url":"https://abhrankan.duckdns.org/API.html"}</script>
 <!-- End Jekyll SEO tag -->
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23238636'%3EA%3C/text%3E%3C/svg%3E">
@@ -53,9 +53,9 @@
         </p>
       </header>
 
-      <h1 id="lab-api-api-contract">lab-api API contract</h1>
+      <h1 id="api-contracts-lab-api-and-crypto-lab">API contracts: lab-api and crypto-lab</h1>
 
-<p>This document describes the current production-facing contract for <code class="language-plaintext highlighter-rouge">lab-api</code> as it is deployed today.</p>
+<p>This document describes the current production-facing contracts for <code class="language-plaintext highlighter-rouge">lab-api</code> and <code class="language-plaintext highlighter-rouge">crypto-lab</code> as deployed today.</p>
 
 <p>The service is intentionally small and intentionally narrow:</p>
 
@@ -75,12 +75,8 @@
 HTTPS
    ↓
 Nginx
-   ├── /api/*     → 127.0.0.1:8088  (lab-api core)
-   └── /school/*  → 127.0.0.1:8088  (School module)
-          ↓
-      lab-api
-          ↓
-      systemd
+  ├── /api/* and /school/* → 127.0.0.1:8088 → lab-api → systemd
+  └── /crypto-api/*        → 127.0.0.1:8089 → crypto-lab → systemd
 </code></pre></div></div>
 
 <h2 id="public-url-vs-local-backend-url">Public URL vs local backend URL</h2>
@@ -667,12 +663,14 @@ http://127.0.0.1:8089/v1/hmac/verify
 
 <p><code class="language-plaintext highlighter-rouge">GET /crypto-api/health</code> and <code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/info</code> are unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:</p>
 
+<p>The htpasswd path below is an example; use the credential-file path configured by your Nginx site.</p>
+
 <div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="p">=</span> <span class="n">/crypto-api/health</span> <span class="p">{</span>
     <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/health</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="k">location</span> <span class="p">=</span> <span class="n">/crypto-api/v1/info</span> <span class="p">{</span>
-  <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/v1/info</span><span class="p">;</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/v1/info</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="k">location</span> <span class="n">/crypto-api/</span> <span class="p">{</span>
