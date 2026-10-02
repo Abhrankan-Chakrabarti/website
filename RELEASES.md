@@ -1,5 +1,21 @@
 # Releases
 
+## [v0.7.1] — 2026-10-02
+
+**School Database student-view toggle for privacy-filtered and admin detail modes.**
+
+### Added
+
+- Added a portal control to switch between privacy-filtered student details and full admin details when authorized.
+- Preserved the existing safe-detail fallback for users without admin access.
+
+### Security
+
+- Full student details remain behind Nginx Basic Authentication and the `LAB_API_ADMIN_USERS` allowlist.
+- The toggle does not grant privileges; backend authorization remains authoritative.
+
+---
+
 ## [v0.7.0] — 2026-09-28
 
 **Admin-only full student details with authenticated-user authorization.**
