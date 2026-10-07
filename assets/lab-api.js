@@ -264,10 +264,8 @@ async function lookupFibonacci(event) {
 async function lookupGcd(event) {
   event.preventDefault();
 
-  const a = validateGcdInput(gcdAInput);
-  const b = validateGcdInput(gcdBInput);
+  const { a, b } = validateGcdInputs();
   if (a === null || b === null) {
-    gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
     return;
   }
 
@@ -308,12 +306,20 @@ function validateGcdInput(input) {
   }
 
   input.setCustomValidity(parsed === null ? message : "");
-  if (parsed === null) {
+  return parsed;
+}
+
+function validateGcdInputs() {
+  const message =
+    "Enter two integers from 0 to 18,446,744,073,709,551,615.";
+  const a = validateGcdInput(gcdAInput);
+  const b = validateGcdInput(gcdBInput);
+  if (a === null || b === null) {
     gcdResult.textContent = message;
   } else if (gcdResult.textContent === message) {
     gcdResult.textContent = "Ready to calculate.";
   }
-  return parsed;
+  return { a, b };
 }
 
 function clearFibonacci() {
@@ -325,8 +331,7 @@ function clearFibonacci() {
 function clearGcd() {
   gcdAInput.value = "84";
   gcdBInput.value = "30";
-  validateGcdInput(gcdAInput);
-  validateGcdInput(gcdBInput);
+  validateGcdInputs();
   gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
 }
 
@@ -716,8 +721,8 @@ fibonacciForm.addEventListener("submit", lookupFibonacci);
 fibonacciInput.addEventListener("input", validateFibonacciInput);
 clearFibonacciButton.addEventListener("click", clearFibonacci);
 gcdForm.addEventListener("submit", lookupGcd);
-gcdAInput.addEventListener("input", () => validateGcdInput(gcdAInput));
-gcdBInput.addEventListener("input", () => validateGcdInput(gcdBInput));
+gcdAInput.addEventListener("input", validateGcdInputs);
+gcdBInput.addEventListener("input", validateGcdInputs);
 clearGcdButton.addEventListener("click", clearGcd);
 primeForm.addEventListener("submit", lookupPrime);
 primeInput.addEventListener("input", () => validatePrimeInput(primeInput, 0, primeResult));
@@ -746,8 +751,7 @@ refreshCryptoInfo();
 syncHmacForm();
 validateCatalanInput();
 validateFibonacciInput();
-validateGcdInput(gcdAInput);
-validateGcdInput(gcdBInput);
+validateGcdInputs();
 validatePrimeInput(primeInput, 0, primeResult);
 validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
 validatePrimeInput(primeGapInput, 3, primeGapResult);
