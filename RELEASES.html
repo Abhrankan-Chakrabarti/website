@@ -55,18 +55,91 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v080--2026-10-07">[v0.8.0] — 2026-10-07</h3>
+
+<p><strong>Prime-number module, prime-counting support, and expanded mathematical APIs.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Added a dedicated prime-number module.</li>
+  <li>Added primality testing: GET /v1/math/is-prime/{n}</li>
+  <li>Added next-prime computation: GET /v1/math/next-prime/{n}</li>
+  <li>Added prime-gap computation: GET /v1/math/prime-gap/{n}</li>
+  <li>Added prime-counting function support: GET /v1/math/prime-pi/{n}</li>
+  <li>Added GET /v1/math/pi/{n} as a convenience alias for the prime-counting function π(n).</li>
+  <li>Added module-level tests covering:
+    <ul>
+      <li>primality testing</li>
+      <li>next-prime computation</li>
+      <li>previous-prime computation</li>
+      <li>prime-gap computation</li>
+      <li>prime-counting</li>
+    </ul>
+  </li>
+  <li>Added API tests covering all prime-number endpoints.</li>
+</ul>
+
+<h4 id="performance">Performance</h4>
+<ul>
+  <li>Implemented π(n) using a sieve-based prime-counting algorithm.</li>
+  <li>Added bounded limits for public prime-counting requests to ensure predictable memory usage on low-resource deployments.</li>
+</ul>
+
+<h4 id="security">Security</h4>
+<ul>
+  <li>Added validation limits for prime-counting requests.</li>
+  <li>Existing localhost-only binding remains unchanged.</li>
+  <li>Existing HTTPS, Basic Authentication, snapshot protection, and School Database authorization boundaries remain unchanged.</li>
+</ul>
+
+<h4 id="compatibility">Compatibility</h4>
+<ul>
+  <li>Existing Catalan, Fibonacci, GCD, metadata, snapshot, School Database, and importer functionality remain unchanged.</li>
+  <li>Added /v1/math/pi/{n} as an alias while preserving the explicit /v1/math/prime-pi/{n} route.</li>
+  <li>Existing deployment architecture remains unchanged.</li>
+</ul>
+
+<h4 id="validation">Validation</h4>
+<ul>
+  <li>cargo fmt passes.</li>
+  <li>cargo test passes.</li>
+  <li>Debug test suite: 65/65 tests passed.</li>
+  <li>Verified:
+    <ul>
+      <li>is-prime(97) → true</li>
+      <li>next-prime(100) → 101</li>
+      <li>π(1000) → 168</li>
+      <li>prime-gap(1000) → previous=997, next=1009, gap=12</li>
+    </ul>
+  </li>
+  <li>Verified rejection of prime-counting requests exceeding the configured sieve limit.</li>
+</ul>
+
+<h4 id="status">Status</h4>
+<ul>
+  <li>✅ Prime-number module</li>
+  <li>✅ Prime-counting function π(n)</li>
+  <li>✅ Primality testing</li>
+  <li>✅ Next-prime computation</li>
+  <li>✅ Prime-gap computation</li>
+  <li>✅ Expanded mathematical API coverage</li>
+  <li>🔒 Existing School Database scope preserved</li>
+</ul>
+
+<hr />
+
 <h2 id="v071--2026-10-02">[v0.7.1] — 2026-10-02</h2>
 
 <p><strong>School Database student-view toggle for privacy-filtered and admin detail modes.</strong></p>
 
-<h3 id="added">Added</h3>
+<h3 id="added-1">Added</h3>
 
 <ul>
   <li>Added a portal control to switch between privacy-filtered student details and full admin details when authorized.</li>
   <li>Preserved the existing safe-detail fallback for users without admin access.</li>
 </ul>
 
-<h3 id="security">Security</h3>
+<h3 id="security-1">Security</h3>
 
 <ul>
   <li>Full student details remain behind Nginx Basic Authentication and the <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> allowlist.</li>
@@ -79,7 +152,7 @@
 
 <p><strong>Admin-only full student details with authenticated-user authorization.</strong></p>
 
-<h3 id="added-1">Added</h3>
+<h3 id="added-2">Added</h3>
 
 <ul>
   <li>Added a <code class="language-plaintext highlighter-rouge">student_detail_full(table, student_id)</code> database method for retrieving complete student records.</li>
@@ -98,7 +171,7 @@
   <li>Added explicit frontend access-state indicators for full admin records and privacy-filtered records.</li>
 </ul>
 
-<h3 id="security-1">Security</h3>
+<h3 id="security-2">Security</h3>
 
 <ul>
   <li>The existing privacy-filtered student-detail endpoint remains unchanged.</li>
@@ -125,7 +198,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility">Compatibility</h3>
+<h3 id="compatibility-1">Compatibility</h3>
 
 <ul>
   <li>
@@ -139,7 +212,7 @@
   <li>No additional database server, container stack, or external service is required.</li>
 </ul>
 
-<h3 id="status">Status</h3>
+<h3 id="status-1">Status</h3>
 
 <ul>
   <li>✅ Admin-only full student-detail endpoint</li>
@@ -157,7 +230,7 @@
 
 <p><strong>Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.</strong></p>
 
-<h3 id="added-2">Added</h3>
+<h3 id="added-3">Added</h3>
 
 <ul>
   <li>Added schema-driven student identification for student-detail lookups.</li>
@@ -171,7 +244,7 @@
   <li>Added API coverage for the updated student-detail privacy boundary.</li>
 </ul>
 
-<h3 id="security-2">Security</h3>
+<h3 id="security-3">Security</h3>
 
 <ul>
   <li>Student identifiers are discovered from SQLite primary-key metadata rather than being hard-coded.</li>
@@ -195,7 +268,7 @@
   <li>Existing Nginx HTTPS and Basic Authentication boundaries remain unchanged.</li>
 </ul>
 
-<h3 id="compatibility-1">Compatibility</h3>
+<h3 id="compatibility-2">Compatibility</h3>
 
 <ul>
   <li>Existing School Database table and schema discovery endpoints remain available.</li>
@@ -212,7 +285,7 @@
   <li>No additional application runtime, database server, container, or external service is required.</li>
 </ul>
 
-<h3 id="validation">Validation</h3>
+<h3 id="validation-1">Validation</h3>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">cargo fmt</code> passes.</li>
@@ -225,7 +298,7 @@
   <li>Verified the updated School Database API tests pass.</li>
 </ul>
 
-<h3 id="status-1">Status</h3>
+<h3 id="status-2">Status</h3>
 
 <ul>
   <li>✅ Schema-driven student identification</li>
@@ -244,7 +317,7 @@
 
 <p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
-<h3 id="added-3">Added</h3>
+<h3 id="added-4">Added</h3>
 
 <ul>
   <li>Added a one-shot School Database importer:
@@ -291,7 +364,7 @@
   <li>Public access remains behind the existing Nginx HTTPS and Basic Authentication boundary.</li>
 </ul>
 
-<h3 id="compatibility-2">Compatibility</h3>
+<h3 id="compatibility-3">Compatibility</h3>
 
 <ul>
   <li>Existing core API endpoints remain unchanged.</li>
@@ -300,7 +373,7 @@
   <li>No additional database server, queue, container stack, or external service is required.</li>
 </ul>
 
-<h3 id="validation-1">Validation</h3>
+<h3 id="validation-2">Validation</h3>
 
 <ul>
   <li>All 39 tests passed.</li>
@@ -309,7 +382,7 @@
   <li>Production deployment and database activation were verified.</li>
 </ul>
 
-<h3 id="status-2">Status</h3>
+<h3 id="status-3">Status</h3>
 
 <ul>
   <li>✅ Validated School Database importer</li>
@@ -327,7 +400,7 @@
 
 <p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
 
-<h3 id="added-4">Added</h3>
+<h3 id="added-5">Added</h3>
 
 <ul>
   <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
@@ -339,7 +412,7 @@
   <li>Added tests for pagination, search, ordering, and student-detail behavior.</li>
 </ul>
 
-<h3 id="security-3">Security</h3>
+<h3 id="security-4">Security</h3>
 
 <ul>
   <li>Student details are returned through controlled, read-only API responses.</li>
@@ -348,7 +421,7 @@
   <li>Existing Nginx HTTPS and Basic Authentication protections remain unchanged.</li>
 </ul>
 
-<h3 id="compatibility-3">Compatibility</h3>
+<h3 id="compatibility-4">Compatibility</h3>
 
 <ul>
   <li>Existing API endpoints remain unchanged.</li>
@@ -357,7 +430,7 @@
   <li>No additional runtime service or database infrastructure is required.</li>
 </ul>
 
-<h3 id="validation-2">Validation</h3>
+<h3 id="validation-3">Validation</h3>
 
 <ul>
   <li>Pagination totals were verified.</li>
@@ -366,7 +439,7 @@
   <li>School Database API and frontend behavior were tested.</li>
 </ul>
 
-<h3 id="status-3">Status</h3>
+<h3 id="status-4">Status</h3>
 
 <ul>
   <li>✅ Improved School Database pagination</li>
@@ -384,7 +457,7 @@
 
 <p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
 
-<h3 id="added-5">Added</h3>
+<h3 id="added-6">Added</h3>
 
 <ul>
   <li>Added a read-only School Database API backed by SQLite.</li>
@@ -432,7 +505,7 @@
   </li>
 </ul>
 
-<h3 id="security-4">Security</h3>
+<h3 id="security-5">Security</h3>
 
 <ul>
   <li>School Database access is strictly read-only.</li>
@@ -472,7 +545,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-4">Compatibility</h3>
+<h3 id="compatibility-5">Compatibility</h3>
 
 <ul>
   <li>Existing API endpoints remain unchanged.</li>
@@ -481,7 +554,7 @@
   <li>No additional runtime, database server, container, or external service is required.</li>
 </ul>
 
-<h3 id="validation-3">Validation</h3>
+<h3 id="validation-4">Validation</h3>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">cargo fmt</code> completed successfully.</li>
@@ -490,7 +563,7 @@
   <li>Debug and release builds completed successfully.</li>
 </ul>
 
-<h3 id="status-4">Status</h3>
+<h3 id="status-5">Status</h3>
 
 <ul>
   <li>✅ Read-only School Database API</li>
@@ -509,7 +582,7 @@
 
 <p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
 
-<h3 id="added-6">Added</h3>
+<h3 id="added-7">Added</h3>
 
 <ul>
   <li>Added Catalan number endpoint.</li>
@@ -531,7 +604,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-5">Compatibility</h3>
+<h3 id="compatibility-6">Compatibility</h3>
 
 <ul>
   <li>Existing API routes remain available.</li>
@@ -539,7 +612,7 @@
   <li>The service remains lightweight and self-hosted.</li>
 </ul>
 
-<h3 id="status-5">Status</h3>
+<h3 id="status-6">Status</h3>
 
 <ul>
   <li>✅ Catalan numbers</li>
@@ -554,7 +627,7 @@
 
 <h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
 
-<h3 id="added-7">Added</h3>
+<h3 id="added-8">Added</h3>
 
 <ul>
   <li>
@@ -583,7 +656,7 @@
 
 <p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
 
-<h3 id="added-8">Added</h3>
+<h3 id="added-9">Added</h3>
 
 <h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
 
@@ -656,7 +729,7 @@
   <li><code class="language-plaintext highlighter-rouge">API.md</code> — Added production-quality API reference documentation.</li>
 </ul>
 
-<h3 id="status-6">Status</h3>
+<h3 id="status-7">Status</h3>
 
 <ul>
   <li>✅ Frontend navigation is consistent.</li>
@@ -675,7 +748,7 @@
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-9">Added</h3>
+<h3 id="added-10">Added</h3>
 
 <ul>
   <li>SHA-256 hashing endpoint.</li>
@@ -701,7 +774,7 @@
   <li><code class="language-plaintext highlighter-rouge">POST /v1/hmac/verify</code></li>
 </ul>
 
-<h3 id="security-5">Security</h3>
+<h3 id="security-6">Security</h3>
 
 <ul>
   <li>HMAC verification uses constant-time comparison.</li>
@@ -721,7 +794,7 @@
   <li>Requires no database, queue, container stack, or additional monitoring infrastructure.</li>
 </ul>
 
-<h3 id="status-7">Status</h3>
+<h3 id="status-8">Status</h3>
 
 <ul>
   <li>✅ SHA-256 and SHA-512 hashing</li>
