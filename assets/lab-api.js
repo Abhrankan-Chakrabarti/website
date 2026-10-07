@@ -188,6 +188,7 @@ async function runHash(event) {
 
 function clearCatalan() {
   catalanInput.value = "5";
+  validateCatalanInput();
   catalanResult.textContent = "Enter an integer from 0 to 34.";
 }
 
@@ -196,6 +197,36 @@ function clearHash() {
   hashUsername.value = "";
   hashPassword.value = "";
   hashResult.textContent = "Your digest will appear here.";
+}
+
+function validateCatalanInput() {
+  return validateBoundedIntegerInput(
+    catalanInput,
+    0,
+    34,
+    "Enter an integer from 0 to 34.",
+  );
+}
+
+function validateFibonacciInput() {
+  return validateBoundedIntegerInput(
+    fibonacciInput,
+    0,
+    186,
+    "Enter an integer from 0 to 186.",
+  );
+}
+
+function validateBoundedIntegerInput(input, minimum, maximum, message) {
+  const value = input.value.trim();
+  const number = Number(value);
+  const valid =
+    value !== "" &&
+    Number.isInteger(number) &&
+    number >= minimum &&
+    number <= maximum;
+  input.setCustomValidity(valid ? "" : message);
+  return valid;
 }
 
 async function lookupFibonacci(event) {
@@ -273,6 +304,7 @@ function validateGcdInput(input) {
 
 function clearFibonacci() {
   fibonacciInput.value = "10";
+  validateFibonacciInput();
   fibonacciResult.textContent = "Enter an integer from 0 to 186.";
 }
 
@@ -291,6 +323,15 @@ function primeInputValue(input, result, minimum) {
     return null;
   }
   return n;
+}
+
+function validatePrimeInput(input, minimum) {
+  return validateBoundedIntegerInput(
+    input,
+    minimum,
+    1000000,
+    `Enter an integer from ${minimum.toLocaleString()} to 1,000,000.`,
+  );
 }
 
 async function lookupPrime(event) {
@@ -363,21 +404,25 @@ async function lookupPrimePi(event) {
 
 function clearPrime() {
   primeInput.value = "97";
+  validatePrimeInput(primeInput, 0);
   primeResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
 function clearNextPrime() {
   nextPrimeInput.value = "100";
+  validatePrimeInput(nextPrimeInput, 0);
   nextPrimeResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
 function clearPrimeGap() {
   primeGapInput.value = "1000";
+  validatePrimeInput(primeGapInput, 3);
   primeGapResult.textContent = "Enter an integer from 3 to 1,000,000.";
 }
 
 function clearPrimePi() {
   primePiInput.value = "1000";
+  validatePrimeInput(primePiInput, 0);
   primePiResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
@@ -650,20 +695,26 @@ refreshCryptoHealthButton.addEventListener("click", refreshCryptoHealth);
 refreshInfoButton.addEventListener("click", refreshInfo);
 refreshCryptoInfoButton.addEventListener("click", refreshCryptoInfo);
 catalanForm.addEventListener("submit", lookupCatalan);
+catalanInput.addEventListener("input", validateCatalanInput);
 clearCatalanButton.addEventListener("click", clearCatalan);
 fibonacciForm.addEventListener("submit", lookupFibonacci);
+fibonacciInput.addEventListener("input", validateFibonacciInput);
 clearFibonacciButton.addEventListener("click", clearFibonacci);
 gcdForm.addEventListener("submit", lookupGcd);
 gcdAInput.addEventListener("input", () => validateGcdInput(gcdAInput));
 gcdBInput.addEventListener("input", () => validateGcdInput(gcdBInput));
 clearGcdButton.addEventListener("click", clearGcd);
 primeForm.addEventListener("submit", lookupPrime);
+primeInput.addEventListener("input", () => validatePrimeInput(primeInput, 0));
 clearPrimeButton.addEventListener("click", clearPrime);
 nextPrimeForm.addEventListener("submit", lookupNextPrime);
+nextPrimeInput.addEventListener("input", () => validatePrimeInput(nextPrimeInput, 0));
 clearNextPrimeButton.addEventListener("click", clearNextPrime);
 primeGapForm.addEventListener("submit", lookupPrimeGap);
+primeGapInput.addEventListener("input", () => validatePrimeInput(primeGapInput, 3));
 clearPrimeGapButton.addEventListener("click", clearPrimeGap);
 primePiForm.addEventListener("submit", lookupPrimePi);
+primePiInput.addEventListener("input", () => validatePrimeInput(primePiInput, 0));
 clearPrimePiButton.addEventListener("click", clearPrimePi);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
@@ -678,3 +729,11 @@ refreshInfo();
 refreshCryptoHealth();
 refreshCryptoInfo();
 syncHmacForm();
+validateCatalanInput();
+validateFibonacciInput();
+validateGcdInput(gcdAInput);
+validateGcdInput(gcdBInput);
+validatePrimeInput(primeInput, 0);
+validatePrimeInput(nextPrimeInput, 0);
+validatePrimeInput(primeGapInput, 3);
+validatePrimeInput(primePiInput, 0);
