@@ -1,5 +1,60 @@
 # Releases
 
+### [v0.8.0] — 2026-10-07
+
+**Prime-number module, prime-counting support, and expanded mathematical APIs.**
+
+#### Added
+- Added a dedicated prime-number module.
+- Added primality testing: GET /v1/math/is-prime/{n}
+- Added next-prime computation: GET /v1/math/next-prime/{n}
+- Added prime-gap computation: GET /v1/math/prime-gap/{n}
+- Added prime-counting function support: GET /v1/math/prime-pi/{n}
+- Added GET /v1/math/pi/{n} as a convenience alias for the prime-counting function π(n).
+- Added module-level tests covering:
+  - primality testing
+  - next-prime computation
+  - previous-prime computation
+  - prime-gap computation
+  - prime-counting
+- Added API tests covering all prime-number endpoints.
+
+#### Performance
+- Implemented π(n) using a sieve-based prime-counting algorithm.
+- Added bounded limits for public prime-counting requests to ensure predictable memory usage on low-resource deployments.
+
+#### Security
+- Added validation limits for prime-counting requests.
+- Existing localhost-only binding remains unchanged.
+- Existing HTTPS, Basic Authentication, snapshot protection, and School Database authorization boundaries remain unchanged.
+
+#### Compatibility
+- Existing Catalan, Fibonacci, GCD, metadata, snapshot, School Database, and importer functionality remain unchanged.
+- Added /v1/math/pi/{n} as an alias while preserving the explicit /v1/math/prime-pi/{n} route.
+- Existing deployment architecture remains unchanged.
+
+#### Validation
+- cargo fmt passes.
+- cargo test passes.
+- Debug test suite: 65/65 tests passed.
+- Verified:
+  - is-prime(97) → true
+  - next-prime(100) → 101
+  - π(1000) → 168
+  - prime-gap(1000) → previous=997, next=1009, gap=12
+- Verified rejection of prime-counting requests exceeding the configured sieve limit.
+
+#### Status
+- ✅ Prime-number module
+- ✅ Prime-counting function π(n)
+- ✅ Primality testing
+- ✅ Next-prime computation
+- ✅ Prime-gap computation
+- ✅ Expanded mathematical API coverage
+- 🔒 Existing School Database scope preserved
+
+---
+
 ## [v0.7.1] — 2026-10-02
 
 **School Database student-view toggle for privacy-filtered and admin detail modes.**
