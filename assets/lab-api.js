@@ -189,7 +189,7 @@ async function runHash(event) {
 function clearCatalan() {
   catalanInput.value = "5";
   validateCatalanInput();
-  catalanResult.textContent = "Enter an integer from 0 to 34.";
+  catalanResult.textContent = "Ready to calculate.";
 }
 
 function clearHash() {
@@ -325,14 +325,14 @@ function validateGcdInputs() {
 function clearFibonacci() {
   fibonacciInput.value = "10";
   validateFibonacciInput();
-  fibonacciResult.textContent = "Enter an integer from 0 to 186.";
+  fibonacciResult.textContent = "Ready to calculate.";
 }
 
 function clearGcd() {
   gcdAInput.value = "84";
   gcdBInput.value = "30";
   validateGcdInputs();
-  gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
+  gcdResult.textContent = "Ready to calculate.";
 }
 
 function primeInputValue(input, result, minimum) {
@@ -425,25 +425,25 @@ async function lookupPrimePi(event) {
 function clearPrime() {
   primeInput.value = "97";
   validatePrimeInput(primeInput, 0, primeResult);
-  primeResult.textContent = "Enter an integer from 0 to 1,000,000.";
+  primeResult.textContent = "Ready to calculate.";
 }
 
 function clearNextPrime() {
   nextPrimeInput.value = "100";
   validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
-  nextPrimeResult.textContent = "Enter an integer from 0 to 1,000,000.";
+  nextPrimeResult.textContent = "Ready to calculate.";
 }
 
 function clearPrimeGap() {
   primeGapInput.value = "1000";
   validatePrimeInput(primeGapInput, 3, primeGapResult);
-  primeGapResult.textContent = "Enter an integer from 3 to 1,000,000.";
+  primeGapResult.textContent = "Ready to calculate.";
 }
 
 function clearPrimePi() {
   primePiInput.value = "1000";
   validatePrimeInput(primePiInput, 0, primePiResult);
-  primePiResult.textContent = "Enter an integer from 0 to 1,000,000.";
+  primePiResult.textContent = "Ready to calculate.";
 }
 
 async function refreshCryptoHealth() {
