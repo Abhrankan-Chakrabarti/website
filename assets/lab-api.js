@@ -224,18 +224,9 @@ async function lookupFibonacci(event) {
 async function lookupGcd(event) {
   event.preventDefault();
 
-  let a;
-  let b;
-  try {
-    a = BigInt(gcdAInput.value);
-    b = BigInt(gcdBInput.value);
-  } catch {
-    gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
-    return;
-  }
-
-  const maxU64 = 18446744073709551615n;
-  if (a < 0n || b < 0n || a > maxU64 || b > maxU64) {
+  const a = validateGcdInput(gcdAInput);
+  const b = validateGcdInput(gcdBInput);
+  if (a === null || b === null) {
     gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
     return;
   }
@@ -259,6 +250,27 @@ async function lookupGcd(event) {
   }
 }
 
+function validateGcdInput(input) {
+  const value = input.value.trim();
+  const message = "Enter an integer from 0 to 18,446,744,073,709,551,615.";
+  let parsed = null;
+
+  if (/^\d+$/.test(value)) {
+    try {
+      const candidate = BigInt(value);
+      if (candidate <= 18446744073709551615n) {
+        parsed = candidate;
+      }
+    } catch {
+      // The regular expression guarantees a decimal integer, but keep the
+      // validation defensive for browsers with unusual BigInt behavior.
+    }
+  }
+
+  input.setCustomValidity(parsed === null ? message : "");
+  return parsed;
+}
+
 function clearFibonacci() {
   fibonacciInput.value = "10";
   fibonacciResult.textContent = "Enter an integer from 0 to 186.";
@@ -267,6 +279,8 @@ function clearFibonacci() {
 function clearGcd() {
   gcdAInput.value = "84";
   gcdBInput.value = "30";
+  validateGcdInput(gcdAInput);
+  validateGcdInput(gcdBInput);
   gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
 }
 
@@ -640,6 +654,8 @@ clearCatalanButton.addEventListener("click", clearCatalan);
 fibonacciForm.addEventListener("submit", lookupFibonacci);
 clearFibonacciButton.addEventListener("click", clearFibonacci);
 gcdForm.addEventListener("submit", lookupGcd);
+gcdAInput.addEventListener("input", () => validateGcdInput(gcdAInput));
+gcdBInput.addEventListener("input", () => validateGcdInput(gcdBInput));
 clearGcdButton.addEventListener("click", clearGcd);
 primeForm.addEventListener("submit", lookupPrime);
 clearPrimeButton.addEventListener("click", clearPrime);
