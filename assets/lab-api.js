@@ -188,7 +188,7 @@ async function runHash(event) {
 
 function clearCatalan() {
   catalanInput.value = "5";
-  catalanResult.textContent = "Enter a non-negative integer.";
+  catalanResult.textContent = "Enter an integer from 0 to 34.";
 }
 
 function clearHash() {
@@ -227,7 +227,7 @@ async function lookupGcd(event) {
   const a = Number(gcdAInput.value);
   const b = Number(gcdBInput.value);
   if (!Number.isSafeInteger(a) || !Number.isSafeInteger(b) || a < 0 || b < 0) {
-    gcdResult.textContent = "Enter two non-negative integers.";
+    gcdResult.textContent = "Enter two integers from 0 to 9,007,199,254,740,991.";
     return;
   }
 
@@ -247,13 +247,13 @@ async function lookupGcd(event) {
 
 function clearFibonacci() {
   fibonacciInput.value = "10";
-  fibonacciResult.textContent = "Enter a non-negative integer.";
+  fibonacciResult.textContent = "Enter an integer from 0 to 186.";
 }
 
 function clearGcd() {
   gcdAInput.value = "84";
   gcdBInput.value = "30";
-  gcdResult.textContent = "Enter two non-negative integers.";
+  gcdResult.textContent = "Enter two integers from 0 to 9,007,199,254,740,991.";
 }
 
 function primeInputValue(input, result, minimum) {
@@ -465,8 +465,8 @@ async function lookupCatalan(event) {
   event.preventDefault();
 
   const n = Number(catalanInput.value);
-  if (!Number.isInteger(n) || n < 0) {
-    catalanResult.textContent = "Enter a non-negative integer.";
+  if (!Number.isInteger(n) || n < 0 || n > 34) {
+    catalanResult.textContent = "Enter an integer from 0 to 34.";
     return;
   }
 
