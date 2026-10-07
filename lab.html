@@ -31,7 +31,7 @@
         <h1 id="lab-title">Small public tools and service checks</h1>
         <p class="lab-intro">
           A lightweight interface for checking the lab service, looking up Catalan
-          numbers, Fibonacci numbers, GCD values, and an authenticated snapshot.
+          numbers, Fibonacci numbers, GCD and prime values, and an authenticated snapshot.
         </p>
       </section>
 
@@ -112,6 +112,56 @@
             </div>
           </form>
           <output id="gcd-result" class="lab-result" aria-live="polite">Enter two non-negative integers.</output>
+        </article>
+
+        <article class="lab-panel lab-panel--wide" aria-labelledby="prime-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Prime tools</p>
+              <h2 id="prime-title">Prime-number calculations</h2>
+            </div>
+          </div>
+          <div class="crypto-tools">
+            <form id="prime-form" class="lab-form crypto-tool">
+              <label for="prime-n">Test n for primality</label>
+              <input id="prime-n" name="n" type="number" min="0" max="1000000" step="1" value="97" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Check prime</button>
+                <button id="clear-prime" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="prime-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+
+            <form id="next-prime-form" class="lab-form crypto-tool">
+              <label for="next-prime-n">Find the next prime after n</label>
+              <input id="next-prime-n" name="n" type="number" min="0" max="1000000" step="1" value="100" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Find next prime</button>
+                <button id="clear-next-prime" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="next-prime-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+
+            <form id="prime-gap-form" class="lab-form crypto-tool">
+              <label for="prime-gap-n">Find the prime gap around n</label>
+              <input id="prime-gap-n" name="n" type="number" min="3" max="1000000" step="1" value="1000" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Find gap</button>
+                <button id="clear-prime-gap" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="prime-gap-result" class="lab-result" aria-live="polite">Enter an integer from 3 to 1,000,000.</output>
+            </form>
+
+            <form id="prime-pi-form" class="lab-form crypto-tool">
+              <label for="prime-pi-n">Count primes up to n</label>
+              <input id="prime-pi-n" name="n" type="number" min="0" max="1000000" step="1" value="1000" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Count primes</button>
+                <button id="clear-prime-pi" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="prime-pi-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+          </div>
         </article>
 
         <article class="lab-panel" aria-labelledby="info-title">

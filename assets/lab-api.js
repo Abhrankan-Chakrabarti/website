@@ -23,6 +23,22 @@ const gcdAInput = document.querySelector("#gcd-a");
 const gcdBInput = document.querySelector("#gcd-b");
 const gcdResult = document.querySelector("#gcd-result");
 const clearGcdButton = document.querySelector("#clear-gcd");
+const primeForm = document.querySelector("#prime-form");
+const primeInput = document.querySelector("#prime-n");
+const primeResult = document.querySelector("#prime-result");
+const clearPrimeButton = document.querySelector("#clear-prime");
+const nextPrimeForm = document.querySelector("#next-prime-form");
+const nextPrimeInput = document.querySelector("#next-prime-n");
+const nextPrimeResult = document.querySelector("#next-prime-result");
+const clearNextPrimeButton = document.querySelector("#clear-next-prime");
+const primeGapForm = document.querySelector("#prime-gap-form");
+const primeGapInput = document.querySelector("#prime-gap-n");
+const primeGapResult = document.querySelector("#prime-gap-result");
+const clearPrimeGapButton = document.querySelector("#clear-prime-gap");
+const primePiForm = document.querySelector("#prime-pi-form");
+const primePiInput = document.querySelector("#prime-pi-n");
+const primePiResult = document.querySelector("#prime-pi-result");
+const clearPrimePiButton = document.querySelector("#clear-prime-pi");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -238,6 +254,103 @@ function clearGcd() {
   gcdAInput.value = "84";
   gcdBInput.value = "30";
   gcdResult.textContent = "Enter two non-negative integers.";
+}
+
+function primeInputValue(input, result, minimum) {
+  const n = Number(input.value);
+  if (!Number.isSafeInteger(n) || n < minimum || n > 1000000) {
+    result.textContent = `Enter an integer from ${minimum.toLocaleString()} to 1,000,000.`;
+    return null;
+  }
+  return n;
+}
+
+async function lookupPrime(event) {
+  event.preventDefault();
+  const n = primeInputValue(primeInput, primeResult, 0);
+  if (n === null) return;
+  const button = primeForm.querySelector("button[type='submit']");
+  primeResult.textContent = "Checking...";
+  setBusy(button, true, "Checking");
+  try {
+    const data = await fetchJson(`/v1/math/is-prime/${n}`);
+    primeResult.innerHTML = `${data.n} is <strong>${data.prime ? "" : "not "}prime</strong>`;
+  } catch (error) {
+    primeResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Checking");
+  }
+}
+
+async function lookupNextPrime(event) {
+  event.preventDefault();
+  const n = primeInputValue(nextPrimeInput, nextPrimeResult, 0);
+  if (n === null) return;
+  const button = nextPrimeForm.querySelector("button[type='submit']");
+  nextPrimeResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+  try {
+    const data = await fetchJson(`/v1/math/next-prime/${n}`);
+    nextPrimeResult.innerHTML = `Next prime after ${data.n} = <strong>${data.value}</strong>`;
+  } catch (error) {
+    nextPrimeResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
+async function lookupPrimeGap(event) {
+  event.preventDefault();
+  const n = primeInputValue(primeGapInput, primeGapResult, 3);
+  if (n === null) return;
+  const button = primeGapForm.querySelector("button[type='submit']");
+  primeGapResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+  try {
+    const data = await fetchJson(`/v1/math/prime-gap/${n}`);
+    primeGapResult.innerHTML = `${data.previous_prime} and ${data.next_prime}; gap = <strong>${data.gap}</strong>`;
+  } catch (error) {
+    primeGapResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
+async function lookupPrimePi(event) {
+  event.preventDefault();
+  const n = primeInputValue(primePiInput, primePiResult, 0);
+  if (n === null) return;
+  const button = primePiForm.querySelector("button[type='submit']");
+  primePiResult.textContent = "Counting...";
+  setBusy(button, true, "Counting");
+  try {
+    const data = await fetchJson(`/v1/math/prime-pi/${n}`);
+    primePiResult.innerHTML = `π(${data.n}) = <strong>${data.value}</strong>`;
+  } catch (error) {
+    primePiResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Counting");
+  }
+}
+
+function clearPrime() {
+  primeInput.value = "97";
+  primeResult.textContent = "Enter an integer from 0 to 1,000,000.";
+}
+
+function clearNextPrime() {
+  nextPrimeInput.value = "100";
+  nextPrimeResult.textContent = "Enter an integer from 0 to 1,000,000.";
+}
+
+function clearPrimeGap() {
+  primeGapInput.value = "1000";
+  primeGapResult.textContent = "Enter an integer from 3 to 1,000,000.";
+}
+
+function clearPrimePi() {
+  primePiInput.value = "1000";
+  primePiResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
 async function refreshCryptoHealth() {
@@ -514,6 +627,14 @@ fibonacciForm.addEventListener("submit", lookupFibonacci);
 clearFibonacciButton.addEventListener("click", clearFibonacci);
 gcdForm.addEventListener("submit", lookupGcd);
 clearGcdButton.addEventListener("click", clearGcd);
+primeForm.addEventListener("submit", lookupPrime);
+clearPrimeButton.addEventListener("click", clearPrime);
+nextPrimeForm.addEventListener("submit", lookupNextPrime);
+clearNextPrimeButton.addEventListener("click", clearNextPrime);
+primeGapForm.addEventListener("submit", lookupPrimeGap);
+clearPrimeGapButton.addEventListener("click", clearPrimeGap);
+primePiForm.addEventListener("submit", lookupPrimePi);
+clearPrimePiButton.addEventListener("click", clearPrimePi);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
