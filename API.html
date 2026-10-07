@@ -64,8 +64,8 @@
   <li>Nginx is the public entry point over HTTPS</li>
   <li>the backend is not directly exposed to the Internet</li>
   <li>the core <code class="language-plaintext highlighter-rouge">/api/*</code> service provides health, application metadata, read-only mathematical calculations, and an authenticated system snapshot; it does not use a database</li>
-  <li>the separate <code class="language-plaintext highlighter-rouge">/school/*</code> surface is a read-only SQLite API configured by <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code></li>
-  <li>in production, the entire <code class="language-plaintext highlighter-rouge">/school/</code> location is protected by Nginx HTTP Basic Authentication</li>
+  <li>the separate <code class="language-plaintext highlighter-rouge">/school/*</code> surface contains a public static UI and a read-only SQLite API configured by <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code></li>
+  <li>the public School UI and exact <code class="language-plaintext highlighter-rouge">/school/api/health</code> route are not authenticated; the remaining <code class="language-plaintext highlighter-rouge">/school/api/</code> routes are protected by Nginx HTTP Basic Authentication</li>
 </ul>
 
 <h2 id="service-architecture">Service architecture</h2>
@@ -83,15 +83,24 @@ Nginx
 
 <h3 id="public-url">Public URL</h3>
 
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://example.com/api/health
-https://example.com/api/v1/info
-https://example.com/api/v1/catalan/10
-https://example.com/api/v1/math/catalan/10
-https://example.com/api/v1/math/fibonacci/10
-https://example.com/api/v1/math/gcd/84/30
-https://example.com/api/v1/snapshot
-https://example.com/school/api/tables/II_A/students/1001
-https://example.com/school/api/admin/tables/II_A/students/1001
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/health
+https://abhrankan.duckdns.org/api/v1/info
+https://abhrankan.duckdns.org/api/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/fibonacci/10
+https://abhrankan.duckdns.org/api/v1/math/gcd/84/30
+https://abhrankan.duckdns.org/api/v1/math/is-prime/97
+https://abhrankan.duckdns.org/api/v1/math/next-prime/100
+https://abhrankan.duckdns.org/api/v1/math/prime-gap/1000
+https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000
+https://abhrankan.duckdns.org/api/v1/math/pi/1000
+https://abhrankan.duckdns.org/api/v1/snapshot
+https://abhrankan.duckdns.org/school/
+https://abhrankan.duckdns.org/school/api/health
+https://abhrankan.duckdns.org/school/api/tables
+https://abhrankan.duckdns.org/school/api/tables/II_A/students/1001
+https://abhrankan.duckdns.org/school/api/admin/tables/II_A/students/1001
+https://abhrankan.duckdns.org/school/api/admin/audit
 </code></pre></div></div>
 
 <p>These are consumed through Nginx, which terminates TLS and forwards traffic to the backend.</p>
@@ -104,16 +113,25 @@ http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/math/catalan/10
 http://127.0.0.1:8088/v1/math/fibonacci/10
 http://127.0.0.1:8088/v1/math/gcd/84/30
+http://127.0.0.1:8088/v1/math/is-prime/97
+http://127.0.0.1:8088/v1/math/next-prime/100
+http://127.0.0.1:8088/v1/math/prime-gap/1000
+http://127.0.0.1:8088/v1/math/prime-pi/1000
+http://127.0.0.1:8088/v1/math/pi/1000
 http://127.0.0.1:8088/v1/snapshot
+http://127.0.0.1:8088/school/
+http://127.0.0.1:8088/school/api/health
+http://127.0.0.1:8088/school/api/tables
 http://127.0.0.1:8088/school/api/tables/II_A/students/1001
 http://127.0.0.1:8088/school/api/admin/tables/II_A/students/1001
+http://127.0.0.1:8088/school/api/admin/audit
 </code></pre></div></div>
 
 <p>The backend itself is only accessible from the local machine. It should not be exposed directly on a public interface or a public port.</p>
 
 <h2 id="endpoint-summary">Endpoint summary</h2>
 
-<p>The routes in this table are <strong>backend</strong> paths. Public clients prefix core routes with <code class="language-plaintext highlighter-rouge">/api</code>. School routes are published under <code class="language-plaintext highlighter-rouge">/school</code> with the same path after that prefix.</p>
+<p>The routes in this table are <strong>backend</strong> paths. Public clients prefix core routes with <code class="language-plaintext highlighter-rouge">/api</code>. School routes already include their <code class="language-plaintext highlighter-rouge">/school</code> prefix.</p>
 
 <table>
   <thead>
@@ -157,6 +175,36 @@ http://127.0.0.1:8088/school/api/admin/tables/II_A/students/1001
     </tr>
     <tr>
       <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/is-prime/:n</code></td>
+      <td>None</td>
+      <td>Primality test, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/next-prime/:n</code></td>
+      <td>None</td>
+      <td>Next prime greater than <code class="language-plaintext highlighter-rouge">n</code>, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/prime-gap/:n</code></td>
+      <td>None</td>
+      <td>Surrounding prime gap, <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/prime-pi/:n</code></td>
+      <td>None</td>
+      <td>Prime-counting function π(n), <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code></td>
+      <td>None</td>
+      <td>Prime-counting function π(n), compatibility alias</td>
+    </tr>
+    <tr>
+      <td>GET</td>
       <td><code class="language-plaintext highlighter-rouge">/v1/catalan/:n</code></td>
       <td>None</td>
       <td>Catalan number, compatibility alias, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></td>
@@ -169,6 +217,36 @@ http://127.0.0.1:8088/school/api/admin/tables/II_A/students/1001
     </tr>
     <tr>
       <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/school/</code></td>
+      <td>None</td>
+      <td>Public School portal UI and static assets</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/school/api/health</code></td>
+      <td>None</td>
+      <td>School API health</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/school/api/tables</code></td>
+      <td>Nginx Basic Auth</td>
+      <td>Available School tables</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/school/api/tables/{table}</code></td>
+      <td>Nginx Basic Auth</td>
+      <td>Paginated, searchable safe student rows</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/school/api/tables/{table}/schema</code></td>
+      <td>Nginx Basic Auth</td>
+      <td>Discovered table schema</td>
+    </tr>
+    <tr>
+      <td>GET</td>
       <td><code class="language-plaintext highlighter-rouge">/school/api/tables/{table}/students/{student_id}</code></td>
       <td>Nginx Basic Auth</td>
       <td>Privacy-filtered student detail</td>
@@ -177,7 +255,13 @@ http://127.0.0.1:8088/school/api/admin/tables/II_A/students/1001
       <td>GET</td>
       <td><code class="language-plaintext highlighter-rouge">/school/api/admin/tables/{table}/students/{student_id}</code></td>
       <td>Nginx Basic Auth + admin allowlist</td>
-      <td>Full student detail</td>
+      <td>Full student detail and audit event</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/school/api/admin/audit</code></td>
+      <td>Nginx Basic Auth + admin allowlist</td>
+      <td>Paginated admin student-detail audit events</td>
     </tr>
   </tbody>
 </table>
@@ -186,9 +270,41 @@ http://127.0.0.1:8088/school/api/admin/tables/II_A/students/1001
 
 <h2 id="school-api">School API</h2>
 
-<p>The core <code class="language-plaintext highlighter-rouge">/api/*</code> service does not use a database. The separate School API under <code class="language-plaintext highlighter-rouge">/school/</code> reads SQLite from <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code> and is read-only during normal runtime.</p>
+<p>The core <code class="language-plaintext highlighter-rouge">/api/*</code> service does not use a database. The separate School API under <code class="language-plaintext highlighter-rouge">/school/</code> reads SQLite from <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code> and is read-only during normal runtime. The <code class="language-plaintext highlighter-rouge">/school/</code> UI is served from the backend’s <code class="language-plaintext highlighter-rouge">static/school</code> directory.</p>
 
-<p>In production, <strong>Nginx Basic Authentication applies to the entire <code class="language-plaintext highlighter-rouge">/school/</code> location</strong> (UI and API). The Rust process assumes that gate for Internet traffic. Admin full-detail adds an application allowlist on top of that.</p>
+<p>In production, the public <code class="language-plaintext highlighter-rouge">/school/</code> location serves the UI and static assets without authentication. The exact <code class="language-plaintext highlighter-rouge">/school/api/health</code> location is also public for health checks. Nginx Basic Authentication applies to <code class="language-plaintext highlighter-rouge">/school/api/</code> for table, schema, student, admin, and audit requests. The Rust process itself does not enforce Basic Authentication; it assumes that Nginx provides this edge protection. Admin detail and audit add an application allowlist on top of that.</p>
+
+<p>The Nginx exact health location takes precedence over the broader protected <code class="language-plaintext highlighter-rouge">/school/api/</code> prefix:</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="p">=</span> <span class="n">/school/api/health</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">location</span> <span class="n">/school/api/</span> <span class="p">{</span>
+    <span class="kn">auth_basic</span> <span class="s">"School</span> <span class="s">Database"</span><span class="p">;</span>
+    <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/school.htpasswd</span><span class="p">;</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Authenticated-User</span> <span class="nv">$remote_user</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">location</span> <span class="n">/school/</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">/school/api/</code> proxy preserves the <code class="language-plaintext highlighter-rouge">/school/api/...</code> path when forwarding to Axum. The <code class="language-plaintext highlighter-rouge">/school/</code> location is for the portal UI and static assets, not for bypassing API authorization.</p>
+
+<h3 id="table-listing-and-schema">Table listing and schema</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/tables
+GET /school/api/tables/{table}?limit=25&amp;offset=0&amp;search=Abhrankan
+GET /school/api/tables/{table}/schema
+</span></code></pre></div></div>
+
+<p>All three routes require Nginx Basic Authentication. The table route returns
+safe/display columns only and supports optional <code class="language-plaintext highlighter-rouge">limit</code>, <code class="language-plaintext highlighter-rouge">offset</code>, and <code class="language-plaintext highlighter-rouge">search</code>
+query parameters. The default page size is 25 and the backend caps page sizes
+at 100. Schema discovery returns the table’s columns and primary-key metadata.</p>
 
 <h3 id="safe-student-detail">Safe student detail</h3>
 
@@ -215,7 +331,7 @@ http://127.0.0.1:8088/school/api/admin/tables/II_A/students/1001
 <p>The admin endpoint returns every column discovered from the selected table schema. It requires both:</p>
 
 <ol>
-  <li>Nginx Basic Authentication for the <code class="language-plaintext highlighter-rouge">/school/</code> location.</li>
+  <li>Nginx Basic Authentication for the protected <code class="language-plaintext highlighter-rouge">/school/api/</code> location.</li>
   <li>The authenticated username in the backend <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code> header and in <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code>.</li>
 </ol>
 
@@ -232,9 +348,9 @@ Authenticated but non-admin (or missing <code class="language-plaintext highligh
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>The backend listens only on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code>, so the authenticated identity header is intended to be supplied by the local Nginx reverse proxy rather than by an Internet client. Nginx should set it inside the authenticated <code class="language-plaintext highlighter-rouge">/school/</code> location:</p>
+<p>The backend listens only on <code class="language-plaintext highlighter-rouge">127.0.0.1:8088</code>, so the authenticated identity header is intended to be supplied by the local Nginx reverse proxy rather than by an Internet client. Nginx should set it inside the authenticated <code class="language-plaintext highlighter-rouge">/school/api/</code> location:</p>
 
-<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="n">/school/</span> <span class="p">{</span>
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="n">/school/api/</span> <span class="p">{</span>
     <span class="kn">auth_basic</span> <span class="s">"School</span> <span class="s">Database"</span><span class="p">;</span>
     <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/school.htpasswd</span><span class="p">;</span>
 
@@ -248,7 +364,18 @@ Authenticated but non-admin (or missing <code class="language-plaintext highligh
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>Do not expose the backend directly on a public interface.</p>
+<p>Do not expose the backend directly on a public interface. The public health route does not provide table or student data.</p>
+
+<h3 id="admin-audit">Admin audit</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /school/api/admin/audit?limit=50&amp;offset=0
+</span></code></pre></div></div>
+
+<p>This route requires both School API Basic Authentication and an authenticated
+username listed in <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code>. It returns recent admin student-detail
+access events. <code class="language-plaintext highlighter-rouge">limit</code> defaults to 50 and is capped at 100; <code class="language-plaintext highlighter-rouge">offset</code> defaults
+to 0. Admin student-detail responses are returned only after the corresponding
+audit event is recorded.</p>
 
 <h2 id="http-status-codes">HTTP status codes</h2>
 
@@ -266,11 +393,11 @@ Authenticated but non-admin (or missing <code class="language-plaintext highligh
     </tr>
     <tr>
       <td>400 Bad Request</td>
-      <td>Invalid Catalan input (<code class="language-plaintext highlighter-rouge">n &gt; 34</code>) or Fibonacci input (<code class="language-plaintext highlighter-rouge">n &gt; 186</code>)</td>
+      <td>Invalid mathematical input, including values above the documented prime limits</td>
     </tr>
     <tr>
       <td>401 Unauthorized</td>
-      <td>Missing or invalid HTTP Basic credentials at Nginx</td>
+      <td>Missing or invalid HTTP Basic credentials at Nginx for protected School/API routes or the snapshot</td>
     </tr>
     <tr>
       <td>403 Forbidden</td>
@@ -295,11 +422,17 @@ Authenticated but non-admin (or missing <code class="language-plaintext highligh
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/catalan/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/fibonacci/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 186</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/gcd/:a/:b</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> for valid <code class="language-plaintext highlighter-rouge">u64</code> path values</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/is-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/next-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> and <code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code> succeed with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> remains available as a compatibility alias</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/fibonacci/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 186</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/snapshot</code> fails with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth</li>
-  <li><code class="language-plaintext highlighter-rouge">GET /school/...</code> fails with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth at the public edge</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/</code> succeeds without Basic Auth and serves the public portal</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/api/health</code> succeeds without Basic Auth</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/api/tables</code>, table, schema, student, admin, and audit routes fail with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth at the public edge</li>
   <li><code class="language-plaintext highlighter-rouge">GET /school/api/admin/...</code> fails with <code class="language-plaintext highlighter-rouge">403</code> for non-admin users</li>
 </ul>
 
@@ -336,14 +469,54 @@ Authenticated but non-admin (or missing <code class="language-plaintext highligh
 
 <p>Computes the GCD of two <code class="language-plaintext highlighter-rouge">u64</code> path values using the Euclidean algorithm. Zero is valid, including <code class="language-plaintext highlighter-rouge">gcd(0, 0) = 0</code>.</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/math/gcd/84/30'</span>
-curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/math/fibonacci/10'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/gcd/84/30'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/fibonacci/10'</span>
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">84</span><span class="p">,</span><span class="w">
   </span><span class="nl">"b"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w">
   </span><span class="nl">"gcd"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="prime-number-endpoints">Prime-number endpoints</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/is-prime/:n
+GET /v1/math/next-prime/:n
+GET /v1/math/prime-gap/:n
+GET /v1/math/prime-pi/:n
+GET /v1/math/pi/:n
+</span></code></pre></div></div>
+
+<p>These public, read-only endpoints support values up to <code class="language-plaintext highlighter-rouge">1,000,000</code>. The
+<code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code> route is a compatibility alias for <code class="language-plaintext highlighter-rouge">/v1/math/prime-pi/:n</code>.
+Prime-counting uses a bounded sieve so requests above the limit return
+<code class="language-plaintext highlighter-rouge">400 Bad Request</code> rather than allocating unbounded memory. Prime searches and
+prime gaps use the same upper bound.</p>
+
+<p>Examples:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/is-prime/97'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/next-prime/100'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/prime-gap/1000'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">97</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">next-prime</code> and prime-counting return <code class="language-plaintext highlighter-rouge">{ "n": ..., "value": "..." }</code>.
+<code class="language-plaintext highlighter-rouge">prime-gap</code> returns the previous prime, next prime, and gap:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"previous_prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">997</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"next_prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">1009</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"gap"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
@@ -358,7 +531,7 @@ curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/ma
 
 <h3 id="request-examples">Request examples</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/info'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/info'</span>
 curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info'</span>
 </code></pre></div></div>
 
@@ -367,15 +540,28 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.7.1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.8.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/catalan/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/fibonacci/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/gcd/:a/:b"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/is-prime/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/next-prime/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/prime-pi/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/pi/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/prime-gap/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/catalan/:n"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"GET /v1/snapshot"</span><span class="w">
+    </span><span class="s2">"GET /v1/snapshot"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/health"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/tables"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/tables/:table"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/tables/:table/schema"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/tables/:table/students/:student_code"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/admin/tables/:table/students/:student_code"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /school/api/admin/audit"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -395,7 +581,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 
 <h3 id="request">Request</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> https://example.com/api/health
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> https://abhrankan.duckdns.org/api/health
 </code></pre></div></div>
 
 <h3 id="response-1">Response</h3>
@@ -429,9 +615,9 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 
 <h3 id="request-examples-1">Request examples</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/catalan/0'</span>
-curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/catalan/10'</span>
-curl <span class="nt">-sS</span> <span class="s1">'https://example.com/api/v1/catalan/34'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/0'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/10'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/34'</span>
 </code></pre></div></div>
 
 <h3 id="success-response">Success response</h3>
@@ -459,7 +645,7 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
 
 <h3 id="out-of-range-error">Out-of-range error</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-i</span> <span class="s1">'https://example.com/api/v1/catalan/35'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-i</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/35'</span>
 </code></pre></div></div>
 
 <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">400</span> <span class="ne">Bad Request</span>
@@ -508,7 +694,7 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
 
 <h3 id="request-example">Request example</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> https://example.com/api/v1/snapshot
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-u</span> <span class="s1">'username:password'</span> https://abhrankan.duckdns.org/api/v1/snapshot
 </code></pre></div></div>
 
 <h3 id="local-backend-example-1">Local backend example</h3>
@@ -539,6 +725,11 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/catalan/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/fibonacci/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/gcd/:a/:b</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/is-prime/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/next-prime/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/pi/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/snapshot</code> — Nginx HTTP Basic Auth</li>
 </ul>
@@ -546,15 +737,17 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
 <h3 id="school-school-public-edge">School <code class="language-plaintext highlighter-rouge">/school/*</code> (public edge)</h3>
 
 <ul>
-  <li>All <code class="language-plaintext highlighter-rouge">/school/</code> paths — Nginx HTTP Basic Auth</li>
-  <li><code class="language-plaintext highlighter-rouge">GET /school/api/admin/...</code> — Nginx HTTP Basic Auth <strong>and</strong> username in <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> via <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/</code> and static assets — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/api/health</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/api/tables</code>, table, schema, and privacy-filtered student routes — Nginx HTTP Basic Auth</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /school/api/admin/tables/...</code> and <code class="language-plaintext highlighter-rouge">GET /school/api/admin/audit</code> — Nginx HTTP Basic Auth <strong>and</strong> username in <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code> via <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code></li>
 </ul>
 
 <h3 id="auth-implementation">Auth implementation</h3>
 
 <p>For <code class="language-plaintext highlighter-rouge">/v1/snapshot</code>, Nginx enforces HTTP Basic Authentication before proxying; the core Rust handler does not validate those credentials.</p>
 
-<p>For School, Nginx authenticates the whole <code class="language-plaintext highlighter-rouge">/school/</code> tree and forwards <code class="language-plaintext highlighter-rouge">$remote_user</code> as <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code>. The admin full-detail handler additionally checks that value against <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code>.</p>
+<p>For School, Nginx authenticates only the protected <code class="language-plaintext highlighter-rouge">/school/api/</code> API location and forwards <code class="language-plaintext highlighter-rouge">$remote_user</code> as <code class="language-plaintext highlighter-rouge">X-Authenticated-User</code>. The admin detail and audit handlers additionally check that value against <code class="language-plaintext highlighter-rouge">LAB_API_ADMIN_USERS</code>. The public UI and health route do not receive this authentication gate.</p>
 
 <p>Do not expose port <code class="language-plaintext highlighter-rouge">8088</code> publicly: without Nginx, School routes would not have the edge Basic Auth gate.</p>
 
@@ -582,8 +775,13 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
     <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="c1"># Entire School tree</span>
-<span class="k">location</span> <span class="n">/school/</span> <span class="p">{</span>
+<span class="c1"># Public School health</span>
+<span class="k">location</span> <span class="p">=</span> <span class="n">/school/api/health</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1"># Protected School API</span>
+<span class="k">location</span> <span class="n">/school/api/</span> <span class="p">{</span>
     <span class="kn">auth_basic</span> <span class="s">"School</span> <span class="s">Database"</span><span class="p">;</span>
     <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/school.htpasswd</span><span class="p">;</span>
     <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088</span><span class="p">;</span>
@@ -594,28 +792,33 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
     <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
     <span class="kn">proxy_set_header</span> <span class="s">X-Authenticated-User</span> <span class="nv">$remote_user</span><span class="p">;</span>
 <span class="p">}</span>
+
+<span class="c1"># Public School UI and static assets</span>
+<span class="k">location</span> <span class="n">/school/</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8088</span><span class="p">;</span>
+<span class="p">}</span>
 </code></pre></div></div>
 
 <p>Exact matches for <code class="language-plaintext highlighter-rouge">/api/v1/snapshot</code> take precedence over the <code class="language-plaintext highlighter-rouge">/api/</code> prefix. Health, info, math, and the Catalan alias remain public.</p>
 
 <h2 id="nginx-routing">Nginx routing</h2>
 
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://example.com/api/...     →  http://127.0.0.1:8088/...
-https://example.com/school/...  →  http://127.0.0.1:8088/school/...
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/...     →  http://127.0.0.1:8088/...
+https://abhrankan.duckdns.org/school/...  →  http://127.0.0.1:8088/school/...
 </code></pre></div></div>
 
 <p>Examples:</p>
 
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://example.com/api/health
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/health
   → http://127.0.0.1:8088/health
 
-https://example.com/api/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/catalan/10
   → http://127.0.0.1:8088/v1/catalan/10
 
-https://example.com/api/v1/info
+https://abhrankan.duckdns.org/api/v1/info
   → http://127.0.0.1:8088/v1/info
 
-https://example.com/school/api/tables/II_A/students/1001
+https://abhrankan.duckdns.org/school/api/tables/II_A/students/1001
   → http://127.0.0.1:8088/school/api/tables/II_A/students/1001
 </code></pre></div></div>
 
@@ -626,8 +829,9 @@ https://example.com/school/api/tables/II_A/students/1001
   <li>no public TCP exposure for the Rust process</li>
   <li>HTTPS termination at Nginx</li>
   <li>Basic Auth for <code class="language-plaintext highlighter-rouge">/api/v1/snapshot</code></li>
-  <li>Basic Auth for the entire <code class="language-plaintext highlighter-rouge">/school/</code> tree</li>
-  <li>admin allowlist for full School student detail</li>
+  <li>public <code class="language-plaintext highlighter-rouge">/school/</code> UI and <code class="language-plaintext highlighter-rouge">/school/api/health</code></li>
+  <li>Basic Auth for the protected <code class="language-plaintext highlighter-rouge">/school/api/</code> routes</li>
+  <li>admin allowlist for full School student detail and audit access</li>
   <li>no database for the core <code class="language-plaintext highlighter-rouge">/api/*</code> service</li>
   <li>School SQLite via <code class="language-plaintext highlighter-rouge">SCHOOL_DB_PATH</code>, read-only at runtime</li>
   <li>no token system, OAuth, or general session framework</li>
