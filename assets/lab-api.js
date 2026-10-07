@@ -224,10 +224,19 @@ async function lookupFibonacci(event) {
 async function lookupGcd(event) {
   event.preventDefault();
 
-  const a = Number(gcdAInput.value);
-  const b = Number(gcdBInput.value);
-  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(b) || a < 0 || b < 0) {
-    gcdResult.textContent = "Enter two integers from 0 to 9,007,199,254,740,991.";
+  let a;
+  let b;
+  try {
+    a = BigInt(gcdAInput.value);
+    b = BigInt(gcdBInput.value);
+  } catch {
+    gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
+    return;
+  }
+
+  const maxU64 = 18446744073709551615n;
+  if (a < 0n || b < 0n || a > maxU64 || b > maxU64) {
+    gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
     return;
   }
 
@@ -236,8 +245,13 @@ async function lookupGcd(event) {
   setBusy(button, true, "Calculating");
 
   try {
-    const data = await fetchJson(`/v1/math/gcd/${a}/${b}`);
-    gcdResult.innerHTML = `gcd(${data.a}, ${data.b}) = <strong>${data.gcd}</strong>`;
+    await fetchJson(`/v1/math/gcd/${a}/${b}`);
+    let x = a;
+    let y = b;
+    while (y !== 0n) {
+      [x, y] = [y, x % y];
+    }
+    gcdResult.innerHTML = `gcd(${a}, ${b}) = <strong>${x}</strong>`;
   } catch (error) {
     gcdResult.textContent = error.message;
   } finally {
@@ -253,7 +267,7 @@ function clearFibonacci() {
 function clearGcd() {
   gcdAInput.value = "84";
   gcdBInput.value = "30";
-  gcdResult.textContent = "Enter two integers from 0 to 9,007,199,254,740,991.";
+  gcdResult.textContent = "Enter two integers from 0 to 18,446,744,073,709,551,615.";
 }
 
 function primeInputValue(input, result, minimum) {

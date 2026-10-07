@@ -99,11 +99,11 @@
             <div class="lab-auth-grid">
               <label for="gcd-a">
                 Value a
-                <input id="gcd-a" name="a" type="number" min="0" max="9007199254740991" step="1" value="84" inputmode="numeric" required>
+                <input id="gcd-a" name="a" type="text" inputmode="numeric" pattern="[0-9]+" maxlength="20" value="84" required>
               </label>
               <label for="gcd-b">
                 Value b
-                <input id="gcd-b" name="b" type="number" min="0" max="9007199254740991" step="1" value="30" inputmode="numeric" required>
+                <input id="gcd-b" name="b" type="text" inputmode="numeric" pattern="[0-9]+" maxlength="20" value="30" required>
               </label>
             </div>
             <div class="lab-actions">
@@ -111,7 +111,7 @@
               <button id="clear-gcd" class="lab-button lab-button--secondary" type="button">Clear</button>
             </div>
           </form>
-          <output id="gcd-result" class="lab-result" aria-live="polite">Enter two integers from 0 to 9,007,199,254,740,991.</output>
+          <output id="gcd-result" class="lab-result" aria-live="polite">Enter two integers from 0 to 18,446,744,073,709,551,615.</output>
         </article>
 
         <article class="lab-panel lab-panel--wide" aria-labelledby="prime-title">
