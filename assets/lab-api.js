@@ -205,6 +205,7 @@ function validateCatalanInput() {
     0,
     34,
     "Enter an integer from 0 to 34.",
+    catalanResult,
   );
 }
 
@@ -214,10 +215,11 @@ function validateFibonacciInput() {
     0,
     186,
     "Enter an integer from 0 to 186.",
+    fibonacciResult,
   );
 }
 
-function validateBoundedIntegerInput(input, minimum, maximum, message) {
+function validateBoundedIntegerInput(input, minimum, maximum, message, result) {
   const value = input.value.trim();
   const number = Number(value);
   const valid =
@@ -226,6 +228,13 @@ function validateBoundedIntegerInput(input, minimum, maximum, message) {
     number >= minimum &&
     number <= maximum;
   input.setCustomValidity(valid ? "" : message);
+  if (result) {
+    if (!valid) {
+      result.textContent = message;
+    } else if (result.textContent === message) {
+      result.textContent = "Ready to calculate.";
+    }
+  }
   return valid;
 }
 
@@ -299,6 +308,11 @@ function validateGcdInput(input) {
   }
 
   input.setCustomValidity(parsed === null ? message : "");
+  if (parsed === null) {
+    gcdResult.textContent = message;
+  } else if (gcdResult.textContent === message) {
+    gcdResult.textContent = "Ready to calculate.";
+  }
   return parsed;
 }
 
@@ -325,12 +339,13 @@ function primeInputValue(input, result, minimum) {
   return n;
 }
 
-function validatePrimeInput(input, minimum) {
+function validatePrimeInput(input, minimum, result) {
   return validateBoundedIntegerInput(
     input,
     minimum,
     1000000,
     `Enter an integer from ${minimum.toLocaleString()} to 1,000,000.`,
+    result,
   );
 }
 
@@ -404,25 +419,25 @@ async function lookupPrimePi(event) {
 
 function clearPrime() {
   primeInput.value = "97";
-  validatePrimeInput(primeInput, 0);
+  validatePrimeInput(primeInput, 0, primeResult);
   primeResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
 function clearNextPrime() {
   nextPrimeInput.value = "100";
-  validatePrimeInput(nextPrimeInput, 0);
+  validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
   nextPrimeResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
 function clearPrimeGap() {
   primeGapInput.value = "1000";
-  validatePrimeInput(primeGapInput, 3);
+  validatePrimeInput(primeGapInput, 3, primeGapResult);
   primeGapResult.textContent = "Enter an integer from 3 to 1,000,000.";
 }
 
 function clearPrimePi() {
   primePiInput.value = "1000";
-  validatePrimeInput(primePiInput, 0);
+  validatePrimeInput(primePiInput, 0, primePiResult);
   primePiResult.textContent = "Enter an integer from 0 to 1,000,000.";
 }
 
@@ -705,16 +720,16 @@ gcdAInput.addEventListener("input", () => validateGcdInput(gcdAInput));
 gcdBInput.addEventListener("input", () => validateGcdInput(gcdBInput));
 clearGcdButton.addEventListener("click", clearGcd);
 primeForm.addEventListener("submit", lookupPrime);
-primeInput.addEventListener("input", () => validatePrimeInput(primeInput, 0));
+primeInput.addEventListener("input", () => validatePrimeInput(primeInput, 0, primeResult));
 clearPrimeButton.addEventListener("click", clearPrime);
 nextPrimeForm.addEventListener("submit", lookupNextPrime);
-nextPrimeInput.addEventListener("input", () => validatePrimeInput(nextPrimeInput, 0));
+nextPrimeInput.addEventListener("input", () => validatePrimeInput(nextPrimeInput, 0, nextPrimeResult));
 clearNextPrimeButton.addEventListener("click", clearNextPrime);
 primeGapForm.addEventListener("submit", lookupPrimeGap);
-primeGapInput.addEventListener("input", () => validatePrimeInput(primeGapInput, 3));
+primeGapInput.addEventListener("input", () => validatePrimeInput(primeGapInput, 3, primeGapResult));
 clearPrimeGapButton.addEventListener("click", clearPrimeGap);
 primePiForm.addEventListener("submit", lookupPrimePi);
-primePiInput.addEventListener("input", () => validatePrimeInput(primePiInput, 0));
+primePiInput.addEventListener("input", () => validatePrimeInput(primePiInput, 0, primePiResult));
 clearPrimePiButton.addEventListener("click", clearPrimePi);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
@@ -733,7 +748,7 @@ validateCatalanInput();
 validateFibonacciInput();
 validateGcdInput(gcdAInput);
 validateGcdInput(gcdBInput);
-validatePrimeInput(primeInput, 0);
-validatePrimeInput(nextPrimeInput, 0);
-validatePrimeInput(primeGapInput, 3);
-validatePrimeInput(primePiInput, 0);
+validatePrimeInput(primeInput, 0, primeResult);
+validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
+validatePrimeInput(primeGapInput, 3, primeGapResult);
+validatePrimeInput(primePiInput, 0, primePiResult);
