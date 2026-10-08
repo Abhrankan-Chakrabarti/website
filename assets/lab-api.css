@@ -64,6 +64,7 @@ textarea:focus {
 
 .crypto-tool {
   min-width: 0;
+  max-width: 100%;
   padding: 18px;
   border: 1px solid var(--lab-line);
   border-radius: var(--lab-radius);
@@ -400,6 +401,7 @@ input:focus {
 .lab-result {
   display: block;
   min-width: 0;
+  width: 100%;
   max-width: 100%;
   min-height: 46px;
   margin-top: 14px;
@@ -421,6 +423,7 @@ input:focus {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
+  min-width: 0;
   width: 100%;
   max-width: 100%;
   margin-top: 6px;
@@ -486,6 +489,10 @@ input:focus {
 
 /* Keep the telemetry text and copy control readable on narrow screens. */
 @media (max-width: 560px) {
+  .crypto-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .lab-telemetry {
     gap: 8px;
   }
