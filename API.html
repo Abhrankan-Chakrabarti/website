@@ -85,7 +85,6 @@ Nginx
 
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/health
 https://abhrankan.duckdns.org/api/v1/info
-https://abhrankan.duckdns.org/api/v1/catalan/10
 https://abhrankan.duckdns.org/api/v1/math/catalan/10
 https://abhrankan.duckdns.org/api/v1/math/fibonacci/10
 https://abhrankan.duckdns.org/api/v1/math/gcd/84/30
@@ -109,7 +108,6 @@ https://abhrankan.duckdns.org/school/api/admin/audit
 
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://127.0.0.1:8088/health
 http://127.0.0.1:8088/v1/info
-http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/math/catalan/10
 http://127.0.0.1:8088/v1/math/fibonacci/10
 http://127.0.0.1:8088/v1/math/gcd/84/30
@@ -207,7 +205,7 @@ http://127.0.0.1:8088/school/api/admin/audit
       <td>GET</td>
       <td><code class="language-plaintext highlighter-rouge">/v1/catalan/:n</code></td>
       <td>None</td>
-      <td>Catalan number, compatibility alias, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></td>
+      <td>Deprecated Catalan compatibility alias; use <code class="language-plaintext highlighter-rouge">/v1/math/catalan/:n</code>, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></td>
     </tr>
     <tr>
       <td>GET</td>
@@ -426,7 +424,7 @@ audit event is recorded.</p>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/next-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> and <code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code> succeed with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
-  <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> remains available as a compatibility alias</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> remains available as a deprecated compatibility alias; new clients should use <code class="language-plaintext highlighter-rouge">/v1/math/catalan/:n</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/fibonacci/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 186</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/snapshot</code> fails with <code class="language-plaintext highlighter-rouge">401</code> without valid Basic Auth</li>
@@ -445,7 +443,7 @@ audit event is recorded.</p>
 <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/catalan/:n
 </span></code></pre></div></div>
 
-<p>Supports <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code>. The existing <code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> route is retained as a compatibility alias with the same response and limit.</p>
+<p>Supports <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code>. The existing <code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> route is retained as a deprecated compatibility alias with the same response and limit.</p>
 
 <h3 id="fibonacci">Fibonacci</h3>
 
@@ -610,14 +608,14 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 
 <h3 id="route-1">Route</h3>
 
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/catalan/:n
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/catalan/:n
 </span></code></pre></div></div>
 
 <h3 id="request-examples-1">Request examples</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/0'</span>
-curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/10'</span>
-curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/34'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/catalan/0'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/catalan/10'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/catalan/34'</span>
 </code></pre></div></div>
 
 <h3 id="success-response">Success response</h3>
@@ -645,7 +643,7 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
 
 <h3 id="out-of-range-error">Out-of-range error</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-i</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/catalan/35'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-i</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/catalan/35'</span>
 </code></pre></div></div>
 
 <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">400</span> <span class="ne">Bad Request</span>
@@ -812,8 +810,8 @@ https://abhrankan.duckdns.org/school/...  →  http://127.0.0.1:8088/school/...
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/api/health
   → http://127.0.0.1:8088/health
 
-https://abhrankan.duckdns.org/api/v1/catalan/10
-  → http://127.0.0.1:8088/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/catalan/10
+  → http://127.0.0.1:8088/v1/math/catalan/10
 
 https://abhrankan.duckdns.org/api/v1/info
   → http://127.0.0.1:8088/v1/info
