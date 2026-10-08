@@ -710,6 +710,108 @@ function clearSnapshot() {
     "Credentials are sent only with this request and are not stored by this page.";
 }
 
+function initLorenzSimulation() {
+  const canvas = document.querySelector("#lorenz-canvas");
+  if (!canvas) return;
+
+  const context = canvas.getContext("2d");
+  const toggleButton = document.querySelector("#lorenz-toggle-btn");
+  const resetButton = document.querySelector("#lorenz-reset-btn");
+  const stepCounter = document.querySelector("#lorenz-step-counter");
+  if (!context || !toggleButton || !resetButton || !stepCounter) return;
+
+  const sigma = 10;
+  const rho = 28;
+  const beta = 8 / 3;
+  const dt = 0.008;
+  const stepsPerFrame = 6;
+  let x = 0.1;
+  let y = 0;
+  let z = 0;
+  let running = true;
+  let totalSteps = 0;
+
+  function derivatives(cx, cy, cz) {
+    return [
+      sigma * (cy - cx),
+      cx * (rho - cz) - cy,
+      cx * cy - beta * cz,
+    ];
+  }
+
+  function step() {
+    const [dx1, dy1, dz1] = derivatives(x, y, z);
+    const [dx2, dy2, dz2] = derivatives(
+      x + 0.5 * dt * dx1,
+      y + 0.5 * dt * dy1,
+      z + 0.5 * dt * dz1,
+    );
+    const [dx3, dy3, dz3] = derivatives(
+      x + 0.5 * dt * dx2,
+      y + 0.5 * dt * dy2,
+      z + 0.5 * dt * dz2,
+    );
+    const [dx4, dy4, dz4] = derivatives(
+      x + dt * dx3,
+      y + dt * dy3,
+      z + dt * dz3,
+    );
+    x += (dt / 6) * (dx1 + 2 * dx2 + 2 * dx3 + dx4);
+    y += (dt / 6) * (dy1 + 2 * dy2 + 2 * dy3 + dy4);
+    z += (dt / 6) * (dz1 + 2 * dz2 + 2 * dz3 + dz4);
+  }
+
+  function toScreen(cx, cz) {
+    return [
+      canvas.width / 2 + cx * 8.5,
+      canvas.height - 30 - cz * 8.5 * 0.72,
+    ];
+  }
+
+  function reset() {
+    x = 0.1;
+    y = 0;
+    z = 0;
+    totalSteps = 0;
+    context.fillStyle = "#0a0a0c";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    stepCounter.textContent = "Steps: 0";
+  }
+
+  function render() {
+    if (!running) return;
+    context.fillStyle = "rgba(10, 10, 12, 0.04)";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let index = 0; index < stepsPerFrame; index += 1) {
+      const [previousX, previousY] = toScreen(x, z);
+      step();
+      const [nextX, nextY] = toScreen(x, z);
+      totalSteps += 1;
+      context.strokeStyle = `hsla(${140 + Math.min(100, Math.floor(z * 2.2))}, 85%, 60%, 0.85)`;
+      context.lineWidth = 1.2;
+      context.beginPath();
+      context.moveTo(previousX, previousY);
+      context.lineTo(nextX, nextY);
+      context.stroke();
+    }
+
+    if (totalSteps % 30 === 0) {
+      stepCounter.textContent = `Steps: ${totalSteps.toLocaleString()}`;
+    }
+    requestAnimationFrame(render);
+  }
+
+  toggleButton.addEventListener("click", () => {
+    running = !running;
+    toggleButton.textContent = running ? "Pause" : "Resume";
+    if (running) render();
+  });
+  resetButton.addEventListener("click", reset);
+  reset();
+  render();
+}
+
 refreshHealthButton.addEventListener("click", refreshHealth);
 refreshCryptoHealthButton.addEventListener("click", refreshCryptoHealth);
 refreshInfoButton.addEventListener("click", refreshInfo);
@@ -744,6 +846,7 @@ hmacForm.addEventListener("submit", runHmac);
 clearHmacButton.addEventListener("click", clearHmac);
 hmacOperation.addEventListener("change", syncHmacForm);
 
+initLorenzSimulation();
 refreshHealth();
 refreshInfo();
 refreshCryptoHealth();

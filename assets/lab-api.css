@@ -180,6 +180,38 @@ header nav a.active {
   grid-column: 1 / -1;
 }
 
+.lorenz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lorenz-step-counter {
+  color: var(--lab-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.lorenz-canvas-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: #0a0a0c;
+}
+
+#lorenz-canvas {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  aspect-ratio: 600 / 380;
+}
+
 .lab-panel-heading {
   display: flex;
   align-items: flex-start;

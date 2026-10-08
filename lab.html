@@ -164,6 +164,30 @@
           </div>
         </article>
 
+        <article class="lab-panel lab-panel--wide" aria-labelledby="lorenz-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Simulation</p>
+              <h2 id="lorenz-title">Lorenz attractor</h2>
+            </div>
+          </div>
+          <p class="lab-muted">
+            A continuous fourth-order Runge–Kutta projection of the classic
+            three-dimensional chaotic system:
+            <code>dx/dt = σ(y − x)</code>,
+            <code>dy/dt = x(ρ − z) − y</code>, and
+            <code>dz/dt = xy − βz</code>.
+          </p>
+          <div class="lorenz-controls">
+            <button id="lorenz-toggle-btn" class="lab-button" type="button">Pause</button>
+            <button id="lorenz-reset-btn" class="lab-button lab-button--secondary" type="button">Reset</button>
+            <span id="lorenz-step-counter" class="lorenz-step-counter">Steps: 0</span>
+          </div>
+          <div class="lorenz-canvas-wrap">
+            <canvas id="lorenz-canvas" width="600" height="380" aria-label="Animated projection of the Lorenz attractor"></canvas>
+          </div>
+        </article>
+
         <article class="lab-panel" aria-labelledby="info-title">
           <div class="lab-panel-heading">
             <div>
