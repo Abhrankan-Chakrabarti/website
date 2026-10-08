@@ -82,20 +82,33 @@ function setBusy(button, isBusy, label) {
   }
 }
 
-async function fetchJson(path, options = {}, result) {
-  return requestJson(endpoint(path), path, options, result);
-}
-
-async function fetchCryptoJson(path, options = {}, result) {
+async function fetchJson(path, options = {}, result, curlOptions = {}) {
   return requestJson(
-    `${CRYPTO_API_BASE.replace(/\/$/, "")}${path}`,
-    path,
+    endpoint(path),
+    `/api${path}`,
     options,
     result,
+    curlOptions,
   );
 }
 
-async function requestJson(url, path, options = {}, result) {
+async function fetchCryptoJson(path, options = {}, result, curlOptions = {}) {
+  return requestJson(
+    `${CRYPTO_API_BASE.replace(/\/$/, "")}${path}`,
+    `/crypto-api${path}`,
+    options,
+    result,
+    curlOptions,
+  );
+}
+
+async function requestJson(
+  url,
+  path,
+  options = {},
+  result,
+  curlOptions = {},
+) {
   const startedAt = performance.now();
   const method = (options.method || "GET").toUpperCase();
   let response;
@@ -109,7 +122,14 @@ async function requestJson(url, path, options = {}, result) {
       ...options,
     });
   } catch (error) {
-    renderTelemetry(result, method, path, null, performance.now() - startedAt);
+    renderTelemetry(
+      result,
+      method,
+      path,
+      null,
+      performance.now() - startedAt,
+      curlOptions,
+    );
     throw error;
   }
 
@@ -124,7 +144,14 @@ async function requestJson(url, path, options = {}, result) {
     }
   }
 
-  renderTelemetry(result, method, path, response, performance.now() - startedAt);
+  renderTelemetry(
+    result,
+    method,
+    path,
+    response,
+    performance.now() - startedAt,
+    curlOptions,
+  );
 
   if (!response.ok) {
     const message =
@@ -137,7 +164,14 @@ async function requestJson(url, path, options = {}, result) {
   return body;
 }
 
-function renderTelemetry(result, method, path, response, elapsedMs) {
+function renderTelemetry(
+  result,
+  method,
+  path,
+  response,
+  elapsedMs,
+  curlOptions = {},
+) {
   if (!result) return;
   let telemetry = result.nextElementSibling;
   if (!telemetry?.matches(".lab-telemetry")) {
@@ -147,11 +181,78 @@ function renderTelemetry(result, method, path, response, elapsedMs) {
   }
 
   const latency = `${Math.round(elapsedMs)} ms`;
+  telemetry.replaceChildren();
+  const text = document.createElement("span");
   if (response) {
     const status = `${response.status} ${response.statusText || ""}`.trim();
-    telemetry.textContent = `⚡ ${latency} · ${method} ${path} · ${status}`;
+    text.textContent = `⚡ ${latency} · ${method} ${path} · ${status}`;
   } else {
-    telemetry.textContent = `⚡ ${latency} · ${method} ${path} · Network error`;
+    text.textContent = `⚡ ${latency} · ${method} ${path} · Network error`;
+  }
+  telemetry.append(text, createCurlButton(method, path, curlOptions));
+}
+
+function createCurlButton(method, path, curlOptions) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "curl-copy-btn";
+  button.title = "Copy cURL command";
+  button.textContent = "cURL";
+  button.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const originalText = button.textContent;
+    try {
+      await copyText(buildCurlCommand(method, path, curlOptions));
+      button.textContent = "Copied!";
+      button.classList.add("curl-copy-btn--copied");
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove("curl-copy-btn--copied");
+      }, 1500);
+    } catch (error) {
+      button.textContent = "Copy failed";
+      console.error("Clipboard copy failed:", error);
+    }
+  });
+  return button;
+}
+
+function buildCurlCommand(method, path, { authUser, body } = {}) {
+  const origin =
+    window.location.protocol === "file:"
+      ? "https://abhrankan.duckdns.org"
+      : window.location.origin;
+  const parts = [`curl -i -X ${method} '${origin}${path}'`];
+  if (authUser) {
+    parts.push(`-u '${shellQuote(authUser)}:<password>'`);
+  }
+  if (body && (method === "POST" || method === "PUT")) {
+    parts.push(`-H 'Content-Type: application/json'`);
+    parts.push(`-d '${shellQuote(JSON.stringify(body))}'`);
+  }
+  return parts.join(" ");
+}
+
+function shellQuote(value) {
+  return String(value).replace(/'/g, "'\"'\"'");
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) {
+    throw new Error("Clipboard access is unavailable.");
   }
 }
 
@@ -193,6 +294,7 @@ async function runHash(event) {
         data: hashData.value,
       }),
       hashResult,
+      { authUser: username, body: { algorithm: hashAlgorithm.value, data: hashData.value } },
     );
     hashResult.textContent = data.digest;
   } catch (error) {
@@ -529,6 +631,7 @@ async function runHmac(event) {
       verifying ? "/v1/hmac/verify" : "/v1/hmac",
       operationOptions(username, password, payload),
       hmacResult,
+      { authUser: username, body: payload },
     );
     hmacResult.textContent = verifying
       ? data.valid
