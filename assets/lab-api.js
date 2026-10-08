@@ -286,12 +286,12 @@ async function copyText(text) {
 
 function initStegoInspector() {
   if (!stegoInput || !stegoResults || !stegoLsbStream) return;
+  let byteBuffer = [];
 
-  function update() {
-    const bytes = new TextEncoder().encode(stegoInput.value);
+  function render() {
     stegoResults.replaceChildren();
 
-    if (bytes.length === 0) {
+    if (byteBuffer.length === 0) {
       const emptyMessage = document.createElement("span");
       emptyMessage.className = "lab-muted";
       emptyMessage.textContent = "Enter text above to inspect bit breakdown.";
@@ -301,7 +301,7 @@ function initStegoInspector() {
     }
 
     let lsbStream = "";
-    bytes.forEach((byte, index) => {
+    byteBuffer.forEach((byte, index) => {
       const binary = byte.toString(2).padStart(8, "0");
       const row = document.createElement("div");
       row.className = "stego-byte";
@@ -326,9 +326,14 @@ function initStegoInspector() {
       const bits = document.createElement("div");
       bits.className = "stego-bits";
       binary.split("").forEach((bit, bitIndex) => {
-        const bitElement = document.createElement("span");
+        const bitElement = document.createElement("button");
+        bitElement.type = "button";
         bitElement.className = `stego-bit${bitIndex === 7 ? " stego-bit--lsb" : ""}`;
-        bitElement.title = `Bit ${7 - bitIndex}`;
+        bitElement.dataset.byte = String(index);
+        bitElement.dataset.bit = String(bitIndex);
+        bitElement.setAttribute("aria-label", `Flip bit ${7 - bitIndex} of byte ${index}`);
+        bitElement.setAttribute("aria-pressed", bit === "1" ? "true" : "false");
+        bitElement.title = `Click to flip bit ${7 - bitIndex} (weight: ${1 << (7 - bitIndex)})`;
         bitElement.textContent = bit;
         bits.append(bitElement);
       });
@@ -340,8 +345,27 @@ function initStegoInspector() {
     stegoLsbStream.textContent = lsbStream;
   }
 
-  stegoInput.addEventListener("input", update);
-  update();
+  function syncFromInput() {
+    byteBuffer = Array.from(new TextEncoder().encode(stegoInput.value));
+    render();
+  }
+
+  function syncToInput() {
+    const decoder = new TextDecoder("utf-8", { fatal: false });
+    stegoInput.value = decoder.decode(new Uint8Array(byteBuffer));
+    render();
+  }
+
+  stegoInput.addEventListener("input", syncFromInput);
+  stegoResults.addEventListener("click", (event) => {
+    const button = event.target.closest(".stego-bit");
+    if (!button) return;
+    const byteIndex = Number(button.dataset.byte);
+    const bitIndex = Number(button.dataset.bit);
+    byteBuffer[byteIndex] ^= 1 << (7 - bitIndex);
+    syncToInput();
+  });
+  syncFromInput();
 }
 
 function clearTelemetry(result) {

@@ -146,12 +146,26 @@ textarea:focus {
 .stego-bit {
   display: inline-block;
   width: 20px;
+  height: 26px;
   padding: 2px 0;
   border: 1px solid #3f3f46;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.05);
   color: #e4e4e7;
+  cursor: pointer;
+  font: inherit;
+  line-height: 20px;
   text-align: center;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.stego-bit:hover {
+  transform: translateY(-1px);
+}
+
+.stego-bit:focus-visible {
+  outline: 2px solid var(--lab-accent);
+  outline-offset: 2px;
 }
 
 .stego-bit--lsb {
