@@ -724,12 +724,17 @@ function initLorenzSimulation() {
   const rho = 28;
   const beta = 8 / 3;
   const dt = 0.008;
-  const stepsPerFrame = 6;
+  const stepsPerFrame = 7;
   let x = 0.1;
   let y = 0;
   let z = 0;
   let running = true;
   let totalSteps = 0;
+  let yaw = 0.4;
+  let pitch = -0.3;
+  let dragging = false;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
 
   function derivatives(cx, cy, cz) {
     return [
@@ -761,10 +766,21 @@ function initLorenzSimulation() {
     z += (dt / 6) * (dz1 + 2 * dz2 + 2 * dz3 + dz4);
   }
 
-  function toScreen(cx, cz) {
+  function project(cx, cy, cz) {
+    const centeredZ = cz - 25;
+    const cosYaw = Math.cos(yaw);
+    const sinYaw = Math.sin(yaw);
+    const rotatedX = cx * cosYaw - centeredZ * sinYaw;
+    const rotatedZ = cx * sinYaw + centeredZ * cosYaw;
+    const cosPitch = Math.cos(pitch);
+    const sinPitch = Math.sin(pitch);
+    const rotatedY = cy * cosPitch - rotatedZ * sinPitch;
+    const depth = cy * sinPitch + rotatedZ * cosPitch;
+    const perspective = 380 / (95 + depth);
+
     return [
-      canvas.width / 2 + cx * 8.5,
-      canvas.height - 30 - cz * 8.5 * 0.72,
+      canvas.width / 2 + rotatedX * perspective * 2.2,
+      canvas.height / 2 + rotatedY * perspective * 2.2,
     ];
   }
 
@@ -778,15 +794,20 @@ function initLorenzSimulation() {
     stepCounter.textContent = "Steps: 0";
   }
 
+  function clearTrail(amount = 0.04) {
+    context.fillStyle = `rgba(10, 10, 12, ${amount})`;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   function render() {
     if (!running) return;
-    context.fillStyle = "rgba(10, 10, 12, 0.04)";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    if (!dragging) yaw += 0.0015;
+    clearTrail();
 
     for (let index = 0; index < stepsPerFrame; index += 1) {
-      const [previousX, previousY] = toScreen(x, z);
+      const [previousX, previousY] = project(x, y, z);
       step();
-      const [nextX, nextY] = toScreen(x, z);
+      const [nextX, nextY] = project(x, y, z);
       totalSteps += 1;
       context.strokeStyle = `hsla(${140 + Math.min(100, Math.floor(z * 2.2))}, 85%, 60%, 0.85)`;
       context.lineWidth = 1.2;
@@ -801,6 +822,36 @@ function initLorenzSimulation() {
     }
     requestAnimationFrame(render);
   }
+
+  canvas.style.cursor = "grab";
+  canvas.addEventListener("pointerdown", (event) => {
+    dragging = true;
+    canvas.setPointerCapture(event.pointerId);
+    canvas.style.cursor = "grabbing";
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const deltaX = event.clientX - lastPointerX;
+    const deltaY = event.clientY - lastPointerY;
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    yaw += deltaX * 0.01;
+    pitch = Math.max(-1.4, Math.min(1.4, pitch + deltaY * 0.01));
+    clearTrail(0.15);
+  });
+
+  function stopDragging(event) {
+    if (!dragging) return;
+    dragging = false;
+    canvas.releasePointerCapture(event.pointerId);
+    canvas.style.cursor = "grab";
+  }
+
+  canvas.addEventListener("pointerup", stopDragging);
+  canvas.addEventListener("pointercancel", stopDragging);
 
   toggleButton.addEventListener("click", () => {
     running = !running;

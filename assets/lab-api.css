@@ -212,6 +212,7 @@ header nav a.active {
   min-width: 0;
   height: auto;
   aspect-ratio: 600 / 380;
+  touch-action: none;
 }
 
 @media (max-width: 560px) {
