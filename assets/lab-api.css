@@ -197,6 +197,7 @@ header nav a.active {
 .lorenz-canvas-wrap {
   display: flex;
   justify-content: center;
+  min-width: 0;
   width: 100%;
   overflow: hidden;
   border: 1px solid var(--lab-line);
@@ -207,9 +208,20 @@ header nav a.active {
 #lorenz-canvas {
   display: block;
   width: 100%;
-  max-width: 600px;
+  max-width: min(600px, 100%);
+  min-width: 0;
   height: auto;
   aspect-ratio: 600 / 380;
+}
+
+@media (max-width: 560px) {
+  .lorenz-canvas-wrap {
+    margin-inline: -1px;
+  }
+
+  #lorenz-canvas {
+    width: 100%;
+  }
 }
 
 .lab-panel-heading {
