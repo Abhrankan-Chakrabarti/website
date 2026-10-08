@@ -417,23 +417,51 @@ input:focus {
 }
 
 .lab-telemetry {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
-  flex-wrap: wrap;
+  width: 100%;
   max-width: 100%;
   margin-top: 6px;
   padding: 3px 7px;
-  overflow-wrap: anywhere;
   border: 1px solid var(--lab-line);
-  border-radius: 999px;
+  border-radius: 6px;
   background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 18%);
   color: var(--lab-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.75rem;
 }
 
+.telemetry-meta {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.telemetry-icon {
+  flex: 0 0 auto;
+  color: var(--lab-accent);
+}
+
+.telemetry-separator {
+  flex: 0 0 auto;
+  color: var(--lab-line);
+}
+
+.telemetry-path {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--lab-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .curl-copy-btn {
+  flex: 0 0 auto;
   padding: 2px 6px;
   border: 1px solid var(--lab-line);
   border-radius: 4px;
@@ -459,7 +487,11 @@ input:focus {
 /* Keep the telemetry text and copy control readable on narrow screens. */
 @media (max-width: 560px) {
   .lab-telemetry {
-    border-radius: var(--lab-radius);
+    gap: 8px;
+  }
+
+  .telemetry-meta {
+    gap: 4px;
   }
 }
 

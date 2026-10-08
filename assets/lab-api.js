@@ -182,14 +182,39 @@ function renderTelemetry(
 
   const latency = `${Math.round(elapsedMs)} ms`;
   telemetry.replaceChildren();
-  const text = document.createElement("span");
+  telemetry.className = "lab-telemetry";
+  const metadata = document.createElement("div");
+  metadata.className = "telemetry-meta";
+  const icon = document.createElement("span");
+  icon.className = "telemetry-icon";
+  icon.textContent = "⚡";
+  const latencyText = document.createElement("span");
+  latencyText.textContent = latency;
+  const firstSeparator = document.createElement("span");
+  firstSeparator.className = "telemetry-separator";
+  firstSeparator.textContent = "·";
+  const request = document.createElement("span");
+  request.className = "telemetry-path";
+  request.title = `${method} ${path}`;
+  request.textContent = `${method} ${path}`;
+  const secondSeparator = document.createElement("span");
+  secondSeparator.className = "telemetry-separator";
+  secondSeparator.textContent = "·";
+  const statusText = document.createElement("span");
   if (response) {
-    const status = `${response.status} ${response.statusText || ""}`.trim();
-    text.textContent = `⚡ ${latency} · ${method} ${path} · ${status}`;
+    statusText.textContent = `${response.status} ${response.statusText || ""}`.trim();
   } else {
-    text.textContent = `⚡ ${latency} · ${method} ${path} · Network error`;
+    statusText.textContent = "Network error";
   }
-  telemetry.append(text, createCurlButton(method, path, curlOptions));
+  metadata.append(
+    icon,
+    latencyText,
+    firstSeparator,
+    request,
+    secondSeparator,
+    statusText,
+  );
+  telemetry.append(metadata, createCurlButton(method, path, curlOptions));
 }
 
 function createCurlButton(method, path, curlOptions) {
