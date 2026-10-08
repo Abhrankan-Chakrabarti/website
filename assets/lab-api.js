@@ -82,14 +82,36 @@ function setBusy(button, isBusy, label) {
   }
 }
 
-async function fetchJson(path, options = {}) {
-  const response = await fetch(endpoint(path), {
-    headers: {
-      Accept: "application/json",
-      ...options.headers,
-    },
-    ...options,
-  });
+async function fetchJson(path, options = {}, result) {
+  return requestJson(endpoint(path), path, options, result);
+}
+
+async function fetchCryptoJson(path, options = {}, result) {
+  return requestJson(
+    `${CRYPTO_API_BASE.replace(/\/$/, "")}${path}`,
+    path,
+    options,
+    result,
+  );
+}
+
+async function requestJson(url, path, options = {}, result) {
+  const startedAt = performance.now();
+  const method = (options.method || "GET").toUpperCase();
+  let response;
+
+  try {
+    response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        ...options.headers,
+      },
+      ...options,
+    });
+  } catch (error) {
+    renderTelemetry(result, method, path, null, performance.now() - startedAt);
+    throw error;
+  }
 
   const text = await response.text();
   let body = null;
@@ -101,6 +123,8 @@ async function fetchJson(path, options = {}) {
       body = text;
     }
   }
+
+  renderTelemetry(result, method, path, response, performance.now() - startedAt);
 
   if (!response.ok) {
     const message =
@@ -113,35 +137,27 @@ async function fetchJson(path, options = {}) {
   return body;
 }
 
-async function fetchCryptoJson(path, options = {}) {
-  const response = await fetch(`${CRYPTO_API_BASE.replace(/\/$/, "")}${path}`, {
-    headers: {
-      Accept: "application/json",
-      ...options.headers,
-    },
-    ...options,
-  });
-
-  const text = await response.text();
-  let body = null;
-
-  if (text) {
-    try {
-      body = JSON.parse(text);
-    } catch {
-      body = text;
-    }
+function renderTelemetry(result, method, path, response, elapsedMs) {
+  if (!result) return;
+  let telemetry = result.nextElementSibling;
+  if (!telemetry?.matches(".lab-telemetry")) {
+    telemetry = document.createElement("small");
+    telemetry.className = "lab-telemetry";
+    result.insertAdjacentElement("afterend", telemetry);
   }
 
-  if (!response.ok) {
-    const message =
-      body && typeof body === "object" && "error" in body
-        ? body.error
-        : `Request failed with HTTP ${response.status}`;
-    throw new Error(message);
+  const latency = `${Math.round(elapsedMs)} ms`;
+  if (response) {
+    const status = `${response.status} ${response.statusText || ""}`.trim();
+    telemetry.textContent = `⚡ ${latency} · ${method} ${path} · ${status}`;
+  } else {
+    telemetry.textContent = `⚡ ${latency} · ${method} ${path} · Network error`;
   }
+}
 
-  return body;
+function clearTelemetry(result) {
+  result?.nextElementSibling?.matches(".lab-telemetry") &&
+    result.nextElementSibling.remove();
 }
 
 function basicAuth(username, password) {
@@ -176,6 +192,7 @@ async function runHash(event) {
         algorithm: hashAlgorithm.value,
         data: hashData.value,
       }),
+      hashResult,
     );
     hashResult.textContent = data.digest;
   } catch (error) {
@@ -190,6 +207,7 @@ function clearCatalan() {
   catalanInput.value = "5";
   validateCatalanInput();
   catalanResult.textContent = "Ready to calculate.";
+  clearTelemetry(catalanResult);
 }
 
 function clearHash() {
@@ -197,6 +215,7 @@ function clearHash() {
   hashUsername.value = "";
   hashPassword.value = "";
   hashResult.textContent = "Your digest will appear here.";
+  clearTelemetry(hashResult);
 }
 
 function validateCatalanInput() {
@@ -252,7 +271,7 @@ async function lookupFibonacci(event) {
   setBusy(button, true, "Calculating");
 
   try {
-    const data = await fetchJson(`/v1/math/fibonacci/${n}`);
+    const data = await fetchJson(`/v1/math/fibonacci/${n}`, {}, fibonacciResult);
     fibonacciResult.innerHTML = `F<sub>${data.n}</sub> = <strong>${data.value}</strong>`;
   } catch (error) {
     fibonacciResult.textContent = error.message;
@@ -274,7 +293,7 @@ async function lookupGcd(event) {
   setBusy(button, true, "Calculating");
 
   try {
-    await fetchJson(`/v1/math/gcd/${a}/${b}`);
+    await fetchJson(`/v1/math/gcd/${a}/${b}`, {}, gcdResult);
     let x = a;
     let y = b;
     while (y !== 0n) {
@@ -326,6 +345,7 @@ function clearFibonacci() {
   fibonacciInput.value = "10";
   validateFibonacciInput();
   fibonacciResult.textContent = "Ready to calculate.";
+  clearTelemetry(fibonacciResult);
 }
 
 function clearGcd() {
@@ -333,6 +353,7 @@ function clearGcd() {
   gcdBInput.value = "30";
   validateGcdInputs();
   gcdResult.textContent = "Ready to calculate.";
+  clearTelemetry(gcdResult);
 }
 
 function primeInputValue(input, result, minimum) {
@@ -362,7 +383,7 @@ async function lookupPrime(event) {
   primeResult.textContent = "Checking...";
   setBusy(button, true, "Checking");
   try {
-    const data = await fetchJson(`/v1/math/is-prime/${n}`);
+    const data = await fetchJson(`/v1/math/is-prime/${n}`, {}, primeResult);
     primeResult.innerHTML = `${data.n} is <strong>${data.prime ? "" : "not "}prime</strong>`;
   } catch (error) {
     primeResult.textContent = error.message;
@@ -379,7 +400,7 @@ async function lookupNextPrime(event) {
   nextPrimeResult.textContent = "Calculating...";
   setBusy(button, true, "Calculating");
   try {
-    const data = await fetchJson(`/v1/math/next-prime/${n}`);
+    const data = await fetchJson(`/v1/math/next-prime/${n}`, {}, nextPrimeResult);
     nextPrimeResult.innerHTML = `Next prime after ${data.n} = <strong>${data.value}</strong>`;
   } catch (error) {
     nextPrimeResult.textContent = error.message;
@@ -396,7 +417,7 @@ async function lookupPrimeGap(event) {
   primeGapResult.textContent = "Calculating...";
   setBusy(button, true, "Calculating");
   try {
-    const data = await fetchJson(`/v1/math/prime-gap/${n}`);
+    const data = await fetchJson(`/v1/math/prime-gap/${n}`, {}, primeGapResult);
     primeGapResult.innerHTML = `${data.previous_prime} and ${data.next_prime}; gap = <strong>${data.gap}</strong>`;
   } catch (error) {
     primeGapResult.textContent = error.message;
@@ -413,7 +434,7 @@ async function lookupPrimePi(event) {
   primePiResult.textContent = "Counting...";
   setBusy(button, true, "Counting");
   try {
-    const data = await fetchJson(`/v1/math/prime-pi/${n}`);
+    const data = await fetchJson(`/v1/math/prime-pi/${n}`, {}, primePiResult);
     primePiResult.innerHTML = `π(${data.n}) = <strong>${data.value}</strong>`;
   } catch (error) {
     primePiResult.textContent = error.message;
@@ -426,24 +447,28 @@ function clearPrime() {
   primeInput.value = "97";
   validatePrimeInput(primeInput, 0, primeResult);
   primeResult.textContent = "Ready to calculate.";
+  clearTelemetry(primeResult);
 }
 
 function clearNextPrime() {
   nextPrimeInput.value = "100";
   validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
   nextPrimeResult.textContent = "Ready to calculate.";
+  clearTelemetry(nextPrimeResult);
 }
 
 function clearPrimeGap() {
   primeGapInput.value = "1000";
   validatePrimeInput(primeGapInput, 3, primeGapResult);
   primeGapResult.textContent = "Ready to calculate.";
+  clearTelemetry(primeGapResult);
 }
 
 function clearPrimePi() {
   primePiInput.value = "1000";
   validatePrimeInput(primePiInput, 0, primePiResult);
   primePiResult.textContent = "Ready to calculate.";
+  clearTelemetry(primePiResult);
 }
 
 async function refreshCryptoHealth() {
@@ -503,6 +528,7 @@ async function runHmac(event) {
     const data = await fetchCryptoJson(
       verifying ? "/v1/hmac/verify" : "/v1/hmac",
       operationOptions(username, password, payload),
+      hmacResult,
     );
     hmacResult.textContent = verifying
       ? data.valid
@@ -527,6 +553,7 @@ function clearHmac() {
   hmacUsername.value = "";
   hmacPassword.value = "";
   hmacResult.textContent = "Your MAC result will appear here.";
+  clearTelemetry(hmacResult);
   syncHmacForm();
 }
 
@@ -568,7 +595,7 @@ async function lookupCatalan(event) {
   setBusy(button, true, "Calculating");
 
   try {
-    const data = await fetchJson(`/v1/catalan/${n}`);
+    const data = await fetchJson(`/v1/catalan/${n}`, {}, catalanResult);
     catalanResult.innerHTML = `C<sub>${data.n}</sub> = <strong>${data.value}</strong>`;
   } catch (error) {
     catalanResult.textContent = error.message;

@@ -416,6 +416,19 @@ input:focus {
   color: var(--lab-text);
 }
 
+.lab-telemetry {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 7px;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--lab-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 18%);
+  color: var(--lab-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
 .lab-code {
   min-height: 150px;
   max-height: 420px;
