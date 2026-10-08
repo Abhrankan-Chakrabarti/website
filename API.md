@@ -30,7 +30,6 @@ Nginx
 ```text
 https://abhrankan.duckdns.org/api/health
 https://abhrankan.duckdns.org/api/v1/info
-https://abhrankan.duckdns.org/api/v1/catalan/10
 https://abhrankan.duckdns.org/api/v1/math/catalan/10
 https://abhrankan.duckdns.org/api/v1/math/fibonacci/10
 https://abhrankan.duckdns.org/api/v1/math/gcd/84/30
@@ -55,7 +54,6 @@ These are consumed through Nginx, which terminates TLS and forwards traffic to t
 ```text
 http://127.0.0.1:8088/health
 http://127.0.0.1:8088/v1/info
-http://127.0.0.1:8088/v1/catalan/10
 http://127.0.0.1:8088/v1/math/catalan/10
 http://127.0.0.1:8088/v1/math/fibonacci/10
 http://127.0.0.1:8088/v1/math/gcd/84/30
@@ -91,7 +89,7 @@ The routes in this table are **backend** paths. Public clients prefix core route
 | GET | `/v1/math/prime-gap/:n` | None | Surrounding prime gap, `2 < n ≤ 1,000,000` |
 | GET | `/v1/math/prime-pi/:n` | None | Prime-counting function π(n), `0 ≤ n ≤ 1,000,000` |
 | GET | `/v1/math/pi/:n` | None | Prime-counting function π(n), compatibility alias |
-| GET | `/v1/catalan/:n` | None | Catalan number, compatibility alias, `0 ≤ n ≤ 34` |
+| GET | `/v1/catalan/:n` | None | Deprecated Catalan compatibility alias; use `/v1/math/catalan/:n`, `0 ≤ n ≤ 34` |
 | GET | `/v1/snapshot` | Nginx Basic Auth | Host/system snapshot |
 | GET | `/school/` | None | Public School portal UI and static assets |
 | GET | `/school/api/health` | None | School API health |
@@ -243,7 +241,7 @@ The most important contract checks are:
 - `GET /v1/math/next-prime/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
 - `GET /v1/math/prime-gap/:n` succeeds with `200` when `2 < n ≤ 1,000,000`
 - `GET /v1/math/prime-pi/:n` and `/v1/math/pi/:n` succeed with `200` when `0 ≤ n ≤ 1,000,000`
-- `GET /v1/catalan/:n` remains available as a compatibility alias
+- `GET /v1/catalan/:n` remains available as a deprecated compatibility alias; new clients should use `/v1/math/catalan/:n`
 - `GET /v1/catalan/:n` fails with `400` when `n > 34`
 - `GET /v1/math/fibonacci/:n` fails with `400` when `n > 186`
 - `GET /v1/snapshot` fails with `401` without valid Basic Auth
@@ -262,7 +260,7 @@ The math endpoints are public, read-only GET routes. They use `u128` arithmetic 
 GET /v1/math/catalan/:n
 ```
 
-Supports `0 ≤ n ≤ 34`. The existing `GET /v1/catalan/:n` route is retained as a compatibility alias with the same response and limit.
+Supports `0 ≤ n ≤ 34`. The existing `GET /v1/catalan/:n` route is retained as a deprecated compatibility alias with the same response and limit.
 
 ### Fibonacci
 
@@ -439,15 +437,15 @@ This endpoint is intended to remain publicly readable for simple service checks 
 ### Route
 
 ```http
-GET /v1/catalan/:n
+GET /v1/math/catalan/:n
 ```
 
 ### Request examples
 
 ```bash
-curl -sS 'https://abhrankan.duckdns.org/api/v1/catalan/0'
-curl -sS 'https://abhrankan.duckdns.org/api/v1/catalan/10'
-curl -sS 'https://abhrankan.duckdns.org/api/v1/catalan/34'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/catalan/0'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/catalan/10'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/catalan/34'
 ```
 
 ### Success response
@@ -479,7 +477,7 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
 ### Out-of-range error
 
 ```bash
-curl -sS -i 'https://abhrankan.duckdns.org/api/v1/catalan/35'
+curl -sS -i 'https://abhrankan.duckdns.org/api/v1/math/catalan/35'
 ```
 
 ```http
@@ -647,8 +645,8 @@ Examples:
 https://abhrankan.duckdns.org/api/health
   → http://127.0.0.1:8088/health
 
-https://abhrankan.duckdns.org/api/v1/catalan/10
-  → http://127.0.0.1:8088/v1/catalan/10
+https://abhrankan.duckdns.org/api/v1/math/catalan/10
+  → http://127.0.0.1:8088/v1/math/catalan/10
 
 https://abhrankan.duckdns.org/api/v1/info
   → http://127.0.0.1:8088/v1/info

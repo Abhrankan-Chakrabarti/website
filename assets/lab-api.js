@@ -595,7 +595,7 @@ async function lookupCatalan(event) {
   setBusy(button, true, "Calculating");
 
   try {
-    const data = await fetchJson(`/v1/catalan/${n}`, {}, catalanResult);
+    const data = await fetchJson(`/v1/math/catalan/${n}`, {}, catalanResult);
     catalanResult.innerHTML = `C<sub>${data.n}</sub> = <strong>${data.value}</strong>`;
   } catch (error) {
     catalanResult.textContent = error.message;
