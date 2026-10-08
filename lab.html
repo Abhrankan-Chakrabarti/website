@@ -301,6 +301,33 @@
           </div>
         </article>
 
+        <article class="lab-panel lab-panel--wide" aria-labelledby="stego-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Bitwise / stego</p>
+              <h2 id="stego-title">Bitwise &amp; LSB inspector</h2>
+            </div>
+          </div>
+          <p class="lab-muted">
+            Examine raw UTF-8 byte sequences, bitstream layouts, and least significant bits (LSB)
+            in real time.
+          </p>
+          <label class="stego-input-label" for="stego-input">Input text or ASCII</label>
+          <input
+            id="stego-input"
+            class="stego-input"
+            type="text"
+            value="fox"
+            placeholder="Type text to inspect..."
+            autocomplete="off"
+          >
+          <div id="stego-results" class="stego-results" aria-live="polite"></div>
+          <div class="stego-lsb">
+            <div class="stego-lsb-label">Extracted LSB stream:</div>
+            <div id="stego-lsb-stream" class="stego-lsb-stream">000</div>
+          </div>
+        </article>
+
         <article class="lab-panel lab-panel--wide" aria-labelledby="snapshot-title">
           <div class="lab-panel-heading">
             <div>

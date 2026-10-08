@@ -69,6 +69,9 @@ const clearHmacButton = document.querySelector("#clear-hmac");
 const cryptoHealthBadge = document.querySelector("#crypto-health-badge");
 const cryptoHealthMessage = document.querySelector("#crypto-health-message");
 const refreshCryptoHealthButton = document.querySelector("#refresh-crypto-health");
+const stegoInput = document.querySelector("#stego-input");
+const stegoResults = document.querySelector("#stego-results");
+const stegoLsbStream = document.querySelector("#stego-lsb-stream");
 
 function endpoint(path) {
   return `${API_BASE.replace(/\/$/, "")}${path}`;
@@ -279,6 +282,66 @@ async function copyText(text) {
   if (!copied) {
     throw new Error("Clipboard access is unavailable.");
   }
+}
+
+function initStegoInspector() {
+  if (!stegoInput || !stegoResults || !stegoLsbStream) return;
+
+  function update() {
+    const bytes = new TextEncoder().encode(stegoInput.value);
+    stegoResults.replaceChildren();
+
+    if (bytes.length === 0) {
+      const emptyMessage = document.createElement("span");
+      emptyMessage.className = "lab-muted";
+      emptyMessage.textContent = "Enter text above to inspect bit breakdown.";
+      stegoResults.append(emptyMessage);
+      stegoLsbStream.textContent = "—";
+      return;
+    }
+
+    let lsbStream = "";
+    bytes.forEach((byte, index) => {
+      const binary = byte.toString(2).padStart(8, "0");
+      const row = document.createElement("div");
+      row.className = "stego-byte";
+
+      const metadata = document.createElement("div");
+      metadata.className = "stego-byte-meta";
+      const indexElement = document.createElement("span");
+      indexElement.className = "stego-index";
+      indexElement.textContent = `[${index}]`;
+      const character = document.createElement("span");
+      character.className = "stego-character";
+      character.textContent =
+        byte >= 32 && byte <= 126 ? `'${String.fromCharCode(byte)}'` : "'·'";
+      const hex = document.createElement("span");
+      hex.className = "stego-hex";
+      hex.textContent = `0x${byte.toString(16).toUpperCase().padStart(2, "0")}`;
+      const decimal = document.createElement("span");
+      decimal.className = "stego-decimal";
+      decimal.textContent = `(${byte})`;
+      metadata.append(indexElement, character, hex, decimal);
+
+      const bits = document.createElement("div");
+      bits.className = "stego-bits";
+      binary.split("").forEach((bit, bitIndex) => {
+        const bitElement = document.createElement("span");
+        bitElement.className = `stego-bit${bitIndex === 7 ? " stego-bit--lsb" : ""}`;
+        bitElement.title = `Bit ${7 - bitIndex}`;
+        bitElement.textContent = bit;
+        bits.append(bitElement);
+      });
+
+      lsbStream += binary[7];
+      row.append(metadata, bits);
+      stegoResults.append(row);
+    });
+    stegoLsbStream.textContent = lsbStream;
+  }
+
+  stegoInput.addEventListener("input", update);
+  update();
 }
 
 function clearTelemetry(result) {
@@ -1053,6 +1116,7 @@ clearHmacButton.addEventListener("click", clearHmac);
 hmacOperation.addEventListener("change", syncHmacForm);
 
 initLorenzSimulation();
+initStegoInspector();
 refreshHealth();
 refreshInfo();
 refreshCryptoHealth();
