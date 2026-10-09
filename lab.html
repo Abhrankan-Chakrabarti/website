@@ -31,7 +31,8 @@
         <h1 id="lab-title">Small public tools and service checks</h1>
         <p class="lab-intro">
           A lightweight interface for checking the lab service, looking up Catalan
-          numbers, Fibonacci numbers, GCD and prime values, and an authenticated snapshot.
+          numbers, Fibonacci numbers, GCD, prime and number-theory values, and an
+          authenticated snapshot.
         </p>
       </section>
 
@@ -160,6 +161,36 @@
                 <button id="clear-prime-pi" class="lab-button lab-button--secondary" type="button">Clear</button>
               </div>
               <output id="prime-pi-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+
+            <form id="factor-form" class="lab-form crypto-tool">
+              <label for="factor-n">Factor n into primes</label>
+              <input id="factor-n" name="n" type="number" min="0" max="1000000" step="1" value="360" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Factor n</button>
+                <button id="clear-factor" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="factor-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+
+            <form id="totient-form" class="lab-form crypto-tool">
+              <label for="totient-n">Calculate Euler's totient φ(n)</label>
+              <input id="totient-n" name="n" type="number" min="0" max="1000000" step="1" value="36" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Calculate φ(n)</button>
+                <button id="clear-totient" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="totient-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+
+            <form id="mobius-form" class="lab-form crypto-tool">
+              <label for="mobius-n">Calculate the Möbius function μ(n)</label>
+              <input id="mobius-n" name="n" type="number" min="0" max="1000000" step="1" value="30" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Calculate μ(n)</button>
+                <button id="clear-mobius" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="mobius-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
             </form>
           </div>
         </article>

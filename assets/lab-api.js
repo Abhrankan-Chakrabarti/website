@@ -39,6 +39,18 @@ const primePiForm = document.querySelector("#prime-pi-form");
 const primePiInput = document.querySelector("#prime-pi-n");
 const primePiResult = document.querySelector("#prime-pi-result");
 const clearPrimePiButton = document.querySelector("#clear-prime-pi");
+const factorForm = document.querySelector("#factor-form");
+const factorInput = document.querySelector("#factor-n");
+const factorResult = document.querySelector("#factor-result");
+const clearFactorButton = document.querySelector("#clear-factor");
+const totientForm = document.querySelector("#totient-form");
+const totientInput = document.querySelector("#totient-n");
+const totientResult = document.querySelector("#totient-result");
+const clearTotientButton = document.querySelector("#clear-totient");
+const mobiusForm = document.querySelector("#mobius-form");
+const mobiusInput = document.querySelector("#mobius-n");
+const mobiusResult = document.querySelector("#mobius-result");
+const clearMobiusButton = document.querySelector("#clear-mobius");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -708,11 +720,91 @@ async function lookupPrimePi(event) {
   }
 }
 
+async function lookupFactor(event) {
+  event.preventDefault();
+  const n = primeInputValue(factorInput, factorResult, 0);
+  if (n === null) return;
+  const button = factorForm.querySelector("button[type='submit']");
+  factorResult.textContent = "Factoring...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchJson(`/v1/math/factor/${n}`, {}, factorResult);
+    if (!Array.isArray(data.factors) || !data.factors.every(
+      (factor) => Number.isInteger(factor.prime) && Number.isInteger(factor.power),
+    )) {
+      throw new Error("The API returned an invalid factorisation.");
+    }
+    const factors = data.factors.length
+      ? data.factors.map((factor) => `${factor.prime}^${factor.power}`).join(" × ")
+      : "no prime factors";
+    factorResult.textContent = `${data.n} = ${factors}`;
+  } catch (error) {
+    factorResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factoring");
+  }
+}
+
+async function lookupTotient(event) {
+  event.preventDefault();
+  const n = primeInputValue(totientInput, totientResult, 0);
+  if (n === null) return;
+  const button = totientForm.querySelector("button[type='submit']");
+  totientResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+  try {
+    const data = await fetchJson(`/v1/math/totient/${n}`, {}, totientResult);
+    totientResult.textContent = `φ(${data.n}) = ${data.value}`;
+  } catch (error) {
+    totientResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
+async function lookupMobius(event) {
+  event.preventDefault();
+  const n = primeInputValue(mobiusInput, mobiusResult, 0);
+  if (n === null) return;
+  const button = mobiusForm.querySelector("button[type='submit']");
+  mobiusResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+  try {
+    const data = await fetchJson(`/v1/math/mobius/${n}`, {}, mobiusResult);
+    mobiusResult.textContent = `μ(${data.n}) = ${data.value}`;
+  } catch (error) {
+    mobiusResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
 function clearPrime() {
   primeInput.value = "97";
   validatePrimeInput(primeInput, 0, primeResult);
   primeResult.textContent = "Ready to calculate.";
   clearTelemetry(primeResult);
+}
+
+function clearFactor() {
+  factorInput.value = "360";
+  validatePrimeInput(factorInput, 0, factorResult);
+  factorResult.textContent = "Ready to calculate.";
+  clearTelemetry(factorResult);
+}
+
+function clearTotient() {
+  totientInput.value = "36";
+  validatePrimeInput(totientInput, 0, totientResult);
+  totientResult.textContent = "Ready to calculate.";
+  clearTelemetry(totientResult);
+}
+
+function clearMobius() {
+  mobiusInput.value = "30";
+  validatePrimeInput(mobiusInput, 0, mobiusResult);
+  mobiusResult.textContent = "Ready to calculate.";
+  clearTelemetry(mobiusResult);
 }
 
 function clearNextPrime() {
@@ -1182,6 +1274,15 @@ clearPrimeGapButton.addEventListener("click", clearPrimeGap);
 primePiForm.addEventListener("submit", lookupPrimePi);
 primePiInput.addEventListener("input", () => validatePrimeInput(primePiInput, 0, primePiResult));
 clearPrimePiButton.addEventListener("click", clearPrimePi);
+factorForm.addEventListener("submit", lookupFactor);
+factorInput.addEventListener("input", () => validatePrimeInput(factorInput, 0, factorResult));
+clearFactorButton.addEventListener("click", clearFactor);
+totientForm.addEventListener("submit", lookupTotient);
+totientInput.addEventListener("input", () => validatePrimeInput(totientInput, 0, totientResult));
+clearTotientButton.addEventListener("click", clearTotient);
+mobiusForm.addEventListener("submit", lookupMobius);
+mobiusInput.addEventListener("input", () => validatePrimeInput(mobiusInput, 0, mobiusResult));
+clearMobiusButton.addEventListener("click", clearMobius);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
@@ -1204,3 +1305,6 @@ validatePrimeInput(primeInput, 0, primeResult);
 validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
 validatePrimeInput(primeGapInput, 3, primeGapResult);
 validatePrimeInput(primePiInput, 0, primePiResult);
+validatePrimeInput(factorInput, 0, factorResult);
+validatePrimeInput(totientInput, 0, totientResult);
+validatePrimeInput(mobiusInput, 0, mobiusResult);
