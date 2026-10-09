@@ -197,13 +197,35 @@ textarea:focus {
 }
 
 .stego-lsb-label {
-  margin-bottom: 4px;
   color: var(--lab-muted);
 }
 
 .stego-lsb-stream {
   overflow-wrap: anywhere;
   color: #22c55e;
+}
+
+.stego-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stego-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--lab-muted);
+}
+
+.stego-metrics strong {
+  color: #38bdf8;
+}
+
+#stego-hamming-distance {
+  color: #71717a;
 }
 
 header {

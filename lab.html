@@ -337,8 +337,16 @@
           </div>
           <div id="stego-results" class="stego-results" aria-live="polite"></div>
           <div class="stego-lsb">
-            <div class="stego-lsb-label">Extracted LSB stream:</div>
-            <div id="stego-lsb-stream" class="stego-lsb-stream">000</div>
+            <div class="stego-status-row">
+              <div>
+                <span class="stego-lsb-label">Extracted LSB stream:</span>
+                <span id="stego-lsb-stream" class="stego-lsb-stream">000</span>
+              </div>
+              <div class="stego-metrics">
+                <span>Weight: <strong id="stego-hamming-weight">0</strong> / <span id="stego-total-bits">0</span></span>
+                <span>Δ flips: <strong id="stego-hamming-distance">0</strong></span>
+              </div>
+            </div>
           </div>
         </article>
 

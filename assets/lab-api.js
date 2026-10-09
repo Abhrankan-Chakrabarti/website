@@ -287,10 +287,38 @@ async function copyText(text) {
 function initStegoInspector() {
   if (!stegoInput || !stegoResults || !stegoLsbStream) return;
   let byteBuffer = [];
+  let baselineBuffer = [];
   const invertButton = document.querySelector("#stego-btn-invert");
   const clearLsbButton = document.querySelector("#stego-btn-clear-lsb");
   const xorMaskButton = document.querySelector("#stego-btn-xor-mask");
   const resetButton = document.querySelector("#stego-btn-reset");
+  const hammingWeight = document.querySelector("#stego-hamming-weight");
+  const totalBits = document.querySelector("#stego-total-bits");
+  const hammingDistance = document.querySelector("#stego-hamming-distance");
+
+  function countSetBits(value) {
+    let count = 0;
+    while (value > 0) {
+      count += value & 1;
+      value >>= 1;
+    }
+    return count;
+  }
+
+  function renderMetrics() {
+    const weight = byteBuffer.reduce((total, byte) => total + countSetBits(byte), 0);
+    const distance = byteBuffer.reduce(
+      (total, byte, index) =>
+        total + countSetBits(byte ^ (baselineBuffer[index] ?? 0)),
+      0,
+    );
+    if (hammingWeight) hammingWeight.textContent = String(weight);
+    if (totalBits) totalBits.textContent = String(byteBuffer.length * 8);
+    if (hammingDistance) {
+      hammingDistance.textContent = String(distance);
+      hammingDistance.style.color = distance > 0 ? "#f59e0b" : "#71717a";
+    }
+  }
 
   function render() {
     stegoResults.replaceChildren();
@@ -301,6 +329,7 @@ function initStegoInspector() {
       emptyMessage.textContent = "Enter text above to inspect bit breakdown.";
       stegoResults.append(emptyMessage);
       stegoLsbStream.textContent = "—";
+      renderMetrics();
       return;
     }
 
@@ -347,10 +376,12 @@ function initStegoInspector() {
       stegoResults.append(row);
     });
     stegoLsbStream.textContent = lsbStream;
+    renderMetrics();
   }
 
   function syncFromInput() {
     byteBuffer = Array.from(new TextEncoder().encode(stegoInput.value));
+    baselineBuffer = [...byteBuffer];
     render();
   }
 
