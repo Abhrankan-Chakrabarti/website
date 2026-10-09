@@ -90,6 +90,19 @@ textarea:focus {
   margin-top: 6px;
 }
 
+.stego-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.stego-actions .lab-button {
+  min-height: 30px;
+  padding: 4px 9px;
+  font-size: 0.75rem;
+}
+
 .stego-results {
   display: flex;
   flex-direction: column;

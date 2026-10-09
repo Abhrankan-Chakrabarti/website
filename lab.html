@@ -321,6 +321,20 @@
             placeholder="Type text to inspect..."
             autocomplete="off"
           >
+          <div class="stego-actions" aria-label="Bitwise actions">
+            <button id="stego-btn-invert" class="lab-button lab-button--secondary lab-button--compact" type="button">
+              Invert (NOT)
+            </button>
+            <button id="stego-btn-clear-lsb" class="lab-button lab-button--secondary lab-button--compact" type="button">
+              Zero LSBs
+            </button>
+            <button id="stego-btn-xor-mask" class="lab-button lab-button--secondary lab-button--compact" type="button">
+              XOR 0x20 (Case flip)
+            </button>
+            <button id="stego-btn-reset" class="lab-button lab-button--secondary lab-button--compact" type="button">
+              Reset "fox"
+            </button>
+          </div>
           <div id="stego-results" class="stego-results" aria-live="polite"></div>
           <div class="stego-lsb">
             <div class="stego-lsb-label">Extracted LSB stream:</div>

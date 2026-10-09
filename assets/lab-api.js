@@ -287,6 +287,10 @@ async function copyText(text) {
 function initStegoInspector() {
   if (!stegoInput || !stegoResults || !stegoLsbStream) return;
   let byteBuffer = [];
+  const invertButton = document.querySelector("#stego-btn-invert");
+  const clearLsbButton = document.querySelector("#stego-btn-clear-lsb");
+  const xorMaskButton = document.querySelector("#stego-btn-xor-mask");
+  const resetButton = document.querySelector("#stego-btn-reset");
 
   function render() {
     stegoResults.replaceChildren();
@@ -364,6 +368,22 @@ function initStegoInspector() {
     const bitIndex = Number(button.dataset.bit);
     byteBuffer[byteIndex] ^= 1 << (7 - bitIndex);
     syncToInput();
+  });
+  invertButton?.addEventListener("click", () => {
+    byteBuffer = byteBuffer.map((byte) => byte ^ 0xff);
+    syncToInput();
+  });
+  clearLsbButton?.addEventListener("click", () => {
+    byteBuffer = byteBuffer.map((byte) => byte & 0xfe);
+    syncToInput();
+  });
+  xorMaskButton?.addEventListener("click", () => {
+    byteBuffer = byteBuffer.map((byte) => byte ^ 0x20);
+    syncToInput();
+  });
+  resetButton?.addEventListener("click", () => {
+    stegoInput.value = "fox";
+    syncFromInput();
   });
   syncFromInput();
 }
