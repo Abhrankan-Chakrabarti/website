@@ -10,6 +10,7 @@ The service is intentionally small and intentionally narrow:
 - the core `/api/*` service provides health, application metadata, read-only mathematical calculations, and an authenticated system snapshot; it does not use a database
 - the separate `/school/*` surface contains a public static UI and a read-only SQLite API configured by `SCHOOL_DB_PATH`
 - the public School UI and exact `/school/api/health` route are not authenticated; the remaining `/school/api/` routes are protected by Nginx HTTP Basic Authentication
+- `crypto-lab` under `/crypto-api/*` is a separate process for hash/HMAC demos only; it does not store keys or replace a KMS
 
 ## Service architecture
 
@@ -670,13 +671,29 @@ https://abhrankan.duckdns.org/school/api/tables/II_A/students/1001
 
 ## crypto-lab API
 
-`crypto-lab` is a separate Rust/Axum service running on `127.0.0.1:8089`. Nginx publishes it under `/crypto-api/`, keeps the health and information endpoints public, and protects all cryptographic operations with HTTP Basic Authentication.
+`crypto-lab` is a separate Rust/Axum service on `127.0.0.1:8089`. Nginx
+publishes it under `/crypto-api/`, leaves health and info public, and protects
+hash/HMAC operations with HTTP Basic Authentication.
 
-The repository is available at [foxhackerzdevs/crypto-lab](https://github.com/foxhackerzdevs/crypto-lab).
+Repository: [foxhackerzdevs/crypto-lab](https://github.com/foxhackerzdevs/crypto-lab)
+
+### Purpose and non-goals
+
+**Purpose:** small, read-only *demo* of SHA-2 hashing and HMAC generate/verify
+for learning and lab experiments.
+
+**Non-goals (intentionally unsupported):**
+
+- key storage, KMS, or secret management
+- password hashing / login / session APIs
+- JWT, cookies, or OAuth
+- encryption, signatures beyond HMAC tags, or “crypto as a product”
+- wallets, mining, payments, or long-term custody of production secrets
+
+**Warning:** do not submit production private keys, passwords, API tokens, or
+other long-lived secrets. Examples use throwaway strings only.
 
 ### Public and local URLs
-
-Public requests use the Nginx prefix:
 
 ```text
 https://abhrankan.duckdns.org/crypto-api/health
@@ -684,11 +701,7 @@ https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
-```
 
-Local backend requests omit that prefix:
-
-```text
 http://127.0.0.1:8089/health
 http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/hash
@@ -698,9 +711,15 @@ http://127.0.0.1:8089/v1/hmac/verify
 
 ### Authentication and routing
 
-`GET /crypto-api/health` and `GET /crypto-api/v1/info` are unauthenticated. The hash and HMAC routes require Basic Auth at Nginx:
+| Route | Auth |
+|--------|------|
+| `GET /crypto-api/health` | None |
+| `GET /crypto-api/v1/info` | None |
+| `POST /crypto-api/v1/hash` | Nginx Basic Auth |
+| `POST /crypto-api/v1/hmac` | Nginx Basic Auth |
+| `POST /crypto-api/v1/hmac/verify` | Nginx Basic Auth |
 
-The htpasswd path below is an example; use the credential-file path configured by your Nginx site.
+Example Nginx (htpasswd path is site-specific):
 
 ```nginx
 location = /crypto-api/health {
@@ -713,20 +732,27 @@ location = /crypto-api/v1/info {
 
 location /crypto-api/ {
     auth_basic "crypto-lab";
-    auth_basic_user_file /etc/nginx/.htpasswd;
+    auth_basic_user_file /etc/nginx/status.htpasswd;
     proxy_pass http://127.0.0.1:8089/;
 }
 ```
 
-The exact health and info matches prevent the public endpoints from inheriting the operation credentials. The trailing slash on the authenticated location maps `/crypto-api/v1/hash` to `/v1/hash` on the backend.
+Exact matches keep health/info public. Trailing slash on `/crypto-api/` maps
+`/crypto-api/v1/hash` → `/v1/hash` on the backend.
+
+### Concepts (contract-level)
+
+| Operation | Role |
+|-----------|------|
+| **Hash** | Digest of `data` only. Does not prove who sent the data. |
+| **HMAC** | Tag over `data` under a shared `key`. Verifier needs the same key. |
+| **Verify** | Recomputes the tag and compares in **constant time**. Wrong but well-formed MAC → `200` + `"valid": false`. Malformed hex → `400`. |
 
 ### Application information
 
 ```bash
 curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 ```
-
-Response:
 
 ```json
 {
@@ -745,18 +771,16 @@ Response:
 }
 ```
 
-This endpoint returns non-sensitive application metadata and does not require authentication. `environment` comes from the optional `LAB_API_ENV` deployment label and defaults to `unknown`; it must remain free of secrets.
+`environment` is an optional non-secret deployment label (e.g. `LAB_API_ENV`); default `unknown`.
 
 ### Hash
 
 ```bash
 curl -sS -u 'username:password' \
-    -H 'Content-Type: application/json' \
-    -d '{"algorithm":"sha256","data":"hello"}' \
-    https://abhrankan.duckdns.org/crypto-api/v1/hash
+  -H 'Content-Type: application/json' \
+  -d '{"algorithm":"sha256","data":"hello"}' \
+  https://abhrankan.duckdns.org/crypto-api/v1/hash
 ```
-
-Response:
 
 ```json
 {
@@ -769,12 +793,10 @@ Response:
 
 ```bash
 curl -sS -u 'username:password' \
-    -H 'Content-Type: application/json' \
-    -d '{"algorithm":"sha256","key":"secret","data":"message"}' \
-    https://abhrankan.duckdns.org/crypto-api/v1/hmac
+  -H 'Content-Type: application/json' \
+  -d '{"algorithm":"sha256","key":"secret","data":"message"}' \
+  https://abhrankan.duckdns.org/crypto-api/v1/hmac
 ```
-
-Response:
 
 ```json
 {
@@ -787,12 +809,10 @@ Response:
 
 ```bash
 curl -sS -u 'username:password' \
-    -H 'Content-Type: application/json' \
-    -d '{"algorithm":"sha256","key":"secret","data":"message","mac":"8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b"}' \
-    https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
+  -H 'Content-Type: application/json' \
+  -d '{"algorithm":"sha256","key":"secret","data":"message","mac":"8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b"}' \
+  https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 ```
-
-Response:
 
 ```json
 {
@@ -801,25 +821,25 @@ Response:
 }
 ```
 
-Malformed hexadecimal MAC input returns `400 Bad Request`. A well-formed but incorrect MAC returns `200 OK` with `"valid": false`.
-
 ### Input contract and status codes
 
-- Supported algorithms are exactly `sha256` and `sha512`.
-- All operation requests require `Content-Type: application/json`.
-- Text fields are interpreted as UTF-8 and operations use their UTF-8 byte representation.
-- Binary input and base64 encoding are outside the current contract.
-- Request bodies are limited to 64 KiB.
-- Each textual input (`data`, `key`, and `mac`) is limited to 32 KiB.
-- `200 OK` indicates a successful operation.
-- `400 Bad Request` indicates an unsupported algorithm or malformed MAC.
-- `401 Unauthorized` indicates missing or invalid Basic Auth at Nginx.
-- `413 Payload Too Large` indicates a body or textual input limit was exceeded.
-- `415 Unsupported Media Type` indicates a non-JSON operation request.
-- `404 Not Found` indicates an undefined route.
+- Algorithms: exactly `sha256` and `sha512`
+- Operations require `Content-Type: application/json`
+- Text fields are UTF-8; crypto uses UTF-8 bytes
+- No binary or base64 input in this contract
+- Body ≤ 64 KiB; each of `data`, `key`, `mac` ≤ 32 KiB
+- `200` — success (including `valid: false`)
+- `400` — bad algorithm or malformed MAC hex
+- `401` — missing/invalid Basic Auth at Nginx
+- `413` — body or field too large
+- `415` — non-JSON operation request
+- `404` — unknown route
 
 ### Security boundary
 
-`crypto-lab` binds only to `127.0.0.1:8089`. Nginx terminates HTTPS and protects cryptographic operations before proxying to the service. The service does not store keys, persist requests, or provide wallets, mining, exchange, payment, or key-management functionality. Do not send production private keys or long-lived secrets to it.
+- Bind: `127.0.0.1:8089` only
+- HTTPS + Basic Auth for operations at Nginx
+- No persistence of keys or request bodies
+- systemd hardening (e.g. `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`, namespace limits) as deployed
 
-The service is supervised by systemd with `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`, namespace restrictions, and kernel protection settings.
+This service is a **lab**, not a secrets backend.
