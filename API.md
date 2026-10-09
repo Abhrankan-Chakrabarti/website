@@ -39,6 +39,9 @@ https://abhrankan.duckdns.org/api/v1/math/next-prime/100
 https://abhrankan.duckdns.org/api/v1/math/prime-gap/1000
 https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000
 https://abhrankan.duckdns.org/api/v1/math/pi/1000
+https://abhrankan.duckdns.org/api/v1/math/factor/360
+https://abhrankan.duckdns.org/api/v1/math/totient/36
+https://abhrankan.duckdns.org/api/v1/math/mobius/30
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/school/
 https://abhrankan.duckdns.org/school/api/health
@@ -63,6 +66,9 @@ http://127.0.0.1:8088/v1/math/next-prime/100
 http://127.0.0.1:8088/v1/math/prime-gap/1000
 http://127.0.0.1:8088/v1/math/prime-pi/1000
 http://127.0.0.1:8088/v1/math/pi/1000
+http://127.0.0.1:8088/v1/math/factor/360
+http://127.0.0.1:8088/v1/math/totient/36
+http://127.0.0.1:8088/v1/math/mobius/30
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8088/school/
 http://127.0.0.1:8088/school/api/health
@@ -90,6 +96,9 @@ The routes in this table are **backend** paths. Public clients prefix core route
 | GET | `/v1/math/prime-gap/:n` | None | Surrounding prime gap, `2 < n ≤ 1,000,000` |
 | GET | `/v1/math/prime-pi/:n` | None | Prime-counting function π(n), `0 ≤ n ≤ 1,000,000` |
 | GET | `/v1/math/pi/:n` | None | Prime-counting function π(n), compatibility alias |
+| GET | `/v1/math/factor/:n` | None | Prime factorisation, `0 ≤ n ≤ 1,000,000` |
+| GET | `/v1/math/totient/:n` | None | Euler's totient φ(n), `0 ≤ n ≤ 1,000,000` |
+| GET | `/v1/math/mobius/:n` | None | Möbius function μ(n), `0 ≤ n ≤ 1,000,000` |
 | GET | `/v1/catalan/:n` | None | Deprecated Catalan compatibility alias; use `/v1/math/catalan/:n`, `0 ≤ n ≤ 34` |
 | GET | `/v1/snapshot` | Nginx Basic Auth | Host/system snapshot |
 | GET | `/school/` | None | Public School portal UI and static assets |
@@ -242,6 +251,10 @@ The most important contract checks are:
 - `GET /v1/math/next-prime/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
 - `GET /v1/math/prime-gap/:n` succeeds with `200` when `2 < n ≤ 1,000,000`
 - `GET /v1/math/prime-pi/:n` and `/v1/math/pi/:n` succeed with `200` when `0 ≤ n ≤ 1,000,000`
+- `GET /v1/math/factor/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
+- `GET /v1/math/totient/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
+- `GET /v1/math/mobius/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
+- The factorisation, totient, and Möbius routes return `400` when `n > 1,000,000`
 - `GET /v1/catalan/:n` remains available as a deprecated compatibility alias; new clients should use `/v1/math/catalan/:n`
 - `GET /v1/catalan/:n` fails with `400` when `n > 34`
 - `GET /v1/math/fibonacci/:n` fails with `400` when `n > 186`
@@ -345,6 +358,60 @@ curl -sS 'https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000'
 }
 ```
 
+### Factorisation and multiplicative functions
+
+```http
+GET /v1/math/factor/:n
+GET /v1/math/totient/:n
+GET /v1/math/mobius/:n
+```
+
+These public, read-only endpoints support values from `0` through `1,000,000`.
+They use bounded trial division and are intended for demonstrations, not as a
+general-purpose factoring service. Values above the limit return `400 Bad
+Request`.
+
+Prime factors are returned in ascending order. The value `1` has no prime
+factors, so factorisation returns an empty list for `n = 1`.
+
+Factorisation example:
+
+```bash
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/factor/360'
+```
+
+```json
+{
+  "n": 360,
+  "factors": [
+    { "prime": 2, "power": 3 },
+    { "prime": 3, "power": 2 },
+    { "prime": 5, "power": 1 }
+  ]
+}
+```
+
+Totient and Möbius examples:
+
+```bash
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/totient/36'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/mobius/30'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/mobius/36'
+```
+
+```json
+{ "n": 36, "value": "12" }
+{ "n": 30, "value": -1 }
+{ "n": 36, "value": 0 }
+```
+
+The endpoint semantics are:
+
+- `φ(0) = 0` and `φ(1) = 1`
+- `μ(0) = 0` and `μ(1) = 1`
+- `μ(n) = 0` when a prime square divides `n`
+- otherwise, `μ(n)` is `1` or `-1` according to the parity of its distinct prime factors
+
 ## Application information endpoint
 
 ### Route
@@ -368,7 +435,7 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
 {
   "service": "lab-api",
   "api_version": "v1",
-  "app_version": "0.8.0",
+  "app_version": "0.9.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -380,6 +447,9 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
     "GET /v1/math/prime-pi/:n",
     "GET /v1/math/pi/:n",
     "GET /v1/math/prime-gap/:n",
+    "GET /v1/math/factor/:n",
+    "GET /v1/math/totient/:n",
+    "GET /v1/math/mobius/:n",
     "GET /v1/catalan/:n",
     "GET /v1/snapshot",
     "GET /school/",
@@ -564,6 +634,9 @@ This is intentional. The endpoint exposes host-level information and is therefor
 - `GET /v1/math/prime-gap/:n` — unauthenticated
 - `GET /v1/math/prime-pi/:n` — unauthenticated
 - `GET /v1/math/pi/:n` — unauthenticated
+- `GET /v1/math/factor/:n` — unauthenticated
+- `GET /v1/math/totient/:n` — unauthenticated
+- `GET /v1/math/mobius/:n` — unauthenticated
 - `GET /v1/catalan/:n` — unauthenticated
 - `GET /v1/snapshot` — Nginx HTTP Basic Auth
 

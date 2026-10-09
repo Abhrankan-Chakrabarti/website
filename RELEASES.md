@@ -1,5 +1,45 @@
 # Releases
 
+### [v0.9.0] — 2026-10-09
+
+**Bounded factorisation and multiplicative number-theory APIs.**
+
+#### Added
+- Added prime factorisation: GET /v1/math/factor/{n}
+- Added Euler's totient function: GET /v1/math/totient/{n}
+- Added the Möbius function: GET /v1/math/mobius/{n}
+- Added shared factorisation utilities for the new number-theory endpoints.
+- Added unit and API tests covering edge cases, multiplicative functions, and over-limit requests.
+- Updated the public metadata endpoint to advertise the new mathematical routes.
+
+#### Safety
+- Factorisation, totient, and Möbius requests are limited to `n ≤ 1,000,000`.
+- The endpoints use bounded trial division for lab demonstrations and are not intended to be a general factoring service.
+- Existing localhost-only binding, HTTPS, Basic Authentication, snapshot protection, and School Database authorization boundaries remain unchanged.
+
+#### Compatibility
+- Existing Catalan, Fibonacci, GCD, prime, snapshot, metadata, School Database, and importer functionality remain unchanged.
+- The new endpoints are public, read-only GET routes and use the existing mathematical response conventions.
+
+#### Validation
+- cargo fmt passes.
+- cargo test passes with 75 tests.
+- Verified:
+  - factor(360) → 2³ · 3² · 5
+  - φ(36) → 12
+  - μ(30) → -1
+  - μ(36) → 0
+- Verified rejection of values above the configured factorisation limit.
+
+#### Status
+- ✅ Prime factorisation
+- ✅ Euler's totient function φ(n)
+- ✅ Möbius function μ(n)
+- ✅ Bounded trial-division safety limit
+- ✅ API metadata and documentation updated
+
+---
+
 ### [v0.8.0] — 2026-10-07
 
 **Prime-number module, prime-counting support, and expanded mathematical APIs.**
