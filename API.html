@@ -94,6 +94,9 @@ https://abhrankan.duckdns.org/api/v1/math/next-prime/100
 https://abhrankan.duckdns.org/api/v1/math/prime-gap/1000
 https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000
 https://abhrankan.duckdns.org/api/v1/math/pi/1000
+https://abhrankan.duckdns.org/api/v1/math/factor/360
+https://abhrankan.duckdns.org/api/v1/math/totient/36
+https://abhrankan.duckdns.org/api/v1/math/mobius/30
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/school/
 https://abhrankan.duckdns.org/school/api/health
@@ -117,6 +120,9 @@ http://127.0.0.1:8088/v1/math/next-prime/100
 http://127.0.0.1:8088/v1/math/prime-gap/1000
 http://127.0.0.1:8088/v1/math/prime-pi/1000
 http://127.0.0.1:8088/v1/math/pi/1000
+http://127.0.0.1:8088/v1/math/factor/360
+http://127.0.0.1:8088/v1/math/totient/36
+http://127.0.0.1:8088/v1/math/mobius/30
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8088/school/
 http://127.0.0.1:8088/school/api/health
@@ -201,6 +207,24 @@ http://127.0.0.1:8088/school/api/admin/audit
       <td><code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code></td>
       <td>None</td>
       <td>Prime-counting function π(n), compatibility alias</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/factor/:n</code></td>
+      <td>None</td>
+      <td>Prime factorisation, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/totient/:n</code></td>
+      <td>None</td>
+      <td>Euler’s totient φ(n), <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/mobius/:n</code></td>
+      <td>None</td>
+      <td>Möbius function μ(n), <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
     </tr>
     <tr>
       <td>GET</td>
@@ -425,6 +449,10 @@ audit event is recorded.</p>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/next-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> and <code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code> succeed with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/factor/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/totient/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/mobius/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li>The factorisation, totient, and Möbius routes return <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> remains available as a deprecated compatibility alias; new clients should use <code class="language-plaintext highlighter-rouge">/v1/math/catalan/:n</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/fibonacci/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 186</code></li>
@@ -519,6 +547,57 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
+<h3 id="factorisation-and-multiplicative-functions">Factorisation and multiplicative functions</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/factor/:n
+GET /v1/math/totient/:n
+GET /v1/math/mobius/:n
+</span></code></pre></div></div>
+
+<p>These public, read-only endpoints support values from <code class="language-plaintext highlighter-rouge">0</code> through <code class="language-plaintext highlighter-rouge">1,000,000</code>.
+They use bounded trial division and are intended for demonstrations, not as a
+general-purpose factoring service. Values above the limit return <code class="language-plaintext highlighter-rouge">400 Bad
+Request</code>.</p>
+
+<p>Prime factors are returned in ascending order. The value <code class="language-plaintext highlighter-rouge">1</code> has no prime
+factors, so factorisation returns an empty list for <code class="language-plaintext highlighter-rouge">n = 1</code>.</p>
+
+<p>Factorisation example:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/factor/360'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">360</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"factors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Totient and Möbius examples:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/totient/36'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/mobius/30'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/mobius/36'</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The endpoint semantics are:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">φ(0) = 0</code> and <code class="language-plaintext highlighter-rouge">φ(1) = 1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">μ(0) = 0</code> and <code class="language-plaintext highlighter-rouge">μ(1) = 1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">μ(n) = 0</code> when a prime square divides <code class="language-plaintext highlighter-rouge">n</code></li>
+  <li>otherwise, <code class="language-plaintext highlighter-rouge">μ(n)</code> is <code class="language-plaintext highlighter-rouge">1</code> or <code class="language-plaintext highlighter-rouge">-1</code> according to the parity of its distinct prime factors</li>
+</ul>
+
 <h2 id="application-information-endpoint">Application information endpoint</h2>
 
 <h3 id="route">Route</h3>
@@ -539,7 +618,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.8.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.9.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -551,6 +630,9 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
     </span><span class="s2">"GET /v1/math/prime-pi/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/pi/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/prime-gap/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/factor/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/totient/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/mobius/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/catalan/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/snapshot"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /school/"</span><span class="p">,</span><span class="w">
@@ -729,6 +811,9 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/pi/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/factor/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/totient/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/mobius/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/snapshot</code> — Nginx HTTP Basic Auth</li>
 </ul>

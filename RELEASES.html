@@ -55,11 +55,64 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v090--2026-10-09">[v0.9.0] — 2026-10-09</h3>
+
+<p><strong>Bounded factorisation and multiplicative number-theory APIs.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Added prime factorisation: GET /v1/math/factor/{n}</li>
+  <li>Added Euler’s totient function: GET /v1/math/totient/{n}</li>
+  <li>Added the Möbius function: GET /v1/math/mobius/{n}</li>
+  <li>Added shared factorisation utilities for the new number-theory endpoints.</li>
+  <li>Added unit and API tests covering edge cases, multiplicative functions, and over-limit requests.</li>
+  <li>Updated the public metadata endpoint to advertise the new mathematical routes.</li>
+</ul>
+
+<h4 id="safety">Safety</h4>
+<ul>
+  <li>Factorisation, totient, and Möbius requests are limited to <code class="language-plaintext highlighter-rouge">n ≤ 1,000,000</code>.</li>
+  <li>The endpoints use bounded trial division for lab demonstrations and are not intended to be a general factoring service.</li>
+  <li>Existing localhost-only binding, HTTPS, Basic Authentication, snapshot protection, and School Database authorization boundaries remain unchanged.</li>
+</ul>
+
+<h4 id="compatibility">Compatibility</h4>
+<ul>
+  <li>Existing Catalan, Fibonacci, GCD, prime, snapshot, metadata, School Database, and importer functionality remain unchanged.</li>
+  <li>The new endpoints are public, read-only GET routes and use the existing mathematical response conventions.</li>
+</ul>
+
+<h4 id="validation">Validation</h4>
+<ul>
+  <li>cargo fmt passes.</li>
+  <li>cargo test passes with 75 tests.</li>
+  <li>Verified:
+    <ul>
+      <li>factor(360) → 2³ · 3² · 5</li>
+      <li>φ(36) → 12</li>
+      <li>μ(30) → -1</li>
+      <li>μ(36) → 0</li>
+    </ul>
+  </li>
+  <li>Verified rejection of values above the configured factorisation limit.</li>
+</ul>
+
+<h4 id="status">Status</h4>
+<ul>
+  <li>✅ Prime factorisation</li>
+  <li>✅ Euler’s totient function φ(n)</li>
+  <li>✅ Möbius function μ(n)</li>
+  <li>✅ Bounded trial-division safety limit</li>
+  <li>✅ API metadata and documentation updated</li>
+</ul>
+
+<hr />
+
 <h3 id="v080--2026-10-07">[v0.8.0] — 2026-10-07</h3>
 
 <p><strong>Prime-number module, prime-counting support, and expanded mathematical APIs.</strong></p>
 
-<h4 id="added">Added</h4>
+<h4 id="added-1">Added</h4>
 <ul>
   <li>Added a dedicated prime-number module.</li>
   <li>Added primality testing: GET /v1/math/is-prime/{n}</li>
@@ -92,14 +145,14 @@
   <li>Existing HTTPS, Basic Authentication, snapshot protection, and School Database authorization boundaries remain unchanged.</li>
 </ul>
 
-<h4 id="compatibility">Compatibility</h4>
+<h4 id="compatibility-1">Compatibility</h4>
 <ul>
   <li>Existing Catalan, Fibonacci, GCD, metadata, snapshot, School Database, and importer functionality remain unchanged.</li>
   <li>Added /v1/math/pi/{n} as an alias while preserving the explicit /v1/math/prime-pi/{n} route.</li>
   <li>Existing deployment architecture remains unchanged.</li>
 </ul>
 
-<h4 id="validation">Validation</h4>
+<h4 id="validation-1">Validation</h4>
 <ul>
   <li>cargo fmt passes.</li>
   <li>cargo test passes.</li>
@@ -115,7 +168,7 @@
   <li>Verified rejection of prime-counting requests exceeding the configured sieve limit.</li>
 </ul>
 
-<h4 id="status">Status</h4>
+<h4 id="status-1">Status</h4>
 <ul>
   <li>✅ Prime-number module</li>
   <li>✅ Prime-counting function π(n)</li>
@@ -132,7 +185,7 @@
 
 <p><strong>School Database student-view toggle for privacy-filtered and admin detail modes.</strong></p>
 
-<h3 id="added-1">Added</h3>
+<h3 id="added-2">Added</h3>
 
 <ul>
   <li>Added a portal control to switch between privacy-filtered student details and full admin details when authorized.</li>
@@ -152,7 +205,7 @@
 
 <p><strong>Admin-only full student details with authenticated-user authorization.</strong></p>
 
-<h3 id="added-2">Added</h3>
+<h3 id="added-3">Added</h3>
 
 <ul>
   <li>Added a <code class="language-plaintext highlighter-rouge">student_detail_full(table, student_id)</code> database method for retrieving complete student records.</li>
@@ -198,7 +251,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-1">Compatibility</h3>
+<h3 id="compatibility-2">Compatibility</h3>
 
 <ul>
   <li>
@@ -212,7 +265,7 @@
   <li>No additional database server, container stack, or external service is required.</li>
 </ul>
 
-<h3 id="status-1">Status</h3>
+<h3 id="status-2">Status</h3>
 
 <ul>
   <li>✅ Admin-only full student-detail endpoint</li>
@@ -230,7 +283,7 @@
 
 <p><strong>Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.</strong></p>
 
-<h3 id="added-3">Added</h3>
+<h3 id="added-4">Added</h3>
 
 <ul>
   <li>Added schema-driven student identification for student-detail lookups.</li>
@@ -268,7 +321,7 @@
   <li>Existing Nginx HTTPS and Basic Authentication boundaries remain unchanged.</li>
 </ul>
 
-<h3 id="compatibility-2">Compatibility</h3>
+<h3 id="compatibility-3">Compatibility</h3>
 
 <ul>
   <li>Existing School Database table and schema discovery endpoints remain available.</li>
@@ -285,7 +338,7 @@
   <li>No additional application runtime, database server, container, or external service is required.</li>
 </ul>
 
-<h3 id="validation-1">Validation</h3>
+<h3 id="validation-2">Validation</h3>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">cargo fmt</code> passes.</li>
@@ -298,7 +351,7 @@
   <li>Verified the updated School Database API tests pass.</li>
 </ul>
 
-<h3 id="status-2">Status</h3>
+<h3 id="status-3">Status</h3>
 
 <ul>
   <li>✅ Schema-driven student identification</li>
@@ -317,7 +370,7 @@
 
 <p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
-<h3 id="added-4">Added</h3>
+<h3 id="added-5">Added</h3>
 
 <ul>
   <li>Added a one-shot School Database importer:
@@ -364,7 +417,7 @@
   <li>Public access remains behind the existing Nginx HTTPS and Basic Authentication boundary.</li>
 </ul>
 
-<h3 id="compatibility-3">Compatibility</h3>
+<h3 id="compatibility-4">Compatibility</h3>
 
 <ul>
   <li>Existing core API endpoints remain unchanged.</li>
@@ -373,7 +426,7 @@
   <li>No additional database server, queue, container stack, or external service is required.</li>
 </ul>
 
-<h3 id="validation-2">Validation</h3>
+<h3 id="validation-3">Validation</h3>
 
 <ul>
   <li>All 39 tests passed.</li>
@@ -382,7 +435,7 @@
   <li>Production deployment and database activation were verified.</li>
 </ul>
 
-<h3 id="status-3">Status</h3>
+<h3 id="status-4">Status</h3>
 
 <ul>
   <li>✅ Validated School Database importer</li>
@@ -400,7 +453,7 @@
 
 <p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
 
-<h3 id="added-5">Added</h3>
+<h3 id="added-6">Added</h3>
 
 <ul>
   <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
@@ -421,7 +474,7 @@
   <li>Existing Nginx HTTPS and Basic Authentication protections remain unchanged.</li>
 </ul>
 
-<h3 id="compatibility-4">Compatibility</h3>
+<h3 id="compatibility-5">Compatibility</h3>
 
 <ul>
   <li>Existing API endpoints remain unchanged.</li>
@@ -430,7 +483,7 @@
   <li>No additional runtime service or database infrastructure is required.</li>
 </ul>
 
-<h3 id="validation-3">Validation</h3>
+<h3 id="validation-4">Validation</h3>
 
 <ul>
   <li>Pagination totals were verified.</li>
@@ -439,7 +492,7 @@
   <li>School Database API and frontend behavior were tested.</li>
 </ul>
 
-<h3 id="status-4">Status</h3>
+<h3 id="status-5">Status</h3>
 
 <ul>
   <li>✅ Improved School Database pagination</li>
@@ -457,7 +510,7 @@
 
 <p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
 
-<h3 id="added-6">Added</h3>
+<h3 id="added-7">Added</h3>
 
 <ul>
   <li>Added a read-only School Database API backed by SQLite.</li>
@@ -545,7 +598,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-5">Compatibility</h3>
+<h3 id="compatibility-6">Compatibility</h3>
 
 <ul>
   <li>Existing API endpoints remain unchanged.</li>
@@ -554,7 +607,7 @@
   <li>No additional runtime, database server, container, or external service is required.</li>
 </ul>
 
-<h3 id="validation-4">Validation</h3>
+<h3 id="validation-5">Validation</h3>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">cargo fmt</code> completed successfully.</li>
@@ -563,7 +616,7 @@
   <li>Debug and release builds completed successfully.</li>
 </ul>
 
-<h3 id="status-5">Status</h3>
+<h3 id="status-6">Status</h3>
 
 <ul>
   <li>✅ Read-only School Database API</li>
@@ -582,7 +635,7 @@
 
 <p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
 
-<h3 id="added-7">Added</h3>
+<h3 id="added-8">Added</h3>
 
 <ul>
   <li>Added Catalan number endpoint.</li>
@@ -604,7 +657,7 @@
   </li>
 </ul>
 
-<h3 id="compatibility-6">Compatibility</h3>
+<h3 id="compatibility-7">Compatibility</h3>
 
 <ul>
   <li>Existing API routes remain available.</li>
@@ -612,7 +665,7 @@
   <li>The service remains lightweight and self-hosted.</li>
 </ul>
 
-<h3 id="status-6">Status</h3>
+<h3 id="status-7">Status</h3>
 
 <ul>
   <li>✅ Catalan numbers</li>
@@ -627,7 +680,7 @@
 
 <h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
 
-<h3 id="added-8">Added</h3>
+<h3 id="added-9">Added</h3>
 
 <ul>
   <li>
@@ -656,7 +709,7 @@
 
 <p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
 
-<h3 id="added-9">Added</h3>
+<h3 id="added-10">Added</h3>
 
 <h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
 
@@ -729,7 +782,7 @@
   <li><code class="language-plaintext highlighter-rouge">API.md</code> — Added production-quality API reference documentation.</li>
 </ul>
 
-<h3 id="status-7">Status</h3>
+<h3 id="status-8">Status</h3>
 
 <ul>
   <li>✅ Frontend navigation is consistent.</li>
@@ -748,7 +801,7 @@
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-10">Added</h3>
+<h3 id="added-11">Added</h3>
 
 <ul>
   <li>SHA-256 hashing endpoint.</li>
@@ -794,7 +847,7 @@
   <li>Requires no database, queue, container stack, or additional monitoring infrastructure.</li>
 </ul>
 
-<h3 id="status-8">Status</h3>
+<h3 id="status-9">Status</h3>
 
 <ul>
   <li>✅ SHA-256 and SHA-512 hashing</li>
