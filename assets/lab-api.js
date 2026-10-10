@@ -1360,6 +1360,31 @@ function initLorenzSimulation() {
   render();
 }
 
+function initLabFilters() {
+  const filterButtons = document.querySelectorAll(".lab-filter-btn");
+  const cards = document.querySelectorAll("[data-lab-category]");
+
+  if (!filterButtons.length || !cards.length) return;
+
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetCategory = button.dataset.category;
+
+      filterButtons.forEach((filterButton) => {
+        const isActive = filterButton === button;
+        filterButton.classList.toggle("lab-button--secondary", !isActive);
+        filterButton.setAttribute("aria-pressed", String(isActive));
+      });
+
+      cards.forEach((card) => {
+        card.hidden =
+          targetCategory !== "all" &&
+          card.dataset.labCategory !== targetCategory;
+      });
+    });
+  });
+}
+
 refreshHealthButton.addEventListener("click", refreshHealth);
 refreshCryptoHealthButton.addEventListener("click", refreshCryptoHealth);
 refreshInfoButton.addEventListener("click", refreshInfo);
@@ -1417,6 +1442,7 @@ hmacOperation.addEventListener("change", syncHmacForm);
 
 initLorenzSimulation();
 initStegoInspector();
+initLabFilters();
 refreshHealth();
 refreshInfo();
 refreshCryptoHealth();

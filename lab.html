@@ -36,8 +36,16 @@
         </p>
       </section>
 
+      <nav class="lab-filter-bar" aria-label="Lab tool categories">
+        <button type="button" class="lab-button lab-filter-btn" data-category="all" aria-pressed="true">All</button>
+        <button type="button" class="lab-button lab-button--secondary lab-filter-btn" data-category="math" aria-pressed="false">Number Theory</button>
+        <button type="button" class="lab-button lab-button--secondary lab-filter-btn" data-category="chaos" aria-pressed="false">Simulation</button>
+        <button type="button" class="lab-button lab-button--secondary lab-filter-btn" data-category="crypto" aria-pressed="false">Crypto &amp; Stego</button>
+        <button type="button" class="lab-button lab-button--secondary lab-filter-btn" data-category="system" aria-pressed="false">System &amp; Endpoints</button>
+      </nav>
+
       <section class="lab-grid" aria-label="Lab API tools">
-        <article class="lab-panel" aria-labelledby="health-title">
+        <article class="lab-panel" data-lab-category="system" aria-labelledby="health-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Status</p>
@@ -49,7 +57,7 @@
           <button id="refresh-health" class="lab-button" type="button">Refresh</button>
         </article>
 
-        <article class="lab-panel" aria-labelledby="catalan-title">
+        <article class="lab-panel" data-lab-category="math" aria-labelledby="catalan-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Lookup</p>
@@ -69,7 +77,7 @@
           <output id="catalan-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 34.</output>
         </article>
 
-        <article class="lab-panel" aria-labelledby="fibonacci-title">
+        <article class="lab-panel" data-lab-category="math" aria-labelledby="fibonacci-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Lookup</p>
@@ -89,7 +97,7 @@
           <output id="fibonacci-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 186.</output>
         </article>
 
-        <article class="lab-panel" aria-labelledby="gcd-title">
+        <article class="lab-panel" data-lab-category="math" aria-labelledby="gcd-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Calculation</p>
@@ -115,7 +123,7 @@
           <output id="gcd-result" class="lab-result" aria-live="polite">Enter two integers from 0 to 18,446,744,073,709,551,615.</output>
         </article>
 
-        <article class="lab-panel lab-panel--wide" aria-labelledby="prime-title">
+        <article class="lab-panel lab-panel--wide" data-lab-category="math" aria-labelledby="prime-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Prime tools</p>
@@ -235,7 +243,7 @@
           </div>
         </article>
 
-        <article class="lab-panel lab-panel--wide" aria-labelledby="lorenz-title">
+        <article class="lab-panel lab-panel--wide" data-lab-category="chaos" aria-labelledby="lorenz-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Simulation</p>
@@ -259,7 +267,7 @@
           </div>
         </article>
 
-        <article class="lab-panel" aria-labelledby="info-title">
+        <article class="lab-panel" data-lab-category="system" aria-labelledby="info-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Discovery</p>
@@ -272,7 +280,7 @@
           </dl>
         </article>
 
-        <article class="lab-panel" aria-labelledby="crypto-info-title">
+        <article class="lab-panel" data-lab-category="system" aria-labelledby="crypto-info-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Crypto discovery</p>
@@ -285,7 +293,7 @@
           </dl>
         </article>
 
-        <article class="lab-panel lab-panel--wide" aria-labelledby="crypto-title">
+        <article class="lab-panel lab-panel--wide" data-lab-category="crypto" aria-labelledby="crypto-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Crypto lab</p>
@@ -372,7 +380,7 @@
           </div>
         </article>
 
-        <article class="lab-panel lab-panel--wide" aria-labelledby="stego-title">
+        <article class="lab-panel lab-panel--wide" data-lab-category="crypto" aria-labelledby="stego-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Bitwise / stego</p>
@@ -421,7 +429,7 @@
           </div>
         </article>
 
-        <article class="lab-panel lab-panel--wide" aria-labelledby="snapshot-title">
+        <article class="lab-panel lab-panel--wide" data-lab-category="system" aria-labelledby="snapshot-title">
           <div class="lab-panel-heading">
             <div>
               <p class="lab-eyebrow">Protected</p>

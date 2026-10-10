@@ -314,6 +314,22 @@ header nav a.active {
   font-size: 1.05rem;
 }
 
+.lab-filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 28px 0 18px;
+  padding: 10px 0;
+  background: var(--lab-bg);
+}
+
+.lab-filter-btn {
+  border-radius: 999px;
+}
+
 .lab-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
