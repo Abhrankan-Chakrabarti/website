@@ -100,6 +100,7 @@ https://abhrankan.duckdns.org/api/v1/math/totient/36
 https://abhrankan.duckdns.org/api/v1/math/mobius/30
 https://abhrankan.duckdns.org/api/v1/math/divisor-count/360
 https://abhrankan.duckdns.org/api/v1/math/divisor-sum/360
+https://abhrankan.duckdns.org/api/v1/math/divisors/360
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/school/
 https://abhrankan.duckdns.org/school/api/health
@@ -129,6 +130,7 @@ http://127.0.0.1:8088/v1/math/totient/36
 http://127.0.0.1:8088/v1/math/mobius/30
 http://127.0.0.1:8088/v1/math/divisor-count/360
 http://127.0.0.1:8088/v1/math/divisor-sum/360
+http://127.0.0.1:8088/v1/math/divisors/360
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8088/school/
 http://127.0.0.1:8088/school/api/health
@@ -483,6 +485,7 @@ audit event is recorded.</p>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/factor/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/totient/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/mobius/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-count/:n</code>, <code class="language-plaintext highlighter-rouge">/v1/math/divisor-sum/:n</code>, and <code class="language-plaintext highlighter-rouge">/v1/math/divisors/:n</code> succeed with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li>The factorisation, totient, and Möbius routes return <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> remains available as a deprecated compatibility alias; new clients should use <code class="language-plaintext highlighter-rouge">/v1/math/catalan/:n</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> fails with <code class="language-plaintext highlighter-rouge">400</code> when <code class="language-plaintext highlighter-rouge">n &gt; 34</code></li>
@@ -690,7 +693,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.9.1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.9.2"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
