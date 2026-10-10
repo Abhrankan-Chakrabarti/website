@@ -98,6 +98,8 @@ https://abhrankan.duckdns.org/api/v1/math/pi/1000
 https://abhrankan.duckdns.org/api/v1/math/factor/360
 https://abhrankan.duckdns.org/api/v1/math/totient/36
 https://abhrankan.duckdns.org/api/v1/math/mobius/30
+https://abhrankan.duckdns.org/api/v1/math/divisor-count/360
+https://abhrankan.duckdns.org/api/v1/math/divisor-sum/360
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/school/
 https://abhrankan.duckdns.org/school/api/health
@@ -125,6 +127,8 @@ http://127.0.0.1:8088/v1/math/pi/1000
 http://127.0.0.1:8088/v1/math/factor/360
 http://127.0.0.1:8088/v1/math/totient/36
 http://127.0.0.1:8088/v1/math/mobius/30
+http://127.0.0.1:8088/v1/math/divisor-count/360
+http://127.0.0.1:8088/v1/math/divisor-sum/360
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8088/school/
 http://127.0.0.1:8088/school/api/health
@@ -233,6 +237,18 @@ http://127.0.0.1:8088/school/api/admin/audit
       <td><code class="language-plaintext highlighter-rouge">/v1/math/mobius/:n</code></td>
       <td>None</td>
       <td>Möbius function μ(n), <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/divisor-count/:n</code></td>
+      <td>None</td>
+      <td>Divisor-count function τ(n), <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/divisor-sum/:n</code></td>
+      <td>None</td>
+      <td>Divisor-sum function σ(n), <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
     </tr>
     <tr>
       <td>GET</td>
@@ -565,6 +581,8 @@ same response shape. It returns <code class="language-plaintext highlighter-roug
 <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/factor/:n
 GET /v1/math/totient/:n
 GET /v1/math/mobius/:n
+GET /v1/math/divisor-count/:n
+GET /v1/math/divisor-sum/:n
 </span></code></pre></div></div>
 
 <p>These public, read-only endpoints support values from <code class="language-plaintext highlighter-rouge">0</code> through <code class="language-plaintext highlighter-rouge">1,000,000</code>.
@@ -594,6 +612,8 @@ factors, so factorisation returns an empty list for <code class="language-plaint
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/totient/36'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/mobius/30'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/divisor-count/360'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/divisor-sum/360'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/mobius/36'</span>
 </code></pre></div></div>
 
@@ -610,6 +630,21 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
   <li><code class="language-plaintext highlighter-rouge">μ(n) = 0</code> when a prime square divides <code class="language-plaintext highlighter-rouge">n</code></li>
   <li>otherwise, <code class="language-plaintext highlighter-rouge">μ(n)</code> is <code class="language-plaintext highlighter-rouge">1</code> or <code class="language-plaintext highlighter-rouge">-1</code> according to the parity of its distinct prime factors</li>
 </ul>
+
+<p>The divisor functions use the same factorisation:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">τ(360) = 24</code> counts the positive divisors of 360</li>
+  <li><code class="language-plaintext highlighter-rouge">σ(360) = 1170</code> sums the positive divisors of 360</li>
+</ul>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/divisor-count/:n
+GET /v1/math/divisor-sum/:n
+</span></code></pre></div></div>
+
+<p>Both routes support <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code> and return the standard string-valued
+mathematical response. For <code class="language-plaintext highlighter-rouge">n = 0</code>, both return <code class="language-plaintext highlighter-rouge">0</code>; for <code class="language-plaintext highlighter-rouge">n = 360</code>, they
+return <code class="language-plaintext highlighter-rouge">24</code> and <code class="language-plaintext highlighter-rouge">1170</code>, respectively.</p>
 
 <h2 id="application-information-endpoint">Application information endpoint</h2>
 
@@ -631,7 +666,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab-api"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.9.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"app_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.9.1"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -647,6 +682,8 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
     </span><span class="s2">"GET /v1/math/factor/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/totient/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/mobius/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/divisor-count/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/divisor-sum/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/catalan/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/snapshot"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /school/"</span><span class="p">,</span><span class="w">
@@ -829,6 +866,8 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/factor/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/totient/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/mobius/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-count/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-sum/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/snapshot</code> — Nginx HTTP Basic Auth</li>
 </ul>
