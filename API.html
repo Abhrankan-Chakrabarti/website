@@ -91,6 +91,7 @@ https://abhrankan.duckdns.org/api/v1/math/fibonacci/10
 https://abhrankan.duckdns.org/api/v1/math/gcd/84/30
 https://abhrankan.duckdns.org/api/v1/math/is-prime/97
 https://abhrankan.duckdns.org/api/v1/math/next-prime/100
+https://abhrankan.duckdns.org/api/v1/math/previous-prime/100
 https://abhrankan.duckdns.org/api/v1/math/prime-gap/1000
 https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000
 https://abhrankan.duckdns.org/api/v1/math/pi/1000
@@ -117,6 +118,7 @@ http://127.0.0.1:8088/v1/math/fibonacci/10
 http://127.0.0.1:8088/v1/math/gcd/84/30
 http://127.0.0.1:8088/v1/math/is-prime/97
 http://127.0.0.1:8088/v1/math/next-prime/100
+http://127.0.0.1:8088/v1/math/previous-prime/100
 http://127.0.0.1:8088/v1/math/prime-gap/1000
 http://127.0.0.1:8088/v1/math/prime-pi/1000
 http://127.0.0.1:8088/v1/math/pi/1000
@@ -189,6 +191,12 @@ http://127.0.0.1:8088/school/api/admin/audit
       <td><code class="language-plaintext highlighter-rouge">/v1/math/next-prime/:n</code></td>
       <td>None</td>
       <td>Next prime greater than <code class="language-plaintext highlighter-rouge">n</code>, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/previous-prime/:n</code></td>
+      <td>None</td>
+      <td>Previous prime less than <code class="language-plaintext highlighter-rouge">n</code>, <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></td>
     </tr>
     <tr>
       <td>GET</td>
@@ -447,6 +455,7 @@ audit event is recorded.</p>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/gcd/:a/:b</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> for valid <code class="language-plaintext highlighter-rouge">u64</code> path values</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/is-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/next-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/previous-prime/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">2 &lt; n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> and <code class="language-plaintext highlighter-rouge">/v1/math/pi/:n</code> succeed with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/factor/:n</code> succeeds with <code class="language-plaintext highlighter-rouge">200</code> when <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></li>
@@ -511,6 +520,7 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 
 <div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/is-prime/:n
 GET /v1/math/next-prime/:n
+GET /v1/math/previous-prime/:n
 GET /v1/math/prime-gap/:n
 GET /v1/math/prime-pi/:n
 GET /v1/math/pi/:n
@@ -526,6 +536,7 @@ prime gaps use the same upper bound.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/is-prime/97'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/next-prime/100'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/previous-prime/100'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/prime-gap/1000'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/prime-pi/1000'</span>
 </code></pre></div></div>
@@ -537,6 +548,8 @@ curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org
 </span></code></pre></div></div>
 
 <p><code class="language-plaintext highlighter-rouge">next-prime</code> and prime-counting return <code class="language-plaintext highlighter-rouge">{ "n": ..., "value": "..." }</code>.
+<code class="language-plaintext highlighter-rouge">previous-prime</code> returns the greatest prime strictly less than <code class="language-plaintext highlighter-rouge">n</code> using the
+same response shape. It returns <code class="language-plaintext highlighter-rouge">400 Bad Request</code> for <code class="language-plaintext highlighter-rouge">n ≤ 2</code>.
 <code class="language-plaintext highlighter-rouge">prime-gap</code> returns the previous prime, next prime, and gap:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
@@ -627,6 +640,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
     </span><span class="s2">"GET /v1/math/gcd/:a/:b"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/is-prime/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/next-prime/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/previous-prime/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/prime-pi/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/pi/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/prime-gap/:n"</span><span class="p">,</span><span class="w">
@@ -808,6 +822,7 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/gcd/:a/:b</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/is-prime/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/next-prime/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/previous-prime/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-gap/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/prime-pi/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/pi/:n</code> — unauthenticated</li>
@@ -1138,6 +1153,7 @@ http://127.0.0.1:8089/v1/hmac/verify
     <footer>
         <p>&copy; 2026 Abhrankan Chakrabarti</p>
     </footer>
+      
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
   </body>
