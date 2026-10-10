@@ -108,6 +108,7 @@ The routes in this table are **backend** paths. Public clients prefix core route
 | GET | `/v1/math/mobius/:n` | None | Möbius function μ(n), `0 ≤ n ≤ 1,000,000` |
 | GET | `/v1/math/divisor-count/:n` | None | Divisor-count function τ(n), `0 ≤ n ≤ 1,000,000` |
 | GET | `/v1/math/divisor-sum/:n` | None | Divisor-sum function σ(n), `0 ≤ n ≤ 1,000,000` |
+| GET | `/v1/math/divisors/:n` | None | Sorted positive divisors of `n`, `0 ≤ n ≤ 1,000,000` |
 | GET | `/v1/catalan/:n` | None | Deprecated Catalan compatibility alias; use `/v1/math/catalan/:n`, `0 ≤ n ≤ 34` |
 | GET | `/v1/snapshot` | Nginx Basic Auth | Host/system snapshot |
 | GET | `/school/` | None | Public School portal UI and static assets |
@@ -380,6 +381,7 @@ GET /v1/math/totient/:n
 GET /v1/math/mobius/:n
 GET /v1/math/divisor-count/:n
 GET /v1/math/divisor-sum/:n
+GET /v1/math/divisors/:n
 ```
 
 These public, read-only endpoints support values from `0` through `1,000,000`.
@@ -414,6 +416,7 @@ curl -sS 'https://abhrankan.duckdns.org/api/v1/math/totient/36'
 curl -sS 'https://abhrankan.duckdns.org/api/v1/math/mobius/30'
 curl -sS 'https://abhrankan.duckdns.org/api/v1/math/divisor-count/360'
 curl -sS 'https://abhrankan.duckdns.org/api/v1/math/divisor-sum/360'
+curl -sS 'https://abhrankan.duckdns.org/api/v1/math/divisors/12'
 curl -sS 'https://abhrankan.duckdns.org/api/v1/math/mobius/36'
 ```
 
@@ -443,6 +446,24 @@ GET /v1/math/divisor-sum/:n
 Both routes support `0 ≤ n ≤ 1,000,000` and return the standard string-valued
 mathematical response. For `n = 0`, both return `0`; for `n = 360`, they
 return `24` and `1170`, respectively.
+
+The divisors route returns all positive divisors in ascending order:
+
+```http
+GET /v1/math/divisors/:n
+```
+
+For `n = 12`:
+
+```json
+{
+  "n": 12,
+  "divisors": [1, 2, 3, 4, 6, 12]
+}
+```
+
+For `n = 0`, `divisors` is an empty array. The list verifies
+`τ(n) = divisors.length` and `σ(n) = sum(divisors)`.
 
 ## Application information endpoint
 
@@ -485,6 +506,7 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
     "GET /v1/math/mobius/:n",
     "GET /v1/math/divisor-count/:n",
     "GET /v1/math/divisor-sum/:n",
+    "GET /v1/math/divisors/:n",
     "GET /v1/catalan/:n",
     "GET /v1/snapshot",
     "GET /school/",
@@ -675,6 +697,7 @@ This is intentional. The endpoint exposes host-level information and is therefor
 - `GET /v1/math/mobius/:n` — unauthenticated
 - `GET /v1/math/divisor-count/:n` — unauthenticated
 - `GET /v1/math/divisor-sum/:n` — unauthenticated
+- `GET /v1/math/divisors/:n` — unauthenticated
 - `GET /v1/catalan/:n` — unauthenticated
 - `GET /v1/snapshot` — Nginx HTTP Basic Auth
 

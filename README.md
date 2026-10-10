@@ -64,8 +64,10 @@ its public routes for:
 - Möbius function μ(n)
 - Divisor-count function τ(n)
 - Divisor-sum function σ(n)
+- Sorted positive divisors
 
-The factorisation, totient, and Möbius tools support `0 ≤ n ≤ 1,000,000`
+The factorisation, totient, Möbius, divisor-count, divisor-sum, and divisors
+tools support `0 ≤ n ≤ 1,000,000`
 and use bounded trial division for demonstrations rather than general-purpose
 factoring. The Lab page includes interactive forms for the arithmetic
 endpoints, with request latency, status, and cURL telemetry.

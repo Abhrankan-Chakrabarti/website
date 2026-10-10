@@ -222,6 +222,16 @@
               </div>
               <output id="divisor-sum-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
             </form>
+
+            <form id="divisors-form" class="lab-form crypto-tool">
+              <label for="divisors-n">List positive divisors of n</label>
+              <input id="divisors-n" name="n" type="number" min="0" max="1000000" step="1" value="12" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">List divisors</button>
+                <button id="clear-divisors" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="divisors-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
           </div>
         </article>
 

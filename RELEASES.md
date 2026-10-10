@@ -1,5 +1,20 @@
 # Releases
 
+### [v0.9.2] — 2026-10-10
+
+**Positive-divisor enumeration for the arithmetic Lab.**
+
+#### Added
+- Added `GET /v1/math/divisors/{n}` for sorted positive divisors.
+- Added an interactive Lab tool for listing divisors and verifying the
+  divisor-count and divisor-sum functions.
+
+#### Safety
+- The endpoint uses the bounded factorisation core and accepts
+  `n ≤ 1,000,000`.
+
+---
+
 ### [v0.9.1] — 2026-10-10
 
 **Divisor-count and divisor-sum arithmetic functions.**

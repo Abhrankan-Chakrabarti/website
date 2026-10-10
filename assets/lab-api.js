@@ -63,6 +63,10 @@ const divisorSumForm = document.querySelector("#divisor-sum-form");
 const divisorSumInput = document.querySelector("#divisor-sum-n");
 const divisorSumResult = document.querySelector("#divisor-sum-result");
 const clearDivisorSumButton = document.querySelector("#clear-divisor-sum");
+const divisorsForm = document.querySelector("#divisors-form");
+const divisorsInput = document.querySelector("#divisors-n");
+const divisorsResult = document.querySelector("#divisors-result");
+const clearDivisorsButton = document.querySelector("#clear-divisors");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -842,6 +846,23 @@ async function lookupDivisorSum(event) {
   }
 }
 
+async function lookupDivisors(event) {
+  event.preventDefault();
+  const n = primeInputValue(divisorsInput, divisorsResult, 0);
+  if (n === null) return;
+  const button = divisorsForm.querySelector("button[type='submit']");
+  divisorsResult.textContent = "Listing...";
+  setBusy(button, true, "Listing");
+  try {
+    const data = await fetchJson(`/v1/math/divisors/${n}`, {}, divisorsResult);
+    divisorsResult.textContent = data.divisors.join(", ");
+  } catch (error) {
+    divisorsResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Listing");
+  }
+}
+
 function clearPrime() {
   primeInput.value = "97";
   validatePrimeInput(primeInput, 0, primeResult);
@@ -882,6 +903,13 @@ function clearDivisorSum() {
   validatePrimeInput(divisorSumInput, 0, divisorSumResult);
   divisorSumResult.textContent = "Ready to calculate.";
   clearTelemetry(divisorSumResult);
+}
+
+function clearDivisors() {
+  divisorsInput.value = "12";
+  validatePrimeInput(divisorsInput, 0, divisorsResult);
+  divisorsResult.textContent = "Ready to list divisors.";
+  clearTelemetry(divisorsResult);
 }
 
 function clearNextPrime() {
@@ -1376,6 +1404,9 @@ clearDivisorCountButton.addEventListener("click", clearDivisorCount);
 divisorSumForm.addEventListener("submit", lookupDivisorSum);
 divisorSumInput.addEventListener("input", () => validatePrimeInput(divisorSumInput, 0, divisorSumResult));
 clearDivisorSumButton.addEventListener("click", clearDivisorSum);
+divisorsForm.addEventListener("submit", lookupDivisors);
+divisorsInput.addEventListener("input", () => validatePrimeInput(divisorsInput, 0, divisorsResult));
+clearDivisorsButton.addEventListener("click", clearDivisors);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
@@ -1404,3 +1435,4 @@ validatePrimeInput(totientInput, 0, totientResult);
 validatePrimeInput(mobiusInput, 0, mobiusResult);
 validatePrimeInput(divisorCountInput, 0, divisorCountResult);
 validatePrimeInput(divisorSumInput, 0, divisorSumResult);
+validatePrimeInput(divisorsInput, 0, divisorsResult);
