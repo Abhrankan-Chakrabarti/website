@@ -252,6 +252,12 @@ http://127.0.0.1:8088/school/api/admin/audit
     </tr>
     <tr>
       <td>GET</td>
+      <td><code class="language-plaintext highlighter-rouge">/v1/math/divisors/:n</code></td>
+      <td>None</td>
+      <td>Sorted positive divisors of <code class="language-plaintext highlighter-rouge">n</code>, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code></td>
+    </tr>
+    <tr>
+      <td>GET</td>
       <td><code class="language-plaintext highlighter-rouge">/v1/catalan/:n</code></td>
       <td>None</td>
       <td>Deprecated Catalan compatibility alias; use <code class="language-plaintext highlighter-rouge">/v1/math/catalan/:n</code>, <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 34</code></td>
@@ -583,6 +589,7 @@ GET /v1/math/totient/:n
 GET /v1/math/mobius/:n
 GET /v1/math/divisor-count/:n
 GET /v1/math/divisor-sum/:n
+GET /v1/math/divisors/:n
 </span></code></pre></div></div>
 
 <p>These public, read-only endpoints support values from <code class="language-plaintext highlighter-rouge">0</code> through <code class="language-plaintext highlighter-rouge">1,000,000</code>.
@@ -614,6 +621,7 @@ factors, so factorisation returns an empty list for <code class="language-plaint
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/mobius/30'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/divisor-count/360'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/divisor-sum/360'</span>
+curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/divisors/12'</span>
 curl <span class="nt">-sS</span> <span class="s1">'https://abhrankan.duckdns.org/api/v1/math/mobius/36'</span>
 </code></pre></div></div>
 
@@ -645,6 +653,22 @@ GET /v1/math/divisor-sum/:n
 <p>Both routes support <code class="language-plaintext highlighter-rouge">0 ≤ n ≤ 1,000,000</code> and return the standard string-valued
 mathematical response. For <code class="language-plaintext highlighter-rouge">n = 0</code>, both return <code class="language-plaintext highlighter-rouge">0</code>; for <code class="language-plaintext highlighter-rouge">n = 360</code>, they
 return <code class="language-plaintext highlighter-rouge">24</code> and <code class="language-plaintext highlighter-rouge">1170</code>, respectively.</p>
+
+<p>The divisors route returns all positive divisors in ascending order:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/math/divisors/:n
+</span></code></pre></div></div>
+
+<p>For <code class="language-plaintext highlighter-rouge">n = 12</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"divisors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>For <code class="language-plaintext highlighter-rouge">n = 0</code>, <code class="language-plaintext highlighter-rouge">divisors</code> is an empty array. The list verifies
+<code class="language-plaintext highlighter-rouge">τ(n) = divisors.length</code> and <code class="language-plaintext highlighter-rouge">σ(n) = sum(divisors)</code>.</p>
 
 <h2 id="application-information-endpoint">Application information endpoint</h2>
 
@@ -684,6 +708,7 @@ curl <span class="nt">-sS</span> <span class="s1">'http://127.0.0.1:8088/v1/info
     </span><span class="s2">"GET /v1/math/mobius/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/divisor-count/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/divisor-sum/:n"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/divisors/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/catalan/:n"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/snapshot"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /school/"</span><span class="p">,</span><span class="w">
@@ -868,6 +893,7 @@ C(n) = C(n-1) * 2 * (2n - 1) / (n + 1)
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/mobius/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-count/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-sum/:n</code> — unauthenticated</li>
+  <li><code class="language-plaintext highlighter-rouge">GET /v1/math/divisors/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/catalan/:n</code> — unauthenticated</li>
   <li><code class="language-plaintext highlighter-rouge">GET /v1/snapshot</code> — Nginx HTTP Basic Auth</li>
 </ul>

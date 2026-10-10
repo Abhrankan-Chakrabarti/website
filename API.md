@@ -45,6 +45,7 @@ https://abhrankan.duckdns.org/api/v1/math/totient/36
 https://abhrankan.duckdns.org/api/v1/math/mobius/30
 https://abhrankan.duckdns.org/api/v1/math/divisor-count/360
 https://abhrankan.duckdns.org/api/v1/math/divisor-sum/360
+https://abhrankan.duckdns.org/api/v1/math/divisors/360
 https://abhrankan.duckdns.org/api/v1/snapshot
 https://abhrankan.duckdns.org/school/
 https://abhrankan.duckdns.org/school/api/health
@@ -75,6 +76,7 @@ http://127.0.0.1:8088/v1/math/totient/36
 http://127.0.0.1:8088/v1/math/mobius/30
 http://127.0.0.1:8088/v1/math/divisor-count/360
 http://127.0.0.1:8088/v1/math/divisor-sum/360
+http://127.0.0.1:8088/v1/math/divisors/360
 http://127.0.0.1:8088/v1/snapshot
 http://127.0.0.1:8088/school/
 http://127.0.0.1:8088/school/api/health
@@ -265,6 +267,7 @@ The most important contract checks are:
 - `GET /v1/math/factor/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
 - `GET /v1/math/totient/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
 - `GET /v1/math/mobius/:n` succeeds with `200` when `0 ≤ n ≤ 1,000,000`
+- `GET /v1/math/divisor-count/:n`, `/v1/math/divisor-sum/:n`, and `/v1/math/divisors/:n` succeed with `200` when `0 ≤ n ≤ 1,000,000`
 - The factorisation, totient, and Möbius routes return `400` when `n > 1,000,000`
 - `GET /v1/catalan/:n` remains available as a deprecated compatibility alias; new clients should use `/v1/math/catalan/:n`
 - `GET /v1/catalan/:n` fails with `400` when `n > 34`
@@ -488,7 +491,7 @@ curl -sS 'http://127.0.0.1:8088/v1/info'
 {
   "service": "lab-api",
   "api_version": "v1",
-  "app_version": "0.9.1",
+  "app_version": "0.9.2",
   "endpoints": [
     "GET /health",
     "GET /v1/info",

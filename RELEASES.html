@@ -55,18 +55,37 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v092--2026-10-10">[v0.9.2] — 2026-10-10</h3>
+
+<p><strong>Positive-divisor enumeration for the arithmetic Lab.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Added <code class="language-plaintext highlighter-rouge">GET /v1/math/divisors/{n}</code> for sorted positive divisors.</li>
+  <li>Added an interactive Lab tool for listing divisors and verifying the
+divisor-count and divisor-sum functions.</li>
+</ul>
+
+<h4 id="safety">Safety</h4>
+<ul>
+  <li>The endpoint uses the bounded factorisation core and accepts
+<code class="language-plaintext highlighter-rouge">n ≤ 1,000,000</code>.</li>
+</ul>
+
+<hr />
+
 <h3 id="v091--2026-10-10">[v0.9.1] — 2026-10-10</h3>
 
 <p><strong>Divisor-count and divisor-sum arithmetic functions.</strong></p>
 
-<h4 id="added">Added</h4>
+<h4 id="added-1">Added</h4>
 <ul>
   <li>Added <code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-count/{n}</code> for τ(n).</li>
   <li>Added <code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-sum/{n}</code> for σ(n).</li>
   <li>Added interactive Lab tools, telemetry, and cURL support for both endpoints.</li>
 </ul>
 
-<h4 id="safety">Safety</h4>
+<h4 id="safety-1">Safety</h4>
 <ul>
   <li>Both endpoints use the bounded factorisation core and accept <code class="language-plaintext highlighter-rouge">n ≤ 1,000,000</code>.</li>
 </ul>
@@ -77,7 +96,7 @@
 
 <p><strong>Bounded factorisation and multiplicative number-theory APIs.</strong></p>
 
-<h4 id="added-1">Added</h4>
+<h4 id="added-2">Added</h4>
 <ul>
   <li>Added prime factorisation: GET /v1/math/factor/{n}</li>
   <li>Added Euler’s totient function: GET /v1/math/totient/{n}</li>
@@ -87,7 +106,7 @@
   <li>Updated the public metadata endpoint to advertise the new mathematical routes.</li>
 </ul>
 
-<h4 id="safety-1">Safety</h4>
+<h4 id="safety-2">Safety</h4>
 <ul>
   <li>Factorisation, totient, and Möbius requests are limited to <code class="language-plaintext highlighter-rouge">n ≤ 1,000,000</code>.</li>
   <li>The endpoints use bounded trial division for lab demonstrations and are not intended to be a general factoring service.</li>
@@ -130,7 +149,7 @@
 
 <p><strong>Prime-number module, prime-counting support, and expanded mathematical APIs.</strong></p>
 
-<h4 id="added-2">Added</h4>
+<h4 id="added-3">Added</h4>
 <ul>
   <li>Added a dedicated prime-number module.</li>
   <li>Added primality testing: GET /v1/math/is-prime/{n}</li>
@@ -204,7 +223,7 @@
 
 <p><strong>School Database student-view toggle for privacy-filtered and admin detail modes.</strong></p>
 
-<h3 id="added-3">Added</h3>
+<h3 id="added-4">Added</h3>
 
 <ul>
   <li>Added a portal control to switch between privacy-filtered student details and full admin details when authorized.</li>
@@ -224,7 +243,7 @@
 
 <p><strong>Admin-only full student details with authenticated-user authorization.</strong></p>
 
-<h3 id="added-4">Added</h3>
+<h3 id="added-5">Added</h3>
 
 <ul>
   <li>Added a <code class="language-plaintext highlighter-rouge">student_detail_full(table, student_id)</code> database method for retrieving complete student records.</li>
@@ -302,7 +321,7 @@
 
 <p><strong>Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.</strong></p>
 
-<h3 id="added-5">Added</h3>
+<h3 id="added-6">Added</h3>
 
 <ul>
   <li>Added schema-driven student identification for student-detail lookups.</li>
@@ -389,7 +408,7 @@
 
 <p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
-<h3 id="added-6">Added</h3>
+<h3 id="added-7">Added</h3>
 
 <ul>
   <li>Added a one-shot School Database importer:
@@ -472,7 +491,7 @@
 
 <p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
 
-<h3 id="added-7">Added</h3>
+<h3 id="added-8">Added</h3>
 
 <ul>
   <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
@@ -529,7 +548,7 @@
 
 <p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
 
-<h3 id="added-8">Added</h3>
+<h3 id="added-9">Added</h3>
 
 <ul>
   <li>Added a read-only School Database API backed by SQLite.</li>
@@ -654,7 +673,7 @@
 
 <p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
 
-<h3 id="added-9">Added</h3>
+<h3 id="added-10">Added</h3>
 
 <ul>
   <li>Added Catalan number endpoint.</li>
@@ -699,7 +718,7 @@
 
 <h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
 
-<h3 id="added-10">Added</h3>
+<h3 id="added-11">Added</h3>
 
 <ul>
   <li>
@@ -728,7 +747,7 @@
 
 <p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
 
-<h3 id="added-11">Added</h3>
+<h3 id="added-12">Added</h3>
 
 <h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
 
@@ -820,7 +839,7 @@
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-12">Added</h3>
+<h3 id="added-13">Added</h3>
 
 <ul>
   <li>SHA-256 hashing endpoint.</li>
