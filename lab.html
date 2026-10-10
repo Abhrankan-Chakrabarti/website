@@ -202,6 +202,26 @@
               </div>
               <output id="mobius-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
             </form>
+
+            <form id="divisor-count-form" class="lab-form crypto-tool">
+              <label for="divisor-count-n">Count positive divisors τ(n)</label>
+              <input id="divisor-count-n" name="n" type="number" min="0" max="1000000" step="1" value="360" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Count divisors</button>
+                <button id="clear-divisor-count" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="divisor-count-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
+
+            <form id="divisor-sum-form" class="lab-form crypto-tool">
+              <label for="divisor-sum-n">Sum positive divisors σ(n)</label>
+              <input id="divisor-sum-n" name="n" type="number" min="0" max="1000000" step="1" value="360" inputmode="numeric" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Sum divisors</button>
+                <button id="clear-divisor-sum" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="divisor-sum-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
+            </form>
           </div>
         </article>
 

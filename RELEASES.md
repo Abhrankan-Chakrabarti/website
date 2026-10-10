@@ -1,5 +1,19 @@
 # Releases
 
+### [v0.9.1] — 2026-10-10
+
+**Divisor-count and divisor-sum arithmetic functions.**
+
+#### Added
+- Added `GET /v1/math/divisor-count/{n}` for τ(n).
+- Added `GET /v1/math/divisor-sum/{n}` for σ(n).
+- Added interactive Lab tools, telemetry, and cURL support for both endpoints.
+
+#### Safety
+- Both endpoints use the bounded factorisation core and accept `n ≤ 1,000,000`.
+
+---
+
 ### [v0.9.0] — 2026-10-09
 
 **Bounded factorisation and multiplicative number-theory APIs.**

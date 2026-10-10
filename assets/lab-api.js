@@ -55,6 +55,14 @@ const mobiusForm = document.querySelector("#mobius-form");
 const mobiusInput = document.querySelector("#mobius-n");
 const mobiusResult = document.querySelector("#mobius-result");
 const clearMobiusButton = document.querySelector("#clear-mobius");
+const divisorCountForm = document.querySelector("#divisor-count-form");
+const divisorCountInput = document.querySelector("#divisor-count-n");
+const divisorCountResult = document.querySelector("#divisor-count-result");
+const clearDivisorCountButton = document.querySelector("#clear-divisor-count");
+const divisorSumForm = document.querySelector("#divisor-sum-form");
+const divisorSumInput = document.querySelector("#divisor-sum-n");
+const divisorSumResult = document.querySelector("#divisor-sum-result");
+const clearDivisorSumButton = document.querySelector("#clear-divisor-sum");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -800,6 +808,40 @@ async function lookupMobius(event) {
   }
 }
 
+async function lookupDivisorCount(event) {
+  event.preventDefault();
+  const n = primeInputValue(divisorCountInput, divisorCountResult, 0);
+  if (n === null) return;
+  const button = divisorCountForm.querySelector("button[type='submit']");
+  divisorCountResult.textContent = "Counting...";
+  setBusy(button, true, "Counting");
+  try {
+    const data = await fetchJson(`/v1/math/divisor-count/${n}`, {}, divisorCountResult);
+    divisorCountResult.textContent = `τ(${data.n}) = ${data.value}`;
+  } catch (error) {
+    divisorCountResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Counting");
+  }
+}
+
+async function lookupDivisorSum(event) {
+  event.preventDefault();
+  const n = primeInputValue(divisorSumInput, divisorSumResult, 0);
+  if (n === null) return;
+  const button = divisorSumForm.querySelector("button[type='submit']");
+  divisorSumResult.textContent = "Summing...";
+  setBusy(button, true, "Summing");
+  try {
+    const data = await fetchJson(`/v1/math/divisor-sum/${n}`, {}, divisorSumResult);
+    divisorSumResult.textContent = `σ(${data.n}) = ${data.value}`;
+  } catch (error) {
+    divisorSumResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Summing");
+  }
+}
+
 function clearPrime() {
   primeInput.value = "97";
   validatePrimeInput(primeInput, 0, primeResult);
@@ -826,6 +868,20 @@ function clearMobius() {
   validatePrimeInput(mobiusInput, 0, mobiusResult);
   mobiusResult.textContent = "Ready to calculate.";
   clearTelemetry(mobiusResult);
+}
+
+function clearDivisorCount() {
+  divisorCountInput.value = "360";
+  validatePrimeInput(divisorCountInput, 0, divisorCountResult);
+  divisorCountResult.textContent = "Ready to calculate.";
+  clearTelemetry(divisorCountResult);
+}
+
+function clearDivisorSum() {
+  divisorSumInput.value = "360";
+  validatePrimeInput(divisorSumInput, 0, divisorSumResult);
+  divisorSumResult.textContent = "Ready to calculate.";
+  clearTelemetry(divisorSumResult);
 }
 
 function clearNextPrime() {
@@ -1314,6 +1370,12 @@ clearTotientButton.addEventListener("click", clearTotient);
 mobiusForm.addEventListener("submit", lookupMobius);
 mobiusInput.addEventListener("input", () => validatePrimeInput(mobiusInput, 0, mobiusResult));
 clearMobiusButton.addEventListener("click", clearMobius);
+divisorCountForm.addEventListener("submit", lookupDivisorCount);
+divisorCountInput.addEventListener("input", () => validatePrimeInput(divisorCountInput, 0, divisorCountResult));
+clearDivisorCountButton.addEventListener("click", clearDivisorCount);
+divisorSumForm.addEventListener("submit", lookupDivisorSum);
+divisorSumInput.addEventListener("input", () => validatePrimeInput(divisorSumInput, 0, divisorSumResult));
+clearDivisorSumButton.addEventListener("click", clearDivisorSum);
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
@@ -1340,3 +1402,5 @@ validatePrimeInput(primePiInput, 0, primePiResult);
 validatePrimeInput(factorInput, 0, factorResult);
 validatePrimeInput(totientInput, 0, totientResult);
 validatePrimeInput(mobiusInput, 0, mobiusResult);
+validatePrimeInput(divisorCountInput, 0, divisorCountResult);
+validatePrimeInput(divisorSumInput, 0, divisorSumResult);

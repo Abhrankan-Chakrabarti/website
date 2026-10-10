@@ -62,10 +62,12 @@ its public routes for:
 - bounded prime factorisation
 - Euler's totient function φ(n)
 - Möbius function μ(n)
+- Divisor-count function τ(n)
+- Divisor-sum function σ(n)
 
 The factorisation, totient, and Möbius tools support `0 ≤ n ≤ 1,000,000`
 and use bounded trial division for demonstrations rather than general-purpose
-factoring. The Lab page includes interactive forms for all three v0.9.0
+factoring. The Lab page includes interactive forms for the arithmetic
 endpoints, with request latency, status, and cURL telemetry.
 
 The School portal is served by the same backend below `/school/`. The website
