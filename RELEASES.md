@@ -48,6 +48,7 @@
 - Added a dedicated prime-number module.
 - Added primality testing: GET /v1/math/is-prime/{n}
 - Added next-prime computation: GET /v1/math/next-prime/{n}
+- Added previous-prime computation: GET /v1/math/previous-prime/{n}
 - Added prime-gap computation: GET /v1/math/prime-gap/{n}
 - Added prime-counting function support: GET /v1/math/prime-pi/{n}
 - Added GET /v1/math/pi/{n} as a convenience alias for the prime-counting function π(n).

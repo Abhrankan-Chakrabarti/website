@@ -31,6 +31,10 @@ const nextPrimeForm = document.querySelector("#next-prime-form");
 const nextPrimeInput = document.querySelector("#next-prime-n");
 const nextPrimeResult = document.querySelector("#next-prime-result");
 const clearNextPrimeButton = document.querySelector("#clear-next-prime");
+const previousPrimeForm = document.querySelector("#previous-prime-form");
+const previousPrimeInput = document.querySelector("#previous-prime-n");
+const previousPrimeResult = document.querySelector("#previous-prime-result");
+const clearPreviousPrimeButton = document.querySelector("#clear-previous-prime");
 const primeGapForm = document.querySelector("#prime-gap-form");
 const primeGapInput = document.querySelector("#prime-gap-n");
 const primeGapResult = document.querySelector("#prime-gap-result");
@@ -686,6 +690,23 @@ async function lookupNextPrime(event) {
   }
 }
 
+async function lookupPreviousPrime(event) {
+  event.preventDefault();
+  const n = primeInputValue(previousPrimeInput, previousPrimeResult, 3);
+  if (n === null) return;
+  const button = previousPrimeForm.querySelector("button[type='submit']");
+  previousPrimeResult.textContent = "Calculating...";
+  setBusy(button, true, "Calculating");
+  try {
+    const data = await fetchJson(`/v1/math/previous-prime/${n}`, {}, previousPrimeResult);
+    previousPrimeResult.innerHTML = `Previous prime before ${data.n} = <strong>${data.value}</strong>`;
+  } catch (error) {
+    previousPrimeResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
 async function lookupPrimeGap(event) {
   event.preventDefault();
   const n = primeInputValue(primeGapInput, primeGapResult, 3);
@@ -812,6 +833,13 @@ function clearNextPrime() {
   validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
   nextPrimeResult.textContent = "Ready to calculate.";
   clearTelemetry(nextPrimeResult);
+}
+
+function clearPreviousPrime() {
+  previousPrimeInput.value = "100";
+  validatePrimeInput(previousPrimeInput, 3, previousPrimeResult);
+  previousPrimeResult.textContent = "Ready to calculate.";
+  clearTelemetry(previousPrimeResult);
 }
 
 function clearPrimeGap() {
@@ -1268,6 +1296,9 @@ clearPrimeButton.addEventListener("click", clearPrime);
 nextPrimeForm.addEventListener("submit", lookupNextPrime);
 nextPrimeInput.addEventListener("input", () => validatePrimeInput(nextPrimeInput, 0, nextPrimeResult));
 clearNextPrimeButton.addEventListener("click", clearNextPrime);
+previousPrimeForm.addEventListener("submit", lookupPreviousPrime);
+previousPrimeInput.addEventListener("input", () => validatePrimeInput(previousPrimeInput, 3, previousPrimeResult));
+clearPreviousPrimeButton.addEventListener("click", clearPreviousPrime);
 primeGapForm.addEventListener("submit", lookupPrimeGap);
 primeGapInput.addEventListener("input", () => validatePrimeInput(primeGapInput, 3, primeGapResult));
 clearPrimeGapButton.addEventListener("click", clearPrimeGap);
@@ -1303,6 +1334,7 @@ validateFibonacciInput();
 validateGcdInputs();
 validatePrimeInput(primeInput, 0, primeResult);
 validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
+validatePrimeInput(previousPrimeInput, 3, previousPrimeResult);
 validatePrimeInput(primeGapInput, 3, primeGapResult);
 validatePrimeInput(primePiInput, 0, primePiResult);
 validatePrimeInput(factorInput, 0, factorResult);

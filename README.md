@@ -57,7 +57,7 @@ its public routes for:
 - Fibonacci numbers
 - greatest common divisors
 - primality testing
-- next-prime and prime-gap calculations
+- next-prime, previous-prime, and prime-gap calculations
 - the prime-counting function π(n)
 - bounded prime factorisation
 - Euler's totient function φ(n)
