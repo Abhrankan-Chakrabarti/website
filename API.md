@@ -809,14 +809,15 @@ https://abhrankan.duckdns.org/school/api/tables/II_A/students/1001
 ## crypto-lab API
 
 `crypto-lab` is a separate Rust/Axum service on `127.0.0.1:8089`. Nginx
-publishes it under `/crypto-api/`, leaves health and info public, and protects
-hash/HMAC operations with HTTP Basic Authentication.
+publishes it under `/crypto-api/`, leaves health, info, and math exploration public,
+and protects hash/HMAC operations with HTTP Basic Authentication.
 
 Repository: [foxhackerzdevs/crypto-lab](https://github.com/foxhackerzdevs/crypto-lab)
 
 ### Purpose and non-goals
 
-**Purpose:** small, read-only *demo* of SHA-2 hashing and HMAC generate/verify
+**Purpose:** small, self-hosted service for SHA-2 hashing, HMAC generate/verify,
+and number-theoretic / elliptic curve cryptography exploration (FoxMath algorithms)
 for learning and lab experiments.
 
 **Non-goals (intentionally unsupported):**
@@ -835,12 +836,26 @@ other long-lived secrets. Examples use throwaway strings only.
 ```text
 https://abhrankan.duckdns.org/crypto-api/health
 https://abhrankan.duckdns.org/crypto-api/v1/info
+https://abhrankan.duckdns.org/crypto-api/v1/math/legendre
+https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
+https://abhrankan.duckdns.org/crypto-api/v1/math/crt
+https://abhrankan.duckdns.org/crypto-api/v1/math/cf
+https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
+https://abhrankan.duckdns.org/crypto-api/v1/math/ecmul
+https://abhrankan.duckdns.org/crypto-api/v1/math/challenge
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 
 http://127.0.0.1:8089/health
 http://127.0.0.1:8089/v1/info
+http://127.0.0.1:8089/v1/math/legendre
+http://127.0.0.1:8089/v1/math/sqrtmod
+http://127.0.0.1:8089/v1/math/crt
+http://127.0.0.1:8089/v1/math/cf
+http://127.0.0.1:8089/v1/math/ecadd
+http://127.0.0.1:8089/v1/math/ecmul
+http://127.0.0.1:8089/v1/math/challenge
 http://127.0.0.1:8089/v1/hash
 http://127.0.0.1:8089/v1/hmac
 http://127.0.0.1:8089/v1/hmac/verify
@@ -852,6 +867,13 @@ http://127.0.0.1:8089/v1/hmac/verify
 |--------|------|
 | `GET /crypto-api/health` | None |
 | `GET /crypto-api/v1/info` | None |
+| `GET, POST /crypto-api/v1/math/legendre` | None |
+| `GET, POST /crypto-api/v1/math/sqrtmod` | None |
+| `GET, POST /crypto-api/v1/math/crt` | None |
+| `GET, POST /crypto-api/v1/math/cf` | None |
+| `GET, POST /crypto-api/v1/math/ecadd` | None |
+| `GET, POST /crypto-api/v1/math/ecmul` | None |
+| `GET, POST /crypto-api/v1/math/challenge` | None |
 | `POST /crypto-api/v1/hash` | Nginx Basic Auth |
 | `POST /crypto-api/v1/hmac` | Nginx Basic Auth |
 | `POST /crypto-api/v1/hmac/verify` | Nginx Basic Auth |
@@ -867,6 +889,11 @@ location = /crypto-api/v1/info {
     proxy_pass http://127.0.0.1:8089/v1/info;
 }
 
+# Public math & number theory endpoints (FoxMath)
+location /crypto-api/v1/math/ {
+    proxy_pass http://127.0.0.1:8089/v1/math/;
+}
+
 location /crypto-api/ {
     auth_basic "crypto-lab";
     auth_basic_user_file /etc/nginx/status.htpasswd;
@@ -874,7 +901,7 @@ location /crypto-api/ {
 }
 ```
 
-Exact matches keep health/info public. Trailing slash on `/crypto-api/` maps
+Exact health/info and math prefix matches keep those exploration endpoints public. Trailing slash on `/crypto-api/` maps
 `/crypto-api/v1/hash` → `/v1/hash` on the backend.
 
 ### Concepts (contract-level)
@@ -884,6 +911,12 @@ Exact matches keep health/info public. Trailing slash on `/crypto-api/` maps
 | **Hash** | Digest of `data` only. Does not prove who sent the data. |
 | **HMAC** | Tag over `data` under a shared `key`. Verifier needs the same key. |
 | **Verify** | Recomputes the tag and compares in **constant time**. Wrong but well-formed MAC → `200` + `"valid": false`. Malformed hex → `400`. |
+| **Legendre** | Euler's criterion $(a/p)$ over odd prime $p$. Returns $1$, $-1$, or $0$. |
+| **SqrtMod** | Tonelli-Shanks modular square roots modulo odd prime $p$. Returns positive roots. |
+| **CRT** | Extended Euclidean GCD solver for simultaneous modular congruences. |
+| **CF** | Continued fraction expansions and rational convergents for $num/den$. |
+| **EC Add / Mul** | Weierstrass curve group addition and scalar multiplication ($k \cdot P$) over finite field $\mathbb{F}_p$. Built-in presets: `toy97` and `toy193`. |
+| **Challenge** | Deterministic seeded problem generator for practice and self-study. |
 
 ### Application information
 
@@ -895,13 +928,27 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
     "POST /v1/hash",
     "POST /v1/hmac",
-    "POST /v1/hmac/verify"
+    "POST /v1/hmac/verify",
+    "GET /v1/math/legendre",
+    "POST /v1/math/legendre",
+    "GET /v1/math/sqrtmod",
+    "POST /v1/math/sqrtmod",
+    "GET /v1/math/crt",
+    "POST /v1/math/crt",
+    "GET /v1/math/cf",
+    "POST /v1/math/cf",
+    "GET /v1/math/ecadd",
+    "POST /v1/math/ecadd",
+    "GET /v1/math/ecmul",
+    "POST /v1/math/ecmul",
+    "GET /v1/math/challenge",
+    "POST /v1/math/challenge"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -958,16 +1005,82 @@ curl -sS -u 'username:password' \
 }
 ```
 
+### Number theory and elliptic curves (FoxMath Core)
+
+All math endpoints accept either query parameters (`GET`) or a JSON payload (`POST`). No authentication is required for `/crypto-api/v1/math/*`.
+
+#### Legendre symbol
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/legendre?a=10&p=13"
+```
+
+```json
+{"a": 10, "p": 13, "value": 1}
+```
+
+#### Modular square root (Tonelli-Shanks)
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod?a=10&p=13"
+```
+
+```json
+{"a": 10, "p": 13, "roots": [6, 7]}
+```
+
+#### Chinese Remainder Theorem
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/crt?r=2,3,2&m=3,5,7"
+```
+
+```json
+{"remainders": [2, 3, 2], "moduli": [3, 5, 7], "x": 23, "modulus": 105}
+```
+
+#### Continued fractions
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/cf?num=355&den=113"
+```
+
+```json
+{"num": 355, "den": 113, "cf": [3, 7, 16], "convergents": [[3, 1], [22, 7], [355, 113]]}
+```
+
+#### Elliptic curve scalar multiplication ($k \cdot P$)
+
+```bash
+curl -sS -H "Content-Type: application/json" \
+  -d '{"curve":"toy193","k":7}' \
+  https://abhrankan.duckdns.org/crypto-api/v1/math/ecmul
+```
+
+```json
+{"curve": "toy193", "k": 7, "point": [1, 59], "result": [66, 24], "result_on_curve": true}
+```
+
+#### Seeded challenge generator
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/challenge?topic=mixed&seed=42"
+```
+
+```json
+{"topic": "mixed", "seed": 42, "count": 1, "problems": [{"topic": "sqrtmod", "question": "Smaller positive root of x² ≡ 12 (mod 13)", "answer": 5}]}
+```
+
 ### Input contract and status codes
 
 - Algorithms: exactly `sha256` and `sha512`
-- Operations require `Content-Type: application/json`
+- Operation requests require `Content-Type: application/json` (math endpoints also support `GET` query strings)
 - Text fields are UTF-8; crypto uses UTF-8 bytes
 - No binary or base64 input in this contract
 - Body ≤ 64 KiB; each of `data`, `key`, `mac` ≤ 32 KiB
-- `200` — success (including `valid: false`)
-- `400` — bad algorithm or malformed MAC hex
-- `401` — missing/invalid Basic Auth at Nginx
+- `200` — success (including `valid: false` verification)
+- `400` — bad algorithm, malformed MAC hex, invalid query params, or math domain error (e.g., non-prime modulus, quadratic non-residue in sqrtmod, zero denominator, negative scalar)
+- `401` — missing/invalid Basic Auth at Nginx for protected operations
 - `413` — body or field too large
 - `415` — non-JSON operation request
 - `404` — unknown route

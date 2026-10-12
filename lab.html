@@ -380,6 +380,111 @@
           </div>
         </article>
 
+        <article class="lab-panel lab-panel--wide" data-lab-category="crypto math" aria-labelledby="foxmath-title">
+          <div class="lab-panel-heading">
+            <div>
+              <p class="lab-eyebrow">Number theory &amp; ECC</p>
+              <h2 id="foxmath-title">FoxMath cryptography exploration</h2>
+            </div>
+            <span class="status-badge status-badge--ok">Public</span>
+          </div>
+          <p class="lab-muted">
+            High-performance pure Rust number theory and Weierstrass elliptic curve arithmetic powered by
+            <code>crypto-lab</code> v0.2.0. Endpoints are unauthenticated and open for exploration.
+          </p>
+
+          <div class="crypto-tools">
+            <form id="sqrtmod-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Modular roots</p>
+                <h3>Square root mod p</h3>
+              </div>
+              <label for="sqrtmod-a">Residue (a)</label>
+              <input id="sqrtmod-a" name="a" type="number" value="10" required>
+              <label for="sqrtmod-p">Odd prime modulus (p)</label>
+              <input id="sqrtmod-p" name="p" type="number" min="3" value="13" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Calculate roots</button>
+                <button id="clear-sqrtmod" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="sqrtmod-result" class="lab-result" aria-live="polite">Enter a and odd prime p.</output>
+            </form>
+
+            <form id="legendre-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Residue test</p>
+                <h3>Legendre symbol (a/p)</h3>
+              </div>
+              <label for="legendre-a">Integer (a)</label>
+              <input id="legendre-a" name="a" type="number" value="10" required>
+              <label for="legendre-p">Odd prime modulus (p)</label>
+              <input id="legendre-p" name="p" type="number" min="3" value="13" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Compute (a/p)</button>
+                <button id="clear-legendre" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="legendre-result" class="lab-result" aria-live="polite">Enter a and odd prime p.</output>
+            </form>
+
+            <form id="ecmul-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Elliptic curves</p>
+                <h3>Scalar multiplication (k · G)</h3>
+              </div>
+              <label for="ecmul-curve">Curve preset</label>
+              <select id="ecmul-curve" name="curve">
+                <option value="toy193">toy193: y² = x³ - 3x + 137 (mod 193)</option>
+                <option value="toy97">toy97: y² = x³ + 2x + 3 (mod 97)</option>
+              </select>
+              <label for="ecmul-k">Scalar multiplier (k)</label>
+              <input id="ecmul-k" name="k" type="number" min="0" value="7" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Multiply k · G</button>
+                <button id="clear-ecmul" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="ecmul-result" class="lab-result" aria-live="polite">Select curve and scalar k.</output>
+            </form>
+
+            <form id="crt-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Congruences</p>
+                <h3>Chinese Remainder Theorem</h3>
+              </div>
+              <label for="crt-remainders">Remainders r (comma-separated)</label>
+              <input id="crt-remainders" name="remainders" type="text" value="2, 3, 2" required>
+              <label for="crt-moduli">Moduli m (comma-separated)</label>
+              <input id="crt-moduli" name="moduli" type="text" value="3, 5, 7" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Solve CRT</button>
+                <button id="clear-crt" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crt-result" class="lab-result" aria-live="polite">Enter comma-separated r and m.</output>
+            </form>
+
+            <form id="challenge-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Practice mode</p>
+                <h3>Crypto challenge generator</h3>
+              </div>
+              <label for="challenge-topic">Topic</label>
+              <select id="challenge-topic" name="topic">
+                <option value="mixed">Mixed challenges</option>
+                <option value="legendre">Legendre symbol</option>
+                <option value="sqrtmod">Modular square root</option>
+                <option value="crt">Chinese Remainder Theorem</option>
+                <option value="ecdlp">Elliptic Curve DLP</option>
+              </select>
+              <label for="challenge-seed">Seed (optional number)</label>
+              <input id="challenge-seed" name="seed" type="number" min="0" placeholder="e.g. 42">
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Generate problem</button>
+                <button id="clear-challenge" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="challenge-result" class="lab-result" aria-live="polite">Generate a problem to test your math &amp; crypto skills.</output>
+            </form>
+          </div>
+        </article>
+
         <article class="lab-panel lab-panel--wide" data-lab-category="crypto" aria-labelledby="stego-title">
           <div class="lab-panel-heading">
             <div>

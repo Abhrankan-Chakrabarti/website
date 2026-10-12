@@ -80,15 +80,16 @@ Repository: <https://github.com/Abhrankan-Chakrabarti/lab-api>
 ### `crypto-lab`
 
 `crypto-lab` is a separate Rust/Axum service bound to `127.0.0.1:8089`. The
-Lab page uses its public health and information routes and provides authenticated
-tools for:
+Lab page uses its public health, information, and FoxMath number theory exploration routes,
+and provides authenticated tools for:
 
+- Number-theoretic & elliptic curve exploration (Tonelli-Shanks, Legendre, CRT, continued fractions, ECC point ops)
 - SHA-256 and SHA-512 hashing
 - HMAC generation
 - HMAC verification
 
-Credentials are requested per protected operation, sent only with that request,
-and cleared from the form afterward. The page does not persist credentials.
+Credentials are requested only per protected operation (hash/HMAC), sent only with that request,
+and cleared from the form afterward. The page does not persist credentials. Math routes are public.
 
 Repository: <https://github.com/foxhackerzdevs/crypto-lab>
 
@@ -110,7 +111,7 @@ on the authenticated-user allowlist enforced by `lab-api`.
 The core lab API health, metadata, mathematical routes, and Catalan alias are
 public. The system snapshot is protected by Basic Authentication.
 
-The crypto-lab health and information routes are public. Hash and HMAC
+The crypto-lab health, information, and `/crypto-api/v1/math/*` routes are public. Hash and HMAC
 operations are protected by Basic Authentication.
 
 See [API.md](API.md) for the complete public contract and example Nginx

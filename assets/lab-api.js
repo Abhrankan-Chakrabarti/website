@@ -101,6 +101,36 @@ const stegoInput = document.querySelector("#stego-input");
 const stegoResults = document.querySelector("#stego-results");
 const stegoLsbStream = document.querySelector("#stego-lsb-stream");
 
+const sqrtmodForm = document.querySelector("#sqrtmod-form");
+const sqrtmodA = document.querySelector("#sqrtmod-a");
+const sqrtmodP = document.querySelector("#sqrtmod-p");
+const sqrtmodResult = document.querySelector("#sqrtmod-result");
+const clearSqrtmodButton = document.querySelector("#clear-sqrtmod");
+
+const legendreForm = document.querySelector("#legendre-form");
+const legendreA = document.querySelector("#legendre-a");
+const legendreP = document.querySelector("#legendre-p");
+const legendreResult = document.querySelector("#legendre-result");
+const clearLegendreButton = document.querySelector("#clear-legendre");
+
+const ecmulForm = document.querySelector("#ecmul-form");
+const ecmulCurve = document.querySelector("#ecmul-curve");
+const ecmulK = document.querySelector("#ecmul-k");
+const ecmulResult = document.querySelector("#ecmul-result");
+const clearEcmulButton = document.querySelector("#clear-ecmul");
+
+const crtForm = document.querySelector("#crt-form");
+const crtRemainders = document.querySelector("#crt-remainders");
+const crtModuli = document.querySelector("#crt-moduli");
+const crtResult = document.querySelector("#crt-result");
+const clearCrtButton = document.querySelector("#clear-crt");
+
+const challengeForm = document.querySelector("#challenge-form");
+const challengeTopic = document.querySelector("#challenge-topic");
+const challengeSeed = document.querySelector("#challenge-seed");
+const challengeResult = document.querySelector("#challenge-result");
+const clearChallengeButton = document.querySelector("#clear-challenge");
+
 function endpoint(path) {
   return `${API_BASE.replace(/\/$/, "")}${path}`;
 }
@@ -1377,12 +1407,178 @@ function initLabFilters() {
       });
 
       cards.forEach((card) => {
+        const categories = (card.dataset.labCategory || "").split(/\s+/);
         card.hidden =
           targetCategory !== "all" &&
-          card.dataset.labCategory !== targetCategory;
+          !categories.includes(targetCategory);
       });
     });
   });
+}
+
+async function runSqrtmod(event) {
+  event.preventDefault();
+  const a = Number(sqrtmodA.value);
+  const p = Number(sqrtmodP.value);
+  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(p) || p < 3 || p % 2 === 0) {
+    sqrtmodResult.textContent = "Enter integer a and an odd prime modulus p ≥ 3.";
+    return;
+  }
+  const button = sqrtmodForm.querySelector("button[type='submit']");
+  sqrtmodResult.textContent = "Calculating roots...";
+  setBusy(button, true, "Calculating");
+  try {
+    const data = await fetchCryptoJson(`/v1/math/sqrtmod?a=${encodeURIComponent(a)}&p=${encodeURIComponent(p)}`, {}, sqrtmodResult);
+    if (!data.roots || data.roots.length === 0) {
+      sqrtmodResult.innerHTML = `No roots exist for ${data.a} mod ${data.p} (quadratic non-residue).`;
+    } else {
+      sqrtmodResult.innerHTML = `&radic;${data.a} mod ${data.p} = <strong>[&plusmn;${data.roots.join(", ")}]</strong>`;
+    }
+  } catch (error) {
+    sqrtmodResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Calculating");
+  }
+}
+
+function clearSqrtmod() {
+  sqrtmodA.value = "10";
+  sqrtmodP.value = "13";
+  sqrtmodResult.textContent = "Enter a and odd prime p.";
+  clearTelemetry(sqrtmodResult);
+}
+
+async function runLegendre(event) {
+  event.preventDefault();
+  const a = Number(legendreA.value);
+  const p = Number(legendreP.value);
+  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(p) || p < 3 || p % 2 === 0) {
+    legendreResult.textContent = "Enter integer a and an odd prime modulus p ≥ 3.";
+    return;
+  }
+  const button = legendreForm.querySelector("button[type='submit']");
+  legendreResult.textContent = "Computing (a/p)...";
+  setBusy(button, true, "Computing");
+  try {
+    const data = await fetchCryptoJson(`/v1/math/legendre?a=${encodeURIComponent(a)}&p=${encodeURIComponent(p)}`, {}, legendreResult);
+    const desc = data.value === 1 ? "Quadratic residue" : data.value === -1 ? "Quadratic non-residue" : "Multiple of p";
+    legendreResult.innerHTML = `(${data.a}/${data.p}) = <strong>${data.value}</strong> (${desc})`;
+  } catch (error) {
+    legendreResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Computing");
+  }
+}
+
+function clearLegendre() {
+  legendreA.value = "10";
+  legendreP.value = "13";
+  legendreResult.textContent = "Enter a and odd prime p.";
+  clearTelemetry(legendreResult);
+}
+
+async function runEcmul(event) {
+  event.preventDefault();
+  const curve = ecmulCurve.value;
+  const k = Number(ecmulK.value);
+  if (!Number.isSafeInteger(k) || k < 0) {
+    ecmulResult.textContent = "Scalar multiplier k must be a non-negative integer.";
+    return;
+  }
+  const button = ecmulForm.querySelector("button[type='submit']");
+  ecmulResult.textContent = "Multiplying k · G...";
+  setBusy(button, true, "Multiplying");
+  try {
+    const data = await fetchCryptoJson("/v1/math/ecmul", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ curve, k }),
+    }, ecmulResult);
+    const ptStr = data.result ? `(${data.result[0]}, ${data.result[1]})` : "&infin; (Point at Infinity)";
+    ecmulResult.innerHTML = `${data.k} &middot; G = <strong>${ptStr}</strong> on <em>${data.curve}</em> ${data.result_on_curve ? "(on curve &check;)" : ""}`;
+  } catch (error) {
+    ecmulResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Multiplying");
+  }
+}
+
+function clearEcmul() {
+  ecmulCurve.value = "toy193";
+  ecmulK.value = "7";
+  ecmulResult.textContent = "Select curve and scalar k.";
+  clearTelemetry(ecmulResult);
+}
+
+async function runCrt(event) {
+  event.preventDefault();
+  const rRaw = crtRemainders.value.split(",").map((s) => Number(s.trim()));
+  const mRaw = crtModuli.value.split(",").map((s) => Number(s.trim()));
+  if (rRaw.some(isNaN) || mRaw.some(isNaN) || rRaw.length !== mRaw.length || rRaw.length === 0) {
+    crtResult.textContent = "Enter equal counts of comma-separated integers for remainders and moduli.";
+    return;
+  }
+  const button = crtForm.querySelector("button[type='submit']");
+  crtResult.textContent = "Solving congruences...";
+  setBusy(button, true, "Solving");
+  try {
+    const data = await fetchCryptoJson("/v1/math/crt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ remainders: rRaw, moduli: mRaw }),
+    }, crtResult);
+    crtResult.innerHTML = `Solution: x &equiv; <strong>${data.x}</strong> (mod ${data.modulus})`;
+  } catch (error) {
+    crtResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Solving");
+  }
+}
+
+function clearCrt() {
+  crtRemainders.value = "2, 3, 2";
+  crtModuli.value = "3, 5, 7";
+  crtResult.textContent = "Enter comma-separated r and m.";
+  clearTelemetry(crtResult);
+}
+
+async function runChallenge(event) {
+  event.preventDefault();
+  const topic = challengeTopic.value;
+  const seedVal = challengeSeed.value.trim();
+  let query = `/v1/math/challenge?topic=${encodeURIComponent(topic)}&count=1`;
+  if (seedVal) {
+    query += `&seed=${encodeURIComponent(seedVal)}`;
+  }
+  const button = challengeForm.querySelector("button[type='submit']");
+  challengeResult.textContent = "Generating problem...";
+  setBusy(button, true, "Generating");
+  try {
+    const data = await fetchCryptoJson(query, {}, challengeResult);
+    const prob = data.problems && data.problems[0];
+    if (prob) {
+      challengeResult.innerHTML = `
+        <div style="margin-bottom:0.6rem"><strong>${prob.question}</strong></div>
+        <details style="cursor:pointer">
+          <summary style="color:var(--lab-accent);font-weight:600">Reveal Answer</summary>
+          <div style="margin-top:0.4rem;font-size:1.05em">Answer: <strong>${prob.answer}</strong></div>
+        </details>
+      `;
+    } else {
+      challengeResult.textContent = "No challenge returned.";
+    }
+  } catch (error) {
+    challengeResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Generating");
+  }
+}
+
+function clearChallenge() {
+  challengeTopic.value = "mixed";
+  challengeSeed.value = "";
+  challengeResult.textContent = "Generate a problem to test your math & crypto skills.";
+  clearTelemetry(challengeResult);
 }
 
 refreshHealthButton.addEventListener("click", refreshHealth);
@@ -1439,6 +1635,17 @@ clearHashButton.addEventListener("click", clearHash);
 hmacForm.addEventListener("submit", runHmac);
 clearHmacButton.addEventListener("click", clearHmac);
 hmacOperation.addEventListener("change", syncHmacForm);
+
+sqrtmodForm?.addEventListener("submit", runSqrtmod);
+clearSqrtmodButton?.addEventListener("click", clearSqrtmod);
+legendreForm?.addEventListener("submit", runLegendre);
+clearLegendreButton?.addEventListener("click", clearLegendre);
+ecmulForm?.addEventListener("submit", runEcmul);
+clearEcmulButton?.addEventListener("click", clearEcmul);
+crtForm?.addEventListener("submit", runCrt);
+clearCrtButton?.addEventListener("click", clearCrt);
+challengeForm?.addEventListener("submit", runChallenge);
+clearChallengeButton?.addEventListener("click", clearChallenge);
 
 initLorenzSimulation();
 initStegoInspector();
