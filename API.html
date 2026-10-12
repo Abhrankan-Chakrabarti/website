@@ -1007,14 +1007,15 @@ https://abhrankan.duckdns.org/school/api/tables/II_A/students/1001
 <h2 id="crypto-lab-api">crypto-lab API</h2>
 
 <p><code class="language-plaintext highlighter-rouge">crypto-lab</code> is a separate Rust/Axum service on <code class="language-plaintext highlighter-rouge">127.0.0.1:8089</code>. Nginx
-publishes it under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>, leaves health and info public, and protects
-hash/HMAC operations with HTTP Basic Authentication.</p>
+publishes it under <code class="language-plaintext highlighter-rouge">/crypto-api/</code>, leaves health, info, and math exploration public,
+and protects hash/HMAC operations with HTTP Basic Authentication.</p>
 
 <p>Repository: <a href="https://github.com/foxhackerzdevs/crypto-lab">foxhackerzdevs/crypto-lab</a></p>
 
 <h3 id="purpose-and-non-goals">Purpose and non-goals</h3>
 
-<p><strong>Purpose:</strong> small, read-only <em>demo</em> of SHA-2 hashing and HMAC generate/verify
+<p><strong>Purpose:</strong> small, self-hosted service for SHA-2 hashing, HMAC generate/verify,
+and number-theoretic / elliptic curve cryptography exploration (FoxMath algorithms)
 for learning and lab experiments.</p>
 
 <p><strong>Non-goals (intentionally unsupported):</strong></p>
@@ -1034,12 +1035,26 @@ other long-lived secrets. Examples use throwaway strings only.</p>
 
 <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://abhrankan.duckdns.org/crypto-api/health
 https://abhrankan.duckdns.org/crypto-api/v1/info
+https://abhrankan.duckdns.org/crypto-api/v1/math/legendre
+https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
+https://abhrankan.duckdns.org/crypto-api/v1/math/crt
+https://abhrankan.duckdns.org/crypto-api/v1/math/cf
+https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
+https://abhrankan.duckdns.org/crypto-api/v1/math/ecmul
+https://abhrankan.duckdns.org/crypto-api/v1/math/challenge
 https://abhrankan.duckdns.org/crypto-api/v1/hash
 https://abhrankan.duckdns.org/crypto-api/v1/hmac
 https://abhrankan.duckdns.org/crypto-api/v1/hmac/verify
 
 http://127.0.0.1:8089/health
 http://127.0.0.1:8089/v1/info
+http://127.0.0.1:8089/v1/math/legendre
+http://127.0.0.1:8089/v1/math/sqrtmod
+http://127.0.0.1:8089/v1/math/crt
+http://127.0.0.1:8089/v1/math/cf
+http://127.0.0.1:8089/v1/math/ecadd
+http://127.0.0.1:8089/v1/math/ecmul
+http://127.0.0.1:8089/v1/math/challenge
 http://127.0.0.1:8089/v1/hash
 http://127.0.0.1:8089/v1/hmac
 http://127.0.0.1:8089/v1/hmac/verify
@@ -1061,6 +1076,34 @@ http://127.0.0.1:8089/v1/hmac/verify
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/info</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/legendre</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/sqrtmod</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/crt</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/cf</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/ecadd</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/ecmul</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/challenge</code></td>
       <td>None</td>
     </tr>
     <tr>
@@ -1088,6 +1131,11 @@ http://127.0.0.1:8089/v1/hmac/verify
     <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/v1/info</span><span class="p">;</span>
 <span class="p">}</span>
 
+<span class="c1"># Public math &amp; number theory endpoints (FoxMath)</span>
+<span class="k">location</span> <span class="n">/crypto-api/v1/math/</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/v1/math/</span><span class="p">;</span>
+<span class="p">}</span>
+
 <span class="k">location</span> <span class="n">/crypto-api/</span> <span class="p">{</span>
     <span class="kn">auth_basic</span> <span class="s">"crypto-lab"</span><span class="p">;</span>
     <span class="kn">auth_basic_user_file</span> <span class="n">/etc/nginx/status.htpasswd</span><span class="p">;</span>
@@ -1095,7 +1143,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <span class="p">}</span>
 </code></pre></div></div>
 
-<p>Exact matches keep health/info public. Trailing slash on <code class="language-plaintext highlighter-rouge">/crypto-api/</code> maps
+<p>Exact health/info and math prefix matches keep those exploration endpoints public. Trailing slash on <code class="language-plaintext highlighter-rouge">/crypto-api/</code> maps
 <code class="language-plaintext highlighter-rouge">/crypto-api/v1/hash</code> → <code class="language-plaintext highlighter-rouge">/v1/hash</code> on the backend.</p>
 
 <h3 id="concepts-contract-level">Concepts (contract-level)</h3>
@@ -1120,6 +1168,30 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td><strong>Verify</strong></td>
       <td>Recomputes the tag and compares in <strong>constant time</strong>. Wrong but well-formed MAC → <code class="language-plaintext highlighter-rouge">200</code> + <code class="language-plaintext highlighter-rouge">"valid": false</code>. Malformed hex → <code class="language-plaintext highlighter-rouge">400</code>.</td>
     </tr>
+    <tr>
+      <td><strong>Legendre</strong></td>
+      <td>Euler’s criterion $(a/p)$ over odd prime $p$. Returns $1$, $-1$, or $0$.</td>
+    </tr>
+    <tr>
+      <td><strong>SqrtMod</strong></td>
+      <td>Tonelli-Shanks modular square roots modulo odd prime $p$. Returns positive roots.</td>
+    </tr>
+    <tr>
+      <td><strong>CRT</strong></td>
+      <td>Extended Euclidean GCD solver for simultaneous modular congruences.</td>
+    </tr>
+    <tr>
+      <td><strong>CF</strong></td>
+      <td>Continued fraction expansions and rational convergents for $num/den$.</td>
+    </tr>
+    <tr>
+      <td><strong>EC Add / Mul</strong></td>
+      <td>Weierstrass curve group addition and scalar multiplication ($k \cdot P$) over finite field $\mathbb{F}_p$. Built-in presets: <code class="language-plaintext highlighter-rouge">toy97</code> and <code class="language-plaintext highlighter-rouge">toy193</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Challenge</strong></td>
+      <td>Deterministic seeded problem generator for practice and self-study.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -1131,13 +1203,27 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.1.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/hash"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/hmac"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/hmac/verify"</span><span class="w">
+    </span><span class="s2">"POST /v1/hmac/verify"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/legendre"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/legendre"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/sqrtmod"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/sqrtmod"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/crt"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/crt"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/cf"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/cf"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/ecadd"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/ecadd"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/ecmul"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/ecmul"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/challenge"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/challenge"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1188,17 +1274,71 @@ http://127.0.0.1:8089/v1/hmac/verify
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
+<h3 id="number-theory-and-elliptic-curves-foxmath-core">Number theory and elliptic curves (FoxMath Core)</h3>
+
+<p>All math endpoints accept either query parameters (<code class="language-plaintext highlighter-rouge">GET</code>) or a JSON payload (<code class="language-plaintext highlighter-rouge">POST</code>). No authentication is required for <code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/*</code>.</p>
+
+<h4 id="legendre-symbol">Legendre symbol</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/legendre?a=10&amp;p=13"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="modular-square-root-tonelli-shanks">Modular square root (Tonelli-Shanks)</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod?a=10&amp;p=13"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="nl">"roots"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">]}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="chinese-remainder-theorem">Chinese Remainder Theorem</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/crt?r=2,3,2&amp;m=3,5,7"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"remainders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="nl">"moduli"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">],</span><span class="w"> </span><span class="nl">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="nl">"modulus"</span><span class="p">:</span><span class="w"> </span><span class="mi">105</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="continued-fractions">Continued fractions</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/cf?num=355&amp;den=113"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"num"</span><span class="p">:</span><span class="w"> </span><span class="mi">355</span><span class="p">,</span><span class="w"> </span><span class="nl">"den"</span><span class="p">:</span><span class="w"> </span><span class="mi">113</span><span class="p">,</span><span class="w"> </span><span class="nl">"cf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">],</span><span class="w"> </span><span class="nl">"convergents"</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">22</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">355</span><span class="p">,</span><span class="w"> </span><span class="mi">113</span><span class="p">]]}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="elliptic-curve-scalar-multiplication-k-cdot-p">Elliptic curve scalar multiplication ($k \cdot P$)</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"curve":"toy193","k":7}'</span> <span class="se">\</span>
+  https://abhrankan.duckdns.org/crypto-api/v1/math/ecmul
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"curve"</span><span class="p">:</span><span class="w"> </span><span class="s2">"toy193"</span><span class="p">,</span><span class="w"> </span><span class="nl">"k"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nl">"point"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">59</span><span class="p">],</span><span class="w"> </span><span class="nl">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">66</span><span class="p">,</span><span class="w"> </span><span class="mi">24</span><span class="p">],</span><span class="w"> </span><span class="nl">"result_on_curve"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="seeded-challenge-generator">Seeded challenge generator</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/challenge?topic=mixed&amp;seed=42"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"topic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mixed"</span><span class="p">,</span><span class="w"> </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"problems"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"topic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqrtmod"</span><span class="p">,</span><span class="w"> </span><span class="nl">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smaller positive root of x² ≡ 12 (mod 13)"</span><span class="p">,</span><span class="w"> </span><span class="nl">"answer"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}]}</span><span class="w">
+</span></code></pre></div></div>
+
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>
 
 <ul>
   <li>Algorithms: exactly <code class="language-plaintext highlighter-rouge">sha256</code> and <code class="language-plaintext highlighter-rouge">sha512</code></li>
-  <li>Operations require <code class="language-plaintext highlighter-rouge">Content-Type: application/json</code></li>
+  <li>Operation requests require <code class="language-plaintext highlighter-rouge">Content-Type: application/json</code> (math endpoints also support <code class="language-plaintext highlighter-rouge">GET</code> query strings)</li>
   <li>Text fields are UTF-8; crypto uses UTF-8 bytes</li>
   <li>No binary or base64 input in this contract</li>
   <li>Body ≤ 64 KiB; each of <code class="language-plaintext highlighter-rouge">data</code>, <code class="language-plaintext highlighter-rouge">key</code>, <code class="language-plaintext highlighter-rouge">mac</code> ≤ 32 KiB</li>
-  <li><code class="language-plaintext highlighter-rouge">200</code> — success (including <code class="language-plaintext highlighter-rouge">valid: false</code>)</li>
-  <li><code class="language-plaintext highlighter-rouge">400</code> — bad algorithm or malformed MAC hex</li>
-  <li><code class="language-plaintext highlighter-rouge">401</code> — missing/invalid Basic Auth at Nginx</li>
+  <li><code class="language-plaintext highlighter-rouge">200</code> — success (including <code class="language-plaintext highlighter-rouge">valid: false</code> verification)</li>
+  <li><code class="language-plaintext highlighter-rouge">400</code> — bad algorithm, malformed MAC hex, invalid query params, or math domain error (e.g., non-prime modulus, quadratic non-residue in sqrtmod, zero denominator, negative scalar)</li>
+  <li><code class="language-plaintext highlighter-rouge">401</code> — missing/invalid Basic Auth at Nginx for protected operations</li>
   <li><code class="language-plaintext highlighter-rouge">413</code> — body or field too large</li>
   <li><code class="language-plaintext highlighter-rouge">415</code> — non-JSON operation request</li>
   <li><code class="language-plaintext highlighter-rouge">404</code> — unknown route</li>
