@@ -125,6 +125,11 @@ const crtModuli = document.querySelector("#crt-moduli");
 const crtResult = document.querySelector("#crt-result");
 const clearCrtButton = document.querySelector("#clear-crt");
 
+const cryptoFactorForm = document.querySelector("#crypto-factor-form");
+const cryptoFactorN = document.querySelector("#crypto-factor-n");
+const cryptoFactorResult = document.querySelector("#crypto-factor-result");
+const clearCryptoFactorButton = document.querySelector("#clear-crypto-factor");
+
 const challengeForm = document.querySelector("#challenge-form");
 const challengeTopic = document.querySelector("#challenge-topic");
 const challengeSeed = document.querySelector("#challenge-seed");
@@ -1542,6 +1547,33 @@ function clearCrt() {
   clearTelemetry(crtResult);
 }
 
+async function runCryptoFactor(event) {
+  event.preventDefault();
+  const nRaw = cryptoFactorN.value.trim();
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoFactorResult.textContent = "Enter a valid positive integer n ≥ 1.";
+    return;
+  }
+  const button = cryptoFactorForm.querySelector("button[type='submit']");
+  cryptoFactorResult.textContent = "Factoring integer...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(`/v1/math/factor?n=${encodeURIComponent(nRaw)}`, {}, cryptoFactorResult);
+    const status = data.is_prime ? "Prime" : (data.n === 1 ? "Unit" : "Composite");
+    cryptoFactorResult.innerHTML = `<strong>${data.n}</strong> = <code>${data.expression}</code> (${status})`;
+  } catch (error) {
+    cryptoFactorResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factoring");
+  }
+}
+
+function clearCryptoFactor() {
+  cryptoFactorN.value = "104729";
+  cryptoFactorResult.textContent = "Enter integer n (up to 2⁶³ - 1).";
+  clearTelemetry(cryptoFactorResult);
+}
+
 async function runChallenge(event) {
   event.preventDefault();
   const topic = challengeTopic.value;
@@ -1644,6 +1676,8 @@ ecmulForm?.addEventListener("submit", runEcmul);
 clearEcmulButton?.addEventListener("click", clearEcmul);
 crtForm?.addEventListener("submit", runCrt);
 clearCrtButton?.addEventListener("click", clearCrt);
+cryptoFactorForm?.addEventListener("submit", runCryptoFactor);
+clearCryptoFactorButton?.addEventListener("click", clearCryptoFactor);
 challengeForm?.addEventListener("submit", runChallenge);
 clearChallengeButton?.addEventListener("click", clearChallenge);
 

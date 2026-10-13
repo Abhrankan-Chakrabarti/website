@@ -461,6 +461,20 @@
               <output id="crt-result" class="lab-result" aria-live="polite">Enter comma-separated r and m.</output>
             </form>
 
+            <form id="crypto-factor-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Pollard's &rho; algorithm</p>
+                <h3>Integer factorization</h3>
+              </div>
+              <label for="crypto-factor-n">Integer to factor (n &ge; 1)</label>
+              <input id="crypto-factor-n" name="n" type="text" inputmode="numeric" value="104729" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Factor integer</button>
+                <button id="clear-crypto-factor" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-factor-result" class="lab-result" aria-live="polite">Enter integer n (up to 2⁶³ - 1).</output>
+            </form>
+
             <form id="challenge-form" class="lab-form crypto-tool">
               <div>
                 <p class="lab-eyebrow">Practice mode</p>
