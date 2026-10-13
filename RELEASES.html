@@ -55,6 +55,25 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v094--2026-10-13">[v0.9.4] — 2026-10-13</h3>
+
+<p><strong>Integer factorization via Pollard's rho &amp; crypto-lab v0.3.0.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.3.0</code>, introducing pure Rust prime factorization:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/factor</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/factor</code>: trial division + Pollard's $\rho$ (Brent's variant) with deterministic Miller-Rabin primality verification.</li>
+      <li>Added <code class="language-plaintext highlighter-rouge">factor</code> topic to seeded challenge generator (<code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/challenge</code>).</li>
+    </ul>
+  </li>
+  <li>Added Factorization topic to the interactive challenge generator in <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+  <li>Documented <code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/factor</code> contract and cURL examples in <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code>.</li>
+  <li>All 28 <code class="language-plaintext highlighter-rouge">crypto-lab</code> unit and HTTP integration tests passing.</li>
+</ul>
+
+<hr />
+
 <h3 id="v093--2026-10-13">[v0.9.3] — 2026-10-13</h3>
 
 <p><strong>FoxMath number theory and elliptic curve cryptography in the Lab.</strong></p>

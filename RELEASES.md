@@ -1,5 +1,19 @@
 # Releases
 
+### [v0.9.4] — 2026-10-13
+
+**Integer factorization via Pollard's rho & crypto-lab v0.3.0.**
+
+#### Added
+- Upgraded `crypto-lab` to `v0.3.0`, introducing pure Rust prime factorization:
+  - `GET /crypto-api/v1/math/factor` & `POST /crypto-api/v1/math/factor`: trial division + Pollard's $\rho$ (Brent's variant) with deterministic Miller-Rabin primality verification.
+  - Added `"factor"` topic to seeded challenge generator (`/crypto-api/v1/math/challenge`).
+- Added Factorization topic to the interactive challenge generator in `lab.html`.
+- Documented `/crypto-api/v1/math/factor` contract and curl examples in `API.md` and `API.html`.
+- All 28 `crypto-lab` unit and HTTP integration tests passing.
+
+---
+
 ### [v0.9.3] — 2026-10-13
 
 **FoxMath number theory and elliptic curve cryptography in the Lab.**

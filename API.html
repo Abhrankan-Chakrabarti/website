@@ -1037,6 +1037,7 @@ other long-lived secrets. Examples use throwaway strings only.</p>
 https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/math/legendre
 https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
+https://abhrankan.duckdns.org/crypto-api/v1/math/factor
 https://abhrankan.duckdns.org/crypto-api/v1/math/crt
 https://abhrankan.duckdns.org/crypto-api/v1/math/cf
 https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
@@ -1050,6 +1051,7 @@ http://127.0.0.1:8089/health
 http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/math/legendre
 http://127.0.0.1:8089/v1/math/sqrtmod
+http://127.0.0.1:8089/v1/math/factor
 http://127.0.0.1:8089/v1/math/crt
 http://127.0.0.1:8089/v1/math/cf
 http://127.0.0.1:8089/v1/math/ecadd
@@ -1084,6 +1086,10 @@ http://127.0.0.1:8089/v1/hmac/verify
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/sqrtmod</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/factor</code></td>
       <td>None</td>
     </tr>
     <tr>
@@ -1292,6 +1298,14 @@ http://127.0.0.1:8089/v1/hmac/verify
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="nl">"roots"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">]}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="prime-factorization-pollards-rho">Prime factorization (Pollard's $\rho$)</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/factor?n=360"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">360</span><span class="p">,</span><span class="w"> </span><span class="nl">"factors"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}],</span><span class="w"> </span><span class="nl">"prime_factors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="nl">"expression"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2^3 * 3^2 * 5"</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_prime"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h4 id="chinese-remainder-theorem">Chinese Remainder Theorem</h4>
