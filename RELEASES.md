@@ -1,5 +1,27 @@
 # Releases
 
+### [v0.9.3] — 2026-10-13
+
+**FoxMath number theory and elliptic curve cryptography in the Lab.**
+
+#### Added
+- Added interactive FoxMath cryptography exploration tools to the live Lab:
+  - Modular square roots via Tonelli-Shanks algorithm ($\sqrt{a} \pmod p$)
+  - Legendre symbol evaluation using Euler's criterion ($a/p$)
+  - Weierstrass elliptic curve scalar multiplication ($k \cdot G$ on `toy193` and `toy97`)
+  - Chinese Remainder Theorem multi-congruence solver ($x \equiv r_i \pmod{m_i}$)
+  - Seeded practice challenge problem generator with interactive answer reveal
+- Documented `crypto-lab` v0.2.0 API contract and public routing in `API.md`.
+- Added GitHub Actions continuous integration workflow to `crypto-lab`.
+- Added `FoxMath` and updated `crypto-lab` project cards in `projects.html`.
+
+#### Compatibility & Deployment
+- FoxMath exploration endpoints below `/crypto-api/v1/math/*` are public and require no authentication.
+- Existing SHA-2 hashing, HMAC generation, and constant-time verification endpoints remain secured by Nginx HTTP Basic Authentication.
+- All 25 unit and HTTP integration tests passing.
+
+---
+
 ### [v0.9.2] — 2026-10-10
 
 **Positive-divisor enumeration for the arithmetic Lab.**
