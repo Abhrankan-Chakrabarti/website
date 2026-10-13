@@ -55,11 +55,40 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v093--2026-10-13">[v0.9.3] — 2026-10-13</h3>
+
+<p><strong>FoxMath number theory and elliptic curve cryptography in the Lab.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Added interactive FoxMath cryptography exploration tools to the live Lab:
+    <ul>
+      <li>Modular square roots via Tonelli-Shanks algorithm ($\sqrt{a} \pmod p$)</li>
+      <li>Legendre symbol evaluation using Euler’s criterion ($a/p$)</li>
+      <li>Weierstrass elliptic curve scalar multiplication ($k \cdot G$ on <code class="language-plaintext highlighter-rouge">toy193</code> and <code class="language-plaintext highlighter-rouge">toy97</code>)</li>
+      <li>Chinese Remainder Theorem multi-congruence solver ($x \equiv r_i \pmod{m_i}$)</li>
+      <li>Seeded practice challenge problem generator with interactive answer reveal</li>
+    </ul>
+  </li>
+  <li>Documented <code class="language-plaintext highlighter-rouge">crypto-lab</code> v0.2.0 API contract and public routing in <code class="language-plaintext highlighter-rouge">API.md</code>.</li>
+  <li>Added GitHub Actions continuous integration workflow to <code class="language-plaintext highlighter-rouge">crypto-lab</code>.</li>
+  <li>Added <code class="language-plaintext highlighter-rouge">FoxMath</code> and updated <code class="language-plaintext highlighter-rouge">crypto-lab</code> project cards in <code class="language-plaintext highlighter-rouge">projects.html</code>.</li>
+</ul>
+
+<h4 id="compatibility--deployment">Compatibility &amp; Deployment</h4>
+<ul>
+  <li>FoxMath exploration endpoints below <code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/*</code> are public and require no authentication.</li>
+  <li>Existing SHA-2 hashing, HMAC generation, and constant-time verification endpoints remain secured by Nginx HTTP Basic Authentication.</li>
+  <li>All 25 unit and HTTP integration tests passing.</li>
+</ul>
+
+<hr />
+
 <h3 id="v092--2026-10-10">[v0.9.2] — 2026-10-10</h3>
 
 <p><strong>Positive-divisor enumeration for the arithmetic Lab.</strong></p>
 
-<h4 id="added">Added</h4>
+<h4 id="added-1">Added</h4>
 <ul>
   <li>Added <code class="language-plaintext highlighter-rouge">GET /v1/math/divisors/{n}</code> for sorted positive divisors.</li>
   <li>Added an interactive Lab tool for listing divisors and verifying the
@@ -78,7 +107,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Divisor-count and divisor-sum arithmetic functions.</strong></p>
 
-<h4 id="added-1">Added</h4>
+<h4 id="added-2">Added</h4>
 <ul>
   <li>Added <code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-count/{n}</code> for τ(n).</li>
   <li>Added <code class="language-plaintext highlighter-rouge">GET /v1/math/divisor-sum/{n}</code> for σ(n).</li>
@@ -96,7 +125,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Bounded factorisation and multiplicative number-theory APIs.</strong></p>
 
-<h4 id="added-2">Added</h4>
+<h4 id="added-3">Added</h4>
 <ul>
   <li>Added prime factorisation: GET /v1/math/factor/{n}</li>
   <li>Added Euler’s totient function: GET /v1/math/totient/{n}</li>
@@ -149,7 +178,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Prime-number module, prime-counting support, and expanded mathematical APIs.</strong></p>
 
-<h4 id="added-3">Added</h4>
+<h4 id="added-4">Added</h4>
 <ul>
   <li>Added a dedicated prime-number module.</li>
   <li>Added primality testing: GET /v1/math/is-prime/{n}</li>
@@ -223,7 +252,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>School Database student-view toggle for privacy-filtered and admin detail modes.</strong></p>
 
-<h3 id="added-4">Added</h3>
+<h3 id="added-5">Added</h3>
 
 <ul>
   <li>Added a portal control to switch between privacy-filtered student details and full admin details when authorized.</li>
@@ -243,7 +272,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Admin-only full student details with authenticated-user authorization.</strong></p>
 
-<h3 id="added-5">Added</h3>
+<h3 id="added-6">Added</h3>
 
 <ul>
   <li>Added a <code class="language-plaintext highlighter-rouge">student_detail_full(table, student_id)</code> database method for retrieving complete student records.</li>
@@ -321,7 +350,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Schema-driven student details with dynamic primary-key discovery and privacy-aware responses.</strong></p>
 
-<h3 id="added-6">Added</h3>
+<h3 id="added-7">Added</h3>
 
 <ul>
   <li>Added schema-driven student identification for student-detail lookups.</li>
@@ -408,7 +437,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>School Database importer with validation and rollback-safe activation.</strong></p>
 
-<h3 id="added-7">Added</h3>
+<h3 id="added-8">Added</h3>
 
 <ul>
   <li>Added a one-shot School Database importer:
@@ -491,7 +520,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Improved School Database browsing with pagination, search, and student details.</strong></p>
 
-<h3 id="added-8">Added</h3>
+<h3 id="added-9">Added</h3>
 
 <ul>
   <li>Added real pagination totals through the <code class="language-plaintext highlighter-rouge">total</code> field.</li>
@@ -548,7 +577,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Initial read-only School Database API backed by SQLite.</strong></p>
 
-<h3 id="added-9">Added</h3>
+<h3 id="added-10">Added</h3>
 
 <ul>
   <li>Added a read-only School Database API backed by SQLite.</li>
@@ -673,7 +702,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Math endpoints and protected API snapshot functionality.</strong></p>
 
-<h3 id="added-10">Added</h3>
+<h3 id="added-11">Added</h3>
 
 <ul>
   <li>Added Catalan number endpoint.</li>
@@ -718,7 +747,7 @@ divisor-count and divisor-sum functions.</li>
 
 <h2 id="v020--2026-08-30">[v0.2.0] — 2026-08-30</h2>
 
-<h3 id="added-11">Added</h3>
+<h3 id="added-12">Added</h3>
 
 <ul>
   <li>
@@ -747,7 +776,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Stable production release: site navigation, consistent styling, and complete API documentation.</strong></p>
 
-<h3 id="added-12">Added</h3>
+<h3 id="added-13">Added</h3>
 
 <h4 id="site-wide-navigation-consistency">Site-wide Navigation Consistency</h4>
 
@@ -839,7 +868,7 @@ divisor-count and divisor-sum functions.</li>
 
 <p><strong>Initial release of <code class="language-plaintext highlighter-rouge">crypto-lab</code>, a small self-hosted Rust cryptography API.</strong></p>
 
-<h3 id="added-13">Added</h3>
+<h3 id="added-14">Added</h3>
 
 <ul>
   <li>SHA-256 hashing endpoint.</li>
