@@ -55,6 +55,34 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v097--2026-10-14">[v0.9.7] — 2026-10-14</h3>
+
+<p><strong>Unified arithmetic suite (/v1/math/arith), telemetry race condition fix &amp; crypto-lab v0.5.1.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.5.1</code>, introducing a unified arithmetic suite endpoint:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/arith</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/arith</code>: efficiently factorizes $n$ once via Pollard's $\rho$ / trial division, deriving M&ouml;bius $\mu(n)$, divisor sum $\sigma_k(n)$, and divisor count $\tau(n)$ in $O(1)$ from the shared factorization.</li>
+      <li>Preserved standalone <code class="language-plaintext highlighter-rouge">/v1/math/mobius</code>, <code class="language-plaintext highlighter-rouge">/v1/math/sigma</code>, and <code class="language-plaintext highlighter-rouge">/v1/math/tau</code> routes for backward-compatible and granular queries.</li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code> with contract documentation, examples, and updated endpoint catalogue (35 total endpoints).</li>
+  <li>All 33 <code class="language-plaintext highlighter-rouge">crypto-lab</code> unit and HTTP integration tests passing.</li>
+</ul>
+
+<h4 id="fixed">Fixed</h4>
+<ul>
+  <li>Fixed a frontend telemetry race condition on <code class="language-plaintext highlighter-rouge">lab.html</code> in <code class="language-plaintext highlighter-rouge">#crypto-arith-form</code>:
+    <ul>
+      <li>Previously, <code class="language-plaintext highlighter-rouge">runCryptoArith</code> fired three concurrent asynchronous requests (<code class="language-plaintext highlighter-rouge">mobius</code>, <code class="language-plaintext highlighter-rouge">sigma</code>, <code class="language-plaintext highlighter-rouge">tau</code>) into <code class="language-plaintext highlighter-rouge">Promise.all</code> targeting the same DOM result element. As requests resolved non-deterministically, subsequent responses clobbered the telemetry container, displaying inaccurate latency and partial cURL commands.</li>
+      <li>Migrated <code class="language-plaintext highlighter-rouge">runCryptoArith</code> to the single <code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/arith</code> endpoint, providing an atomic request with a single, accurate telemetry badge, true total latency, and a complete cURL command.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
 <h3 id="v096--2026-10-14">[v0.9.6] — 2026-10-14</h3>
 
 <p><strong>Discrete logarithm (BSGS), classical arithmetic functions &amp; crypto-lab v0.5.0.</strong></p>

@@ -937,6 +937,8 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **CRT** | Extended Euclidean GCD solver for simultaneous modular congruences. |
 | **CF** | Continued fraction expansions and rational convergents for $num/den$. |
 | **EC Add / Mul** | Weierstrass curve group addition and scalar multiplication ($k \cdot P$) over finite field $\mathbb{F}_p$. Built-in presets: `toy97` and `toy193`. |
+| **Dlog** | Discrete logarithm ($g^x \equiv h \pmod p$) via Baby-step Giant-step. |
+| **Arithmetic** | Foundational multiplicative functions: Möbius $\mu(n)$, divisor sum $\sigma_k(n)$, divisor count $\tau(n)$ via individual routes or unified suite (`/arith`). |
 | **Challenge** | Deterministic seeded problem generator for practice and self-study. |
 
 ### Application information
@@ -949,7 +951,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.2.0",
+  "version": "0.5.1",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -960,6 +962,22 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "POST /v1/math/legendre",
     "GET /v1/math/sqrtmod",
     "POST /v1/math/sqrtmod",
+    "GET /v1/math/factor",
+    "POST /v1/math/factor",
+    "GET /v1/math/totient",
+    "POST /v1/math/totient",
+    "GET /v1/math/order",
+    "POST /v1/math/order",
+    "GET /v1/math/dlog",
+    "POST /v1/math/dlog",
+    "GET /v1/math/mobius",
+    "POST /v1/math/mobius",
+    "GET /v1/math/sigma",
+    "POST /v1/math/sigma",
+    "GET /v1/math/tau",
+    "POST /v1/math/tau",
+    "GET /v1/math/arith",
+    "POST /v1/math/arith",
     "GET /v1/math/crt",
     "POST /v1/math/crt",
     "GET /v1/math/cf",
@@ -1091,6 +1109,18 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dlog?g=3&h=6&p=7"
 ```
 
 #### Classical arithmetic functions (Möbius, divisor sum, divisor count)
+
+Unified arithmetic suite (evaluates $\mu(n)$, $\sigma_k(n)$, and $\tau(n)$ in one request via a single factorization):
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/arith?n=12&k=1"
+```
+
+```json
+{"n": 12, "k": 1, "mobius": 0, "sigma": 28, "tau": 6}
+```
+
+Individual endpoints:
 
 ```bash
 curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/mobius?n=30"

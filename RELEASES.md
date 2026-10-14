@@ -1,5 +1,23 @@
 # Releases
 
+### [v0.9.7] — 2026-10-14
+
+**Unified arithmetic suite (/v1/math/arith), telemetry race condition fix & crypto-lab v0.5.1.**
+
+#### Added
+- Upgraded `crypto-lab` to `v0.5.1`, introducing a unified arithmetic suite endpoint:
+  - `GET /crypto-api/v1/math/arith` & `POST /crypto-api/v1/math/arith`: efficiently factorizes $n$ once via Pollard's $\rho$ / trial division, deriving Möbius $\mu(n)$, divisor sum $\sigma_k(n)$, and divisor count $\tau(n)$ in $O(1)$ from the shared factorization.
+  - Preserved standalone `/v1/math/mobius`, `/v1/math/sigma`, and `/v1/math/tau` routes for backward-compatible and granular queries.
+- Updated `API.md` and `API.html` with contract documentation, examples, and updated endpoint catalogue (35 total endpoints).
+- All 33 `crypto-lab` unit and HTTP integration tests passing.
+
+#### Fixed
+- Fixed a frontend telemetry race condition on `lab.html` in `#crypto-arith-form`:
+  - Previously, `runCryptoArith` fired three concurrent asynchronous requests (`mobius`, `sigma`, `tau`) into `Promise.all` targeting the same DOM result element. As requests resolved non-deterministically, subsequent responses clobbered the telemetry container, displaying inaccurate latency and partial cURL commands.
+  - Migrated `runCryptoArith` to the single `/crypto-api/v1/math/arith` endpoint, providing an atomic request with a single, accurate telemetry badge, true total latency, and a complete cURL command.
+
+---
+
 ### [v0.9.6] — 2026-10-14
 
 **Discrete logarithm (BSGS), classical arithmetic functions & crypto-lab v0.5.0.**

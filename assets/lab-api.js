@@ -1706,13 +1706,13 @@ async function runCryptoArith(event) {
   cryptoArithResult.textContent = "Evaluating arithmetic functions...";
   setBusy(button, true, "Evaluating");
   try {
-    const [mobiusData, sigmaData, tauData] = await Promise.all([
-      fetchCryptoJson(`/v1/math/mobius?n=${encodeURIComponent(nRaw)}`, {}, cryptoArithResult),
-      fetchCryptoJson(`/v1/math/sigma?n=${encodeURIComponent(nRaw)}&k=${encodeURIComponent(k)}`, {}, cryptoArithResult),
-      fetchCryptoJson(`/v1/math/tau?n=${encodeURIComponent(nRaw)}`, {}, cryptoArithResult),
-    ]);
-    const sigLabel = k === 1 ? "&sigma;" : `&sigma;<sub>${k}</sub>`;
-    cryptoArithResult.innerHTML = `&mu;(${nRaw}) = <strong>${mobiusData.value}</strong>, ${sigLabel}(${nRaw}) = <strong>${sigmaData.value}</strong>, &tau;(${nRaw}) = <strong>${tauData.value}</strong>`;
+    const data = await fetchCryptoJson(
+      `/v1/math/arith?n=${encodeURIComponent(nRaw)}&k=${encodeURIComponent(k)}`,
+      {},
+      cryptoArithResult,
+    );
+    const sigLabel = data.k === 1 ? "&sigma;" : `&sigma;<sub>${data.k}</sub>`;
+    cryptoArithResult.innerHTML = `&mu;(${data.n}) = <strong>${data.mobius}</strong>, ${sigLabel}(${data.n}) = <strong>${data.sigma}</strong>, &tau;(${data.n}) = <strong>${data.tau}</strong>`;
   } catch (error) {
     cryptoArithResult.textContent = error.message;
   } finally {
