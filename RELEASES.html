@@ -55,6 +55,29 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v096--2026-10-14">[v0.9.6] — 2026-10-14</h3>
+
+<p><strong>Discrete logarithm (BSGS), classical arithmetic functions &amp; crypto-lab v0.5.0.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.5.0</code>, adding pure Rust discrete logarithm and classical arithmetic functions:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/dlog</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/dlog</code>: Baby-step Giant-step discrete log solver ($g^x \equiv h \pmod p$) in $O(\sqrt{\mathrm{ord}_p(g)})$ time and space.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/mobius</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/mobius</code>: M&ouml;bius function $\mu(n)$.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/sigma</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/sigma</code>: Sum of divisors function $\sigma_k(n)$ (defaults to $k=1$).</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/tau</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/tau</code>: Divisor count function $\tau(n)$.</li>
+      <li>Added <code class="language-plaintext highlighter-rouge">dlog</code> topic to seeded challenge generator (<code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/challenge</code>) and interactive challenge mode on <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+      <li>Added interactive cards for <strong>Discrete Logarithm</strong> and <strong>Classical Arithmetic Functions</strong> to <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+    </ul>
+  </li>
+  <li>Updated FoxMath description and highlights in <code class="language-plaintext highlighter-rouge">projects.html</code> for <code class="language-plaintext highlighter-rouge">v0.12.0</code> parity.</li>
+  <li>Documented new math routes and curl examples in <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code>.</li>
+  <li>All 33 <code class="language-plaintext highlighter-rouge">crypto-lab</code> unit and HTTP integration tests passing.</li>
+</ul>
+
+<hr />
+
 <h3 id="v095--2026-10-14">[v0.9.5] — 2026-10-14</h3>
 
 <p><strong>Euler's totient, Carmichael function, multiplicative order &amp; crypto-lab v0.4.0.</strong></p>

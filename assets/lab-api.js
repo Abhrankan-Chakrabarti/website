@@ -141,6 +141,19 @@ const cryptoOrderM = document.querySelector("#crypto-order-m");
 const cryptoOrderResult = document.querySelector("#crypto-order-result");
 const clearCryptoOrderButton = document.querySelector("#clear-crypto-order");
 
+const cryptoDlogForm = document.querySelector("#crypto-dlog-form");
+const cryptoDlogG = document.querySelector("#crypto-dlog-g");
+const cryptoDlogH = document.querySelector("#crypto-dlog-h");
+const cryptoDlogP = document.querySelector("#crypto-dlog-p");
+const cryptoDlogResult = document.querySelector("#crypto-dlog-result");
+const clearCryptoDlogButton = document.querySelector("#clear-crypto-dlog");
+
+const cryptoArithForm = document.querySelector("#crypto-arith-form");
+const cryptoArithN = document.querySelector("#crypto-arith-n");
+const cryptoArithK = document.querySelector("#crypto-arith-k");
+const cryptoArithResult = document.querySelector("#crypto-arith-result");
+const clearCryptoArithButton = document.querySelector("#clear-crypto-arith");
+
 const challengeForm = document.querySelector("#challenge-form");
 const challengeTopic = document.querySelector("#challenge-topic");
 const challengeSeed = document.querySelector("#challenge-seed");
@@ -1643,6 +1656,77 @@ function clearCryptoOrder() {
   clearTelemetry(cryptoOrderResult);
 }
 
+async function runCryptoDlog(event) {
+  event.preventDefault();
+  const gRaw = cryptoDlogG.value.trim();
+  const hRaw = cryptoDlogH.value.trim();
+  const pRaw = cryptoDlogP.value.trim();
+  const g = Number(gRaw);
+  const h = Number(hRaw);
+  const p = Number(pRaw);
+  if (!Number.isSafeInteger(g) || !Number.isSafeInteger(h) || !Number.isSafeInteger(p) || p <= 1) {
+    cryptoDlogResult.textContent = "Enter valid integers g, h, and modulus p > 1.";
+    return;
+  }
+  const button = cryptoDlogForm.querySelector("button[type='submit']");
+  cryptoDlogResult.textContent = "Solving discrete logarithm...";
+  setBusy(button, true, "Solving");
+  try {
+    const data = await fetchCryptoJson(`/v1/math/dlog?g=${encodeURIComponent(g)}&h=${encodeURIComponent(h)}&p=${encodeURIComponent(p)}`, {}, cryptoDlogResult);
+    cryptoDlogResult.innerHTML = `${data.g}<sup>${data.x}</sup> &equiv; ${data.h} (mod ${data.p}) &mdash; <em>ord<sub>${data.p}</sub>(${data.g}) = ${data.order}</em>`;
+  } catch (error) {
+    cryptoDlogResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Solving");
+  }
+}
+
+function clearCryptoDlog() {
+  cryptoDlogG.value = "2";
+  cryptoDlogH.value = "5";
+  cryptoDlogP.value = "13";
+  cryptoDlogResult.textContent = "Enter base g, target h, and modulus p > 1.";
+  clearTelemetry(cryptoDlogResult);
+}
+
+async function runCryptoArith(event) {
+  event.preventDefault();
+  const nRaw = cryptoArithN.value.trim();
+  const kRaw = cryptoArithK.value.trim();
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoArithResult.textContent = "Enter a valid positive integer n ≥ 1.";
+    return;
+  }
+  const k = kRaw === "" ? 1 : Number(kRaw);
+  if (!Number.isSafeInteger(k) || k < 0) {
+    cryptoArithResult.textContent = "Exponent k must be an integer ≥ 0.";
+    return;
+  }
+  const button = cryptoArithForm.querySelector("button[type='submit']");
+  cryptoArithResult.textContent = "Evaluating arithmetic functions...";
+  setBusy(button, true, "Evaluating");
+  try {
+    const [mobiusData, sigmaData, tauData] = await Promise.all([
+      fetchCryptoJson(`/v1/math/mobius?n=${encodeURIComponent(nRaw)}`, {}, cryptoArithResult),
+      fetchCryptoJson(`/v1/math/sigma?n=${encodeURIComponent(nRaw)}&k=${encodeURIComponent(k)}`, {}, cryptoArithResult),
+      fetchCryptoJson(`/v1/math/tau?n=${encodeURIComponent(nRaw)}`, {}, cryptoArithResult),
+    ]);
+    const sigLabel = k === 1 ? "&sigma;" : `&sigma;<sub>${k}</sub>`;
+    cryptoArithResult.innerHTML = `&mu;(${nRaw}) = <strong>${mobiusData.value}</strong>, ${sigLabel}(${nRaw}) = <strong>${sigmaData.value}</strong>, &tau;(${nRaw}) = <strong>${tauData.value}</strong>`;
+  } catch (error) {
+    cryptoArithResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Evaluating");
+  }
+}
+
+function clearCryptoArith() {
+  cryptoArithN.value = "12";
+  cryptoArithK.value = "1";
+  cryptoArithResult.textContent = "Enter positive integer n (up to 2⁶³ - 1).";
+  clearTelemetry(cryptoArithResult);
+}
+
 async function runChallenge(event) {
   event.preventDefault();
   const topic = challengeTopic.value;
@@ -1751,6 +1835,10 @@ cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
 clearCryptoTotientButton?.addEventListener("click", clearCryptoTotient);
 cryptoOrderForm?.addEventListener("submit", runCryptoOrder);
 clearCryptoOrderButton?.addEventListener("click", clearCryptoOrder);
+cryptoDlogForm?.addEventListener("submit", runCryptoDlog);
+clearCryptoDlogButton?.addEventListener("click", clearCryptoDlog);
+cryptoArithForm?.addEventListener("submit", runCryptoArith);
+clearCryptoArithButton?.addEventListener("click", clearCryptoArith);
 challengeForm?.addEventListener("submit", runChallenge);
 clearChallengeButton?.addEventListener("click", clearChallenge);
 

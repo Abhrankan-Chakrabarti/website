@@ -841,6 +841,10 @@ https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
 https://abhrankan.duckdns.org/crypto-api/v1/math/factor
 https://abhrankan.duckdns.org/crypto-api/v1/math/totient
 https://abhrankan.duckdns.org/crypto-api/v1/math/order
+https://abhrankan.duckdns.org/crypto-api/v1/math/dlog
+https://abhrankan.duckdns.org/crypto-api/v1/math/mobius
+https://abhrankan.duckdns.org/crypto-api/v1/math/sigma
+https://abhrankan.duckdns.org/crypto-api/v1/math/tau
 https://abhrankan.duckdns.org/crypto-api/v1/math/crt
 https://abhrankan.duckdns.org/crypto-api/v1/math/cf
 https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
@@ -857,6 +861,10 @@ http://127.0.0.1:8089/v1/math/sqrtmod
 http://127.0.0.1:8089/v1/math/factor
 http://127.0.0.1:8089/v1/math/totient
 http://127.0.0.1:8089/v1/math/order
+http://127.0.0.1:8089/v1/math/dlog
+http://127.0.0.1:8089/v1/math/mobius
+http://127.0.0.1:8089/v1/math/sigma
+http://127.0.0.1:8089/v1/math/tau
 http://127.0.0.1:8089/v1/math/crt
 http://127.0.0.1:8089/v1/math/cf
 http://127.0.0.1:8089/v1/math/ecadd
@@ -878,6 +886,10 @@ http://127.0.0.1:8089/v1/hmac/verify
 | `GET, POST /crypto-api/v1/math/factor` | None |
 | `GET, POST /crypto-api/v1/math/totient` | None |
 | `GET, POST /crypto-api/v1/math/order` | None |
+| `GET, POST /crypto-api/v1/math/dlog` | None |
+| `GET, POST /crypto-api/v1/math/mobius` | None |
+| `GET, POST /crypto-api/v1/math/sigma` | None |
+| `GET, POST /crypto-api/v1/math/tau` | None |
 | `GET, POST /crypto-api/v1/math/crt` | None |
 | `GET, POST /crypto-api/v1/math/cf` | None |
 | `GET, POST /crypto-api/v1/math/ecadd` | None |
@@ -1066,6 +1078,42 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/order?a=3&m=7"
 
 ```json
 {"a": 3, "m": 7, "order": 6, "is_primitive_root": true}
+```
+
+#### Discrete logarithm (BSGS)
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dlog?g=3&h=6&p=7"
+```
+
+```json
+{"g": 3, "h": 6, "p": 7, "x": 3, "order": 6}
+```
+
+#### Classical arithmetic functions (Möbius, divisor sum, divisor count)
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/mobius?n=30"
+```
+
+```json
+{"n": 30, "value": -1}
+```
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/sigma?n=12&k=1"
+```
+
+```json
+{"n": 12, "k": 1, "value": 28}
+```
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/tau?n=12"
+```
+
+```json
+{"n": 12, "value": 6}
 ```
 
 #### Chinese Remainder Theorem

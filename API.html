@@ -1040,6 +1040,10 @@ https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
 https://abhrankan.duckdns.org/crypto-api/v1/math/factor
 https://abhrankan.duckdns.org/crypto-api/v1/math/totient
 https://abhrankan.duckdns.org/crypto-api/v1/math/order
+https://abhrankan.duckdns.org/crypto-api/v1/math/dlog
+https://abhrankan.duckdns.org/crypto-api/v1/math/mobius
+https://abhrankan.duckdns.org/crypto-api/v1/math/sigma
+https://abhrankan.duckdns.org/crypto-api/v1/math/tau
 https://abhrankan.duckdns.org/crypto-api/v1/math/crt
 https://abhrankan.duckdns.org/crypto-api/v1/math/cf
 https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
@@ -1056,6 +1060,10 @@ http://127.0.0.1:8089/v1/math/sqrtmod
 http://127.0.0.1:8089/v1/math/factor
 http://127.0.0.1:8089/v1/math/totient
 http://127.0.0.1:8089/v1/math/order
+http://127.0.0.1:8089/v1/math/dlog
+http://127.0.0.1:8089/v1/math/mobius
+http://127.0.0.1:8089/v1/math/sigma
+http://127.0.0.1:8089/v1/math/tau
 http://127.0.0.1:8089/v1/math/crt
 http://127.0.0.1:8089/v1/math/cf
 http://127.0.0.1:8089/v1/math/ecadd
@@ -1102,6 +1110,22 @@ http://127.0.0.1:8089/v1/hmac/verify
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/order</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/dlog</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/mobius</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/sigma</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/tau</code></td>
       <td>None</td>
     </tr>
     <tr>
@@ -1334,6 +1358,34 @@ http://127.0.0.1:8089/v1/hmac/verify
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"m"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nl">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_primitive_root"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="discrete-logarithm-bsgs">Discrete logarithm (BSGS)</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/dlog?g=3&amp;h=6&amp;p=7"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"g"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"h"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nl">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="classical-arithmetic-functions">Classical arithmetic functions</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/mobius?n=30"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/sigma?n=12&amp;k=1"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nl">"k"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/tau?n=12"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h4 id="chinese-remainder-theorem">Chinese Remainder Theorem</h4>

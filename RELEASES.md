@@ -1,5 +1,23 @@
 # Releases
 
+### [v0.9.6] — 2026-10-14
+
+**Discrete logarithm (BSGS), classical arithmetic functions & crypto-lab v0.5.0.**
+
+#### Added
+- Upgraded `crypto-lab` to `v0.5.0`, adding pure Rust discrete logarithm and classical arithmetic functions:
+  - `GET /crypto-api/v1/math/dlog` & `POST /crypto-api/v1/math/dlog`: Baby-step Giant-step discrete log solver ($g^x \equiv h \pmod p$) in $O(\sqrt{\mathrm{ord}_p(g)})$ time and space.
+  - `GET /crypto-api/v1/math/mobius` & `POST /crypto-api/v1/math/mobius`: Möbius function $\mu(n)$.
+  - `GET /crypto-api/v1/math/sigma` & `POST /crypto-api/v1/math/sigma`: Sum of divisors function $\sigma_k(n)$ (defaults to $k=1$).
+  - `GET /crypto-api/v1/math/tau` & `POST /crypto-api/v1/math/tau`: Divisor count function $\tau(n)$.
+  - Added `"dlog"` topic to seeded challenge generator (`/crypto-api/v1/math/challenge`) and interactive challenge mode on `lab.html`.
+  - Added interactive cards for **Discrete Logarithm** and **Classical Arithmetic Functions** to `lab.html`.
+- Updated FoxMath description and highlights in `projects.html` for `v0.12.0` parity.
+- Documented new math routes and curl examples in `API.md` and `API.html`.
+- All 33 `crypto-lab` unit and HTTP integration tests passing.
+
+---
+
 ### [v0.9.5] — 2026-10-14
 
 **Euler's totient, Carmichael function, multiplicative order & crypto-lab v0.4.0.**

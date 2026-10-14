@@ -505,6 +505,40 @@
               <output id="crypto-order-result" class="lab-result" aria-live="polite">Enter coprime a and modulus m &gt; 1.</output>
             </form>
 
+            <form id="crypto-dlog-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Discrete Logarithm</p>
+                <h3>Baby-step Giant-step solver</h3>
+              </div>
+              <label for="crypto-dlog-g">Base integer (g)</label>
+              <input id="crypto-dlog-g" name="g" type="number" value="2" required>
+              <label for="crypto-dlog-h">Target value (h)</label>
+              <input id="crypto-dlog-h" name="h" type="number" value="5" required>
+              <label for="crypto-dlog-p">Modulus (p &gt; 1)</label>
+              <input id="crypto-dlog-p" name="p" type="number" min="2" value="13" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Solve discrete log</button>
+                <button id="clear-crypto-dlog" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-dlog-result" class="lab-result" aria-live="polite">Enter base g, target h, and modulus p &gt; 1.</output>
+            </form>
+
+            <form id="crypto-arith-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Arithmetic Functions</p>
+                <h3>M&ouml;bius, Divisor Sum &amp; Count</h3>
+              </div>
+              <label for="crypto-arith-n">Positive integer (n &ge; 1)</label>
+              <input id="crypto-arith-n" name="n" type="text" inputmode="numeric" value="12" required>
+              <label for="crypto-arith-k">Exponent k for &sigma;<sub>k</sub>(n) (optional, default 1)</label>
+              <input id="crypto-arith-k" name="k" type="number" min="0" value="1">
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Evaluate functions</button>
+                <button id="clear-crypto-arith" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-arith-result" class="lab-result" aria-live="polite">Enter positive integer n (up to 2⁶³ - 1).</output>
+            </form>
+
             <form id="challenge-form" class="lab-form crypto-tool">
               <div>
                 <p class="lab-eyebrow">Practice mode</p>
@@ -517,6 +551,7 @@
                 <option value="sqrtmod">Modular square root</option>
                 <option value="factor">Prime factorization</option>
                 <option value="totient">Euler's totient</option>
+                <option value="dlog">Discrete logarithm</option>
                 <option value="crt">Chinese Remainder Theorem</option>
                 <option value="ecdlp">Elliptic Curve DLP</option>
               </select>
