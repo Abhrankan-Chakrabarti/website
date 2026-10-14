@@ -475,6 +475,36 @@
               <output id="crypto-factor-result" class="lab-result" aria-live="polite">Enter integer n (up to 2⁶³ - 1).</output>
             </form>
 
+            <form id="crypto-totient-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Totient &amp; Carmichael</p>
+                <h3>Euler &amp; Carmichael functions</h3>
+              </div>
+              <label for="crypto-totient-n">Integer (n &ge; 1)</label>
+              <input id="crypto-totient-n" name="n" type="text" inputmode="numeric" value="360" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Compute &phi; &amp; &lambda;</button>
+                <button id="clear-crypto-totient" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-totient-result" class="lab-result" aria-live="polite">Enter positive integer n (up to 2⁶³ - 1).</output>
+            </form>
+
+            <form id="crypto-order-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Modular order</p>
+                <h3>Multiplicative order &amp; primitive root</h3>
+              </div>
+              <label for="crypto-order-a">Base integer (a)</label>
+              <input id="crypto-order-a" name="a" type="number" value="3" required>
+              <label for="crypto-order-m">Modulus (m &gt; 1)</label>
+              <input id="crypto-order-m" name="m" type="number" min="2" value="7" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Compute order</button>
+                <button id="clear-crypto-order" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-order-result" class="lab-result" aria-live="polite">Enter coprime a and modulus m &gt; 1.</output>
+            </form>
+
             <form id="challenge-form" class="lab-form crypto-tool">
               <div>
                 <p class="lab-eyebrow">Practice mode</p>

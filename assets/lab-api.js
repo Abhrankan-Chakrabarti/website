@@ -130,6 +130,17 @@ const cryptoFactorN = document.querySelector("#crypto-factor-n");
 const cryptoFactorResult = document.querySelector("#crypto-factor-result");
 const clearCryptoFactorButton = document.querySelector("#clear-crypto-factor");
 
+const cryptoTotientForm = document.querySelector("#crypto-totient-form");
+const cryptoTotientN = document.querySelector("#crypto-totient-n");
+const cryptoTotientResult = document.querySelector("#crypto-totient-result");
+const clearCryptoTotientButton = document.querySelector("#clear-crypto-totient");
+
+const cryptoOrderForm = document.querySelector("#crypto-order-form");
+const cryptoOrderA = document.querySelector("#crypto-order-a");
+const cryptoOrderM = document.querySelector("#crypto-order-m");
+const cryptoOrderResult = document.querySelector("#crypto-order-result");
+const clearCryptoOrderButton = document.querySelector("#clear-crypto-order");
+
 const challengeForm = document.querySelector("#challenge-form");
 const challengeTopic = document.querySelector("#challenge-topic");
 const challengeSeed = document.querySelector("#challenge-seed");
@@ -1574,6 +1585,64 @@ function clearCryptoFactor() {
   clearTelemetry(cryptoFactorResult);
 }
 
+async function runCryptoTotient(event) {
+  event.preventDefault();
+  const nRaw = cryptoTotientN.value.trim();
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoTotientResult.textContent = "Enter a valid positive integer n ≥ 1.";
+    return;
+  }
+  const button = cryptoTotientForm.querySelector("button[type='submit']");
+  cryptoTotientResult.textContent = "Computing totient & Carmichael functions...";
+  setBusy(button, true, "Computing");
+  try {
+    const data = await fetchCryptoJson(`/v1/math/totient?n=${encodeURIComponent(nRaw)}`, {}, cryptoTotientResult);
+    const cyclicText = data.is_cyclic ? "cyclic (primitive roots exist &check;)" : "not cyclic";
+    cryptoTotientResult.innerHTML = `&phi;(${data.n}) = <strong>${data.phi}</strong>, &lambda;(${data.n}) = <strong>${data.lambda}</strong> &mdash; <em>${cyclicText}</em>`;
+  } catch (error) {
+    cryptoTotientResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Computing");
+  }
+}
+
+function clearCryptoTotient() {
+  cryptoTotientN.value = "360";
+  cryptoTotientResult.textContent = "Enter positive integer n (up to 2⁶³ - 1).";
+  clearTelemetry(cryptoTotientResult);
+}
+
+async function runCryptoOrder(event) {
+  event.preventDefault();
+  const aRaw = cryptoOrderA.value.trim();
+  const mRaw = cryptoOrderM.value.trim();
+  const a = Number(aRaw);
+  const m = Number(mRaw);
+  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(m) || m <= 1) {
+    cryptoOrderResult.textContent = "Enter an integer base a and modulus m > 1.";
+    return;
+  }
+  const button = cryptoOrderForm.querySelector("button[type='submit']");
+  cryptoOrderResult.textContent = "Computing multiplicative order...";
+  setBusy(button, true, "Computing");
+  try {
+    const data = await fetchCryptoJson(`/v1/math/order?a=${encodeURIComponent(a)}&m=${encodeURIComponent(m)}`, {}, cryptoOrderResult);
+    const primRootText = data.is_primitive_root ? "primitive root &check;" : "not a primitive root";
+    cryptoOrderResult.innerHTML = `ord<sub>${data.m}</sub>(${data.a}) = <strong>${data.order}</strong> &mdash; <em>${primRootText}</em>`;
+  } catch (error) {
+    cryptoOrderResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Computing");
+  }
+}
+
+function clearCryptoOrder() {
+  cryptoOrderA.value = "3";
+  cryptoOrderM.value = "7";
+  cryptoOrderResult.textContent = "Enter coprime a and modulus m > 1.";
+  clearTelemetry(cryptoOrderResult);
+}
+
 async function runChallenge(event) {
   event.preventDefault();
   const topic = challengeTopic.value;
@@ -1678,6 +1747,10 @@ crtForm?.addEventListener("submit", runCrt);
 clearCrtButton?.addEventListener("click", clearCrt);
 cryptoFactorForm?.addEventListener("submit", runCryptoFactor);
 clearCryptoFactorButton?.addEventListener("click", clearCryptoFactor);
+cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
+clearCryptoTotientButton?.addEventListener("click", clearCryptoTotient);
+cryptoOrderForm?.addEventListener("submit", runCryptoOrder);
+clearCryptoOrderButton?.addEventListener("click", clearCryptoOrder);
 challengeForm?.addEventListener("submit", runChallenge);
 clearChallengeButton?.addEventListener("click", clearChallenge);
 
