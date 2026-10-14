@@ -55,6 +55,27 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v095--2026-10-14">[v0.9.5] — 2026-10-14</h3>
+
+<p><strong>Euler's totient, Carmichael function, multiplicative order &amp; crypto-lab v0.4.0.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.4.0</code>, introducing pure Rust modular order and totient primitives:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/totient</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/totient</code>: Euler's totient $\phi(n)$, Carmichael's $\lambda(n)$, and cyclic group detection.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/order</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/order</code>: multiplicative order $\operatorname{ord}_m(a)$ via prime-factor stripping over $\lambda(m)$ and primitive root verification.</li>
+      <li>Added <code class="language-plaintext highlighter-rouge">totient</code> topic to seeded challenge generator (<code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/challenge</code>) and interactive challenge mode on <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+      <li>Added dedicated Pollard's $\rho$ integer factorization card to <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+    </ul>
+  </li>
+  <li>Updated FoxMath project highlights in <code class="language-plaintext highlighter-rouge">projects.html</code>.</li>
+  <li>Documented <code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/totient</code> and <code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/order</code> contracts and cURL examples in <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code>.</li>
+  <li>All 30 <code class="language-plaintext highlighter-rouge">crypto-lab</code> unit and HTTP integration tests passing.</li>
+</ul>
+
+<hr />
+
 <h3 id="v094--2026-10-13">[v0.9.4] — 2026-10-13</h3>
 
 <p><strong>Integer factorization via Pollard's rho &amp; crypto-lab v0.3.0.</strong></p>

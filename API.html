@@ -1038,6 +1038,8 @@ https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/math/legendre
 https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
 https://abhrankan.duckdns.org/crypto-api/v1/math/factor
+https://abhrankan.duckdns.org/crypto-api/v1/math/totient
+https://abhrankan.duckdns.org/crypto-api/v1/math/order
 https://abhrankan.duckdns.org/crypto-api/v1/math/crt
 https://abhrankan.duckdns.org/crypto-api/v1/math/cf
 https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
@@ -1052,6 +1054,8 @@ http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/math/legendre
 http://127.0.0.1:8089/v1/math/sqrtmod
 http://127.0.0.1:8089/v1/math/factor
+http://127.0.0.1:8089/v1/math/totient
+http://127.0.0.1:8089/v1/math/order
 http://127.0.0.1:8089/v1/math/crt
 http://127.0.0.1:8089/v1/math/cf
 http://127.0.0.1:8089/v1/math/ecadd
@@ -1090,6 +1094,14 @@ http://127.0.0.1:8089/v1/hmac/verify
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/factor</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/totient</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/order</code></td>
       <td>None</td>
     </tr>
     <tr>
@@ -1306,6 +1318,22 @@ http://127.0.0.1:8089/v1/hmac/verify
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">360</span><span class="p">,</span><span class="w"> </span><span class="nl">"factors"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nl">"prime"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nl">"power"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}],</span><span class="w"> </span><span class="nl">"prime_factors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w"> </span><span class="nl">"expression"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2^3 * 3^2 * 5"</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_prime"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="eulers-totient-carmichael-function">Euler's totient &amp; Carmichael function</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/totient?n=360"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">360</span><span class="p">,</span><span class="w"> </span><span class="nl">"phi"</span><span class="p">:</span><span class="w"> </span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="nl">"lambda"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_cyclic"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="multiplicative-order-primitive-roots">Multiplicative order &amp; primitive roots</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/order?a=3&amp;m=7"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"m"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nl">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_primitive_root"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h4 id="chinese-remainder-theorem">Chinese Remainder Theorem</h4>

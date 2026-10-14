@@ -839,6 +839,8 @@ https://abhrankan.duckdns.org/crypto-api/v1/info
 https://abhrankan.duckdns.org/crypto-api/v1/math/legendre
 https://abhrankan.duckdns.org/crypto-api/v1/math/sqrtmod
 https://abhrankan.duckdns.org/crypto-api/v1/math/factor
+https://abhrankan.duckdns.org/crypto-api/v1/math/totient
+https://abhrankan.duckdns.org/crypto-api/v1/math/order
 https://abhrankan.duckdns.org/crypto-api/v1/math/crt
 https://abhrankan.duckdns.org/crypto-api/v1/math/cf
 https://abhrankan.duckdns.org/crypto-api/v1/math/ecadd
@@ -853,6 +855,8 @@ http://127.0.0.1:8089/v1/info
 http://127.0.0.1:8089/v1/math/legendre
 http://127.0.0.1:8089/v1/math/sqrtmod
 http://127.0.0.1:8089/v1/math/factor
+http://127.0.0.1:8089/v1/math/totient
+http://127.0.0.1:8089/v1/math/order
 http://127.0.0.1:8089/v1/math/crt
 http://127.0.0.1:8089/v1/math/cf
 http://127.0.0.1:8089/v1/math/ecadd
@@ -872,6 +876,8 @@ http://127.0.0.1:8089/v1/hmac/verify
 | `GET, POST /crypto-api/v1/math/legendre` | None |
 | `GET, POST /crypto-api/v1/math/sqrtmod` | None |
 | `GET, POST /crypto-api/v1/math/factor` | None |
+| `GET, POST /crypto-api/v1/math/totient` | None |
+| `GET, POST /crypto-api/v1/math/order` | None |
 | `GET, POST /crypto-api/v1/math/crt` | None |
 | `GET, POST /crypto-api/v1/math/cf` | None |
 | `GET, POST /crypto-api/v1/math/ecadd` | None |
@@ -1040,6 +1046,26 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/factor?n=360"
 
 ```json
 {"n": 360, "factors": [{"prime": 2, "power": 3}, {"prime": 3, "power": 2}, {"prime": 5, "power": 1}], "prime_factors": [2, 3, 5], "expression": "2^3 * 3^2 * 5", "is_prime": false}
+```
+
+#### Euler's totient & Carmichael function
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/totient?n=360"
+```
+
+```json
+{"n": 360, "phi": 96, "lambda": 12, "is_cyclic": false}
+```
+
+#### Multiplicative order & primitive roots
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/order?a=3&m=7"
+```
+
+```json
+{"a": 3, "m": 7, "order": 6, "is_primitive_root": true}
 ```
 
 #### Chinese Remainder Theorem
