@@ -64,7 +64,7 @@
   <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.4.0</code>, introducing pure Rust modular order and totient primitives:
     <ul>
       <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/totient</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/totient</code>: Euler's totient $\phi(n)$, Carmichael's $\lambda(n)$, and cyclic group detection.</li>
-      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/order</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/order</code>: multiplicative order $\operatorname{ord}_m(a)$ via prime-factor stripping over $\lambda(m)$ and primitive root verification.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/order</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/order</code>: multiplicative order $\mathrm{ord}_m(a)$ via prime-factor stripping over $\lambda(m)$ and primitive root verification.</li>
       <li>Added <code class="language-plaintext highlighter-rouge">totient</code> topic to seeded challenge generator (<code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/challenge</code>) and interactive challenge mode on <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
       <li>Added dedicated Pollard's $\rho$ integer factorization card to <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
     </ul>

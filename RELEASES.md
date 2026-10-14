@@ -7,7 +7,7 @@
 #### Added
 - Upgraded `crypto-lab` to `v0.4.0`, introducing pure Rust modular order and totient primitives:
   - `GET /crypto-api/v1/math/totient` & `POST /crypto-api/v1/math/totient`: Euler's totient $\phi(n)$, Carmichael's $\lambda(n)$, and cyclic group detection.
-  - `GET /crypto-api/v1/math/order` & `POST /crypto-api/v1/math/order`: multiplicative order $\operatorname{ord}_m(a)$ via prime-factor stripping over $\lambda(m)$ and primitive root verification.
+  - `GET /crypto-api/v1/math/order` & `POST /crypto-api/v1/math/order`: multiplicative order $\mathrm{ord}_m(a)$ via prime-factor stripping over $\lambda(m)$ and primitive root verification.
   - Added `"totient"` topic to seeded challenge generator (`/crypto-api/v1/math/challenge`) and interactive challenge mode on `lab.html`.
   - Added dedicated Pollard's $\rho$ integer factorization card to `lab.html`.
 - Updated FoxMath project highlights in `projects.html`.
