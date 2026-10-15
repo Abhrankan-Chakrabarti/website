@@ -1068,7 +1068,18 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/legendre?a=10&p=13"
 
 Evaluates the Jacobi symbol $(a/n)$ for odd positive integer $n$ via quadratic reciprocity without factoring:
 
+- **Methods**: `GET /crypto-api/v1/math/jacobi?a={a}&n={n}` or `POST /crypto-api/v1/math/jacobi`
+- **Request parameters / payload**:
+  - `a` (integer, required): Numerator integer (can be positive, negative, or zero).
+  - `n` (integer, required): Modulus integer. Must be a positive odd integer ($n \ge 1$, $n \equiv 1 \pmod 2$).
+- **Response**:
+  - `a` (integer): Echo of input $a$.
+  - `n` (integer): Echo of modulus $n$.
+  - `value` (integer): Jacobi symbol $(a/n) \in \{1, -1, 0\}$ ($1$ indicates quadratic residue or pseudo-residue, $-1$ quadratic non-residue, $0$ indicates $\gcd(a, n) > 1$). Note: $(a/1) = 1$ for all $a$.
+- **Errors**: `400 Bad Request` if $n < 1$, $n$ is even, or inputs are not valid 64-bit integers.
+
 ```bash
+# GET via query parameters
 curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi?a=10&n=21"
 ```
 
@@ -1076,16 +1087,51 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi?a=10&n=21"
 {"a": 10, "n": 21, "value": -1}
 ```
 
+```bash
+# POST via JSON payload
+curl -sS -H "Content-Type: application/json" \
+  -d '{"a": 2, "n": 15}' \
+  https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi
+```
+
+```json
+{"a": 2, "n": 15, "value": 1}
+```
+
 #### Solovay–Strassen primality test
 
 Probabilistic primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ for $k$ random bases $a$:
 
+- **Methods**: `GET /crypto-api/v1/math/solovay?n={n}&rounds={k}&seed={s}` or `POST /crypto-api/v1/math/solovay`
+- **Request parameters / payload**:
+  - `n` (integer, required): Candidate integer to test. Must be an integer $\ge 2$.
+  - `rounds` (integer, optional): Number of randomized bases to test, $1 \le \text{rounds} \le 100$ (default: `20`, guaranteeing error probability $\le 2^{-20} \approx 9.5 \times 10^{-7}$).
+  - `seed` (integer, optional): Optional 64-bit unsigned integer seed for deterministic PRNG sequences.
+- **Response**:
+  - `n` (integer): Tested candidate.
+  - `rounds` (integer): Number of verification rounds executed.
+  - `is_prime` (boolean): `true` if candidate is probably prime; `false` if an Euler witness proved composite.
+  - `method` (string): Primality test identifier (`"solovay_strassen"`).
+- **Errors**: `400 Bad Request` if $n < 2$, `rounds` not in $[1, 100]$, or inputs are non-integers.
+
 ```bash
+# GET via query parameters (probable prime)
 curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/solovay?n=104729&rounds=20"
 ```
 
 ```json
 {"n": 104729, "rounds": 20, "is_prime": true, "method": "solovay_strassen"}
+```
+
+```bash
+# POST via JSON payload (detects Carmichael composite)
+curl -sS -H "Content-Type: application/json" \
+  -d '{"n": 561, "rounds": 20, "seed": 42}' \
+  https://abhrankan.duckdns.org/crypto-api/v1/math/solovay
+```
+
+```json
+{"n": 561, "rounds": 20, "is_prime": false, "method": "solovay_strassen"}
 ```
 
 #### Modular square root (Tonelli-Shanks)
@@ -1226,7 +1272,7 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/challenge?topic=mixed
 - No binary or base64 input in this contract
 - Body ≤ 64 KiB; each of `data`, `key`, `mac` ≤ 32 KiB
 - `200` — success (including `valid: false` verification)
-- `400` — bad algorithm, malformed MAC hex, invalid query params, or math domain error (e.g., non-prime modulus, quadratic non-residue in sqrtmod, zero denominator, negative scalar)
+- `400` — bad algorithm, malformed MAC hex, invalid query params, or math domain error (e.g., non-prime modulus, non-odd modulus in jacobi, candidate < 2 in solovay, quadratic non-residue in sqrtmod, zero denominator, negative scalar)
 - `401` — missing/invalid Basic Auth at Nginx for protected operations
 - `413` — body or field too large
 - `415` — non-JSON operation request

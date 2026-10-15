@@ -1368,20 +1368,78 @@ http://127.0.0.1:8089/v1/hmac/verify
 
 <p>Evaluates the Jacobi symbol $(a/n)$ for odd positive integer $n$ via quadratic reciprocity without factoring:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi?a=10&amp;n=21"</span>
+<ul>
+  <li><strong>Methods</strong>: <code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/jacobi?a={a}&amp;n={n}</code> or <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/jacobi</code></li>
+  <li><strong>Request parameters / payload</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">a</code> (integer, required): Numerator integer (can be positive, negative, or zero).</li>
+      <li><code class="language-plaintext highlighter-rouge">n</code> (integer, required): Modulus integer. Must be a positive odd integer ($n \ge 1$, $n \equiv 1 \pmod 2$).</li>
+    </ul>
+  </li>
+  <li><strong>Response</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">a</code> (integer): Echo of input $a$.</li>
+      <li><code class="language-plaintext highlighter-rouge">n</code> (integer): Echo of modulus $n$.</li>
+      <li><code class="language-plaintext highlighter-rouge">value</code> (integer): Jacobi symbol $(a/n) \in \{1, -1, 0\}$ ($1$ indicates quadratic residue or pseudo-residue, $-1$ quadratic non-residue, $0$ indicates $\gcd(a, n) > 1$). Note: $(a/1) = 1$ for all $a$.</li>
+    </ul>
+  </li>
+  <li><strong>Errors</strong>: <code class="language-plaintext highlighter-rouge">400 Bad Request</code> if $n &lt; 1$, $n$ is even, or inputs are not valid 64-bit integers.</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># GET via query parameters</span>
+curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi?a=10&amp;n=21"</span>
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># POST via JSON payload</span>
+curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"a": 2, "n": 15}'</span> <span class="se">\</span>
+  https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h4 id="solovay-strassen-primality-test">Solovay–Strassen primality test</h4>
 
 <p>Probabilistic primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ for $k$ random bases $a$:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/solovay?n=104729&amp;rounds=20"</span>
+<ul>
+  <li><strong>Methods</strong>: <code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/solovay?n={n}&amp;rounds={k}&amp;seed={s}</code> or <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/solovay</code></li>
+  <li><strong>Request parameters / payload</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">n</code> (integer, required): Candidate integer to test. Must be an integer $\ge 2$.</li>
+      <li><code class="language-plaintext highlighter-rouge">rounds</code> (integer, optional): Number of randomized bases to test, $1 \le \text{rounds} \le 100$ (default: <code class="language-plaintext highlighter-rouge">20</code>, guaranteeing error probability $\le 2^{-20} \approx 9.5 \times 10^{-7}$).</li>
+      <li><code class="language-plaintext highlighter-rouge">seed</code> (integer, optional): Optional 64-bit unsigned integer seed for deterministic PRNG sequences.</li>
+    </ul>
+  </li>
+  <li><strong>Response</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">n</code> (integer): Tested candidate.</li>
+      <li><code class="language-plaintext highlighter-rouge">rounds</code> (integer): Number of verification rounds executed.</li>
+      <li><code class="language-plaintext highlighter-rouge">is_prime</code> (boolean): <code class="language-plaintext highlighter-rouge">true</code> if candidate is probably prime; <code class="language-plaintext highlighter-rouge">false</code> if an Euler witness proved composite.</li>
+      <li><code class="language-plaintext highlighter-rouge">method</code> (string): Primality test identifier (<code class="language-plaintext highlighter-rouge">"solovay_strassen"</code>).</li>
+    </ul>
+  </li>
+  <li><strong>Errors</strong>: <code class="language-plaintext highlighter-rouge">400 Bad Request</code> if $n &lt; 2$, <code class="language-plaintext highlighter-rouge">rounds</code> not in $[1, 100]$, or inputs are non-integers.</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># GET via query parameters (probable prime)</span>
+curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/solovay?n=104729&amp;rounds=20"</span>
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">104729</span><span class="p">,</span><span class="w"> </span><span class="nl">"rounds"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_prime"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"solovay_strassen"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># POST via JSON payload (detects Carmichael composite)</span>
+curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"n": 561, "rounds": 20, "seed": 42}'</span> <span class="se">\</span>
+  https://abhrankan.duckdns.org/crypto-api/v1/math/solovay
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">561</span><span class="p">,</span><span class="w"> </span><span class="nl">"rounds"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_prime"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"solovay_strassen"</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h4 id="modular-square-root-tonelli-shanks">Modular square root (Tonelli-Shanks)</h4>
@@ -1497,7 +1555,7 @@ http://127.0.0.1:8089/v1/hmac/verify
   <li>No binary or base64 input in this contract</li>
   <li>Body ≤ 64 KiB; each of <code class="language-plaintext highlighter-rouge">data</code>, <code class="language-plaintext highlighter-rouge">key</code>, <code class="language-plaintext highlighter-rouge">mac</code> ≤ 32 KiB</li>
   <li><code class="language-plaintext highlighter-rouge">200</code> — success (including <code class="language-plaintext highlighter-rouge">valid: false</code> verification)</li>
-  <li><code class="language-plaintext highlighter-rouge">400</code> — bad algorithm, malformed MAC hex, invalid query params, or math domain error (e.g., non-prime modulus, quadratic non-residue in sqrtmod, zero denominator, negative scalar)</li>
+  <li><code class="language-plaintext highlighter-rouge">400</code> — bad algorithm, malformed MAC hex, invalid query params, or math domain error (e.g., non-prime modulus, non-odd modulus in jacobi, candidate &lt; 2 in solovay, quadratic non-residue in sqrtmod, zero denominator, negative scalar)</li>
   <li><code class="language-plaintext highlighter-rouge">401</code> — missing/invalid Basic Auth at Nginx for protected operations</li>
   <li><code class="language-plaintext highlighter-rouge">413</code> — body or field too large</li>
   <li><code class="language-plaintext highlighter-rouge">415</code> — non-JSON operation request</li>
