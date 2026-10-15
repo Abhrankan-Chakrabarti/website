@@ -1,5 +1,20 @@
 # Releases
 
+### [v0.9.8] — 2026-10-15
+
+**Jacobi symbol, Solovay–Strassen primality test & crypto-lab v0.6.0.**
+
+#### Added
+- Upgraded `crypto-lab` to `v0.6.0`, introducing quadratic reciprocity and probabilistic primality primitives:
+  - `GET /crypto-api/v1/math/jacobi` & `POST /crypto-api/v1/math/jacobi`: evaluates the Jacobi symbol $(a/n)$ for odd positive integers $n$ in $O(\log n)$ Euclidean steps using quadratic reciprocity without integer factorization.
+  - `GET /crypto-api/v1/math/solovay` & `POST /crypto-api/v1/math/solovay`: Solovay–Strassen randomized primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ across $k$ rounds with error probability bounded by $2^{-k}$.
+  - Added `"jacobi"` topic to seeded challenge generator (`/crypto-api/v1/math/challenge`) and interactive challenge mode on `lab.html`.
+  - Added interactive cards for **Jacobi symbol** (`#crypto-jacobi-form`) and **Solovay–Strassen test** (`#crypto-solovay-form`) to `lab.html` with real-time telemetry and cURL buttons.
+- Updated `API.md` and `API.html` with contract documentation, examples, and updated endpoint catalogue (39 total endpoints).
+- All 35 `crypto-lab` unit and HTTP integration tests passing with 0 compiler or Clippy warnings.
+
+---
+
 ### [v0.9.7] — 2026-10-14
 
 **Unified arithmetic suite (/v1/math/arith), telemetry race condition fix & crypto-lab v0.5.1.**

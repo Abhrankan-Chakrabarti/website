@@ -933,6 +933,8 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **HMAC** | Tag over `data` under a shared `key`. Verifier needs the same key. |
 | **Verify** | Recomputes the tag and compares in **constant time**. Wrong but well-formed MAC → `200` + `"valid": false`. Malformed hex → `400`. |
 | **Legendre** | Euler's criterion $(a/p)$ over odd prime $p$. Returns $1$, $-1$, or $0$. |
+| **Jacobi** | Evaluates the Jacobi symbol $(a/n)$ for odd positive $n$ via quadratic reciprocity in $O(\log n)$ without factoring. |
+| **Solovay–Strassen** | Probabilistic primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ with error bound $\le 2^{-\text{rounds}}$. |
 | **SqrtMod** | Tonelli-Shanks modular square roots modulo odd prime $p$. Returns positive roots. |
 | **CRT** | Extended Euclidean GCD solver for simultaneous modular congruences. |
 | **CF** | Continued fraction expansions and rational convergents for $num/den$. |
@@ -951,7 +953,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -960,6 +962,10 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "POST /v1/hmac/verify",
     "GET /v1/math/legendre",
     "POST /v1/math/legendre",
+    "GET /v1/math/jacobi",
+    "POST /v1/math/jacobi",
+    "GET /v1/math/solovay",
+    "POST /v1/math/solovay",
     "GET /v1/math/sqrtmod",
     "POST /v1/math/sqrtmod",
     "GET /v1/math/factor",
@@ -1056,6 +1062,30 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/legendre?a=10&p=13"
 
 ```json
 {"a": 10, "p": 13, "value": 1}
+```
+
+#### Jacobi symbol
+
+Evaluates the Jacobi symbol $(a/n)$ for odd positive integer $n$ via quadratic reciprocity without factoring:
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi?a=10&n=21"
+```
+
+```json
+{"a": 10, "n": 21, "value": -1}
+```
+
+#### Solovay–Strassen primality test
+
+Probabilistic primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ for $k$ random bases $a$:
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/solovay?n=104729&rounds=20"
+```
+
+```json
+{"n": 104729, "rounds": 20, "is_prime": true, "method": "solovay_strassen"}
 ```
 
 #### Modular square root (Tonelli-Shanks)

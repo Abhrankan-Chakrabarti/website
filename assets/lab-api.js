@@ -154,6 +154,18 @@ const cryptoArithK = document.querySelector("#crypto-arith-k");
 const cryptoArithResult = document.querySelector("#crypto-arith-result");
 const clearCryptoArithButton = document.querySelector("#clear-crypto-arith");
 
+const cryptoJacobiForm = document.querySelector("#crypto-jacobi-form");
+const cryptoJacobiA = document.querySelector("#crypto-jacobi-a");
+const cryptoJacobiN = document.querySelector("#crypto-jacobi-n");
+const cryptoJacobiResult = document.querySelector("#crypto-jacobi-result");
+const clearCryptoJacobiButton = document.querySelector("#clear-crypto-jacobi");
+
+const cryptoSolovayForm = document.querySelector("#crypto-solovay-form");
+const cryptoSolovayN = document.querySelector("#crypto-solovay-n");
+const cryptoSolovayRounds = document.querySelector("#crypto-solovay-rounds");
+const cryptoSolovayResult = document.querySelector("#crypto-solovay-result");
+const clearCryptoSolovayButton = document.querySelector("#clear-crypto-solovay");
+
 const challengeForm = document.querySelector("#challenge-form");
 const challengeTopic = document.querySelector("#challenge-topic");
 const challengeSeed = document.querySelector("#challenge-seed");
@@ -1727,6 +1739,87 @@ function clearCryptoArith() {
   clearTelemetry(cryptoArithResult);
 }
 
+async function runCryptoJacobi(event) {
+  event.preventDefault();
+  const aRaw = cryptoJacobiA.value.trim();
+  const nRaw = cryptoJacobiN.value.trim();
+  const a = Number(aRaw);
+  const n = Number(nRaw);
+  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(n) || n < 1 || n % 2 === 0) {
+    cryptoJacobiResult.textContent = "Enter integer a and a positive odd integer n ≥ 1.";
+    return;
+  }
+  const button = cryptoJacobiForm.querySelector("button[type='submit']");
+  cryptoJacobiResult.textContent = "Computing (a/n)...";
+  setBusy(button, true, "Computing");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/jacobi?a=${encodeURIComponent(a)}&n=${encodeURIComponent(n)}`,
+      {},
+      cryptoJacobiResult,
+    );
+    const desc =
+      data.value === 1
+        ? "Jacobi symbol = 1"
+        : data.value === -1
+          ? "Jacobi symbol = -1 (quadratic non-residue)"
+          : "gcd(a, n) > 1";
+    cryptoJacobiResult.innerHTML = `(${data.a}/${data.n}) = <strong>${data.value}</strong> <em>(${desc})</em>`;
+  } catch (error) {
+    cryptoJacobiResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Computing");
+  }
+}
+
+function clearCryptoJacobi() {
+  cryptoJacobiA.value = "10";
+  cryptoJacobiN.value = "21";
+  cryptoJacobiResult.textContent = "Enter integer a and positive odd integer n.";
+  clearTelemetry(cryptoJacobiResult);
+}
+
+async function runCryptoSolovay(event) {
+  event.preventDefault();
+  const nRaw = cryptoSolovayN.value.trim();
+  const roundsRaw = cryptoSolovayRounds.value.trim();
+  if (!/^[1-9]\d*$/.test(nRaw) || Number(nRaw) < 2) {
+    cryptoSolovayResult.textContent = "Enter a valid integer n ≥ 2.";
+    return;
+  }
+  const rounds = roundsRaw === "" ? 20 : Number(roundsRaw);
+  if (!Number.isSafeInteger(rounds) || rounds < 1 || rounds > 100) {
+    cryptoSolovayResult.textContent = "Rounds must be an integer between 1 and 100.";
+    return;
+  }
+  const button = cryptoSolovayForm.querySelector("button[type='submit']");
+  cryptoSolovayResult.textContent = "Testing primality...";
+  setBusy(button, true, "Testing");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/solovay?n=${encodeURIComponent(nRaw)}&rounds=${encodeURIComponent(rounds)}`,
+      {},
+      cryptoSolovayResult,
+    );
+    if (data.is_prime) {
+      cryptoSolovayResult.innerHTML = `<strong>${data.n}</strong> is <strong>probably prime</strong> (Solovay–Strassen, ${data.rounds} rounds, error &le; 2<sup>-${data.rounds}</sup>)`;
+    } else {
+      cryptoSolovayResult.innerHTML = `<strong>${data.n}</strong> is <strong>composite</strong> (Euler witness found)`;
+    }
+  } catch (error) {
+    cryptoSolovayResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Testing");
+  }
+}
+
+function clearCryptoSolovay() {
+  cryptoSolovayN.value = "104729";
+  cryptoSolovayRounds.value = "20";
+  cryptoSolovayResult.textContent = "Enter integer n > 1 and rounds k.";
+  clearTelemetry(cryptoSolovayResult);
+}
+
 async function runChallenge(event) {
   event.preventDefault();
   const topic = challengeTopic.value;
@@ -1839,6 +1932,10 @@ cryptoDlogForm?.addEventListener("submit", runCryptoDlog);
 clearCryptoDlogButton?.addEventListener("click", clearCryptoDlog);
 cryptoArithForm?.addEventListener("submit", runCryptoArith);
 clearCryptoArithButton?.addEventListener("click", clearCryptoArith);
+cryptoJacobiForm?.addEventListener("submit", runCryptoJacobi);
+clearCryptoJacobiButton?.addEventListener("click", clearCryptoJacobi);
+cryptoSolovayForm?.addEventListener("submit", runCryptoSolovay);
+clearCryptoSolovayButton?.addEventListener("click", clearCryptoSolovay);
 challengeForm?.addEventListener("submit", runChallenge);
 clearChallengeButton?.addEventListener("click", clearChallenge);
 

@@ -539,6 +539,38 @@
               <output id="crypto-arith-result" class="lab-result" aria-live="polite">Enter positive integer n (up to 2⁶³ - 1).</output>
             </form>
 
+            <form id="crypto-jacobi-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Quadratic reciprocity</p>
+                <h3>Jacobi symbol (a/n)</h3>
+              </div>
+              <label for="crypto-jacobi-a">Integer (a)</label>
+              <input id="crypto-jacobi-a" name="a" type="number" value="10" required>
+              <label for="crypto-jacobi-n">Positive odd integer (n &ge; 1)</label>
+              <input id="crypto-jacobi-n" name="n" type="number" min="1" step="2" value="21" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Compute (a/n)</button>
+                <button id="clear-crypto-jacobi" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-jacobi-result" class="lab-result" aria-live="polite">Enter integer a and positive odd integer n.</output>
+            </form>
+
+            <form id="crypto-solovay-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Primality testing</p>
+                <h3>Solovay&ndash;Strassen test</h3>
+              </div>
+              <label for="crypto-solovay-n">Integer to test (n &gt; 1)</label>
+              <input id="crypto-solovay-n" name="n" type="text" inputmode="numeric" value="104729" required>
+              <label for="crypto-solovay-rounds">Rounds (k, default 20)</label>
+              <input id="crypto-solovay-rounds" name="rounds" type="number" min="1" max="100" value="20">
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Test primality</button>
+                <button id="clear-crypto-solovay" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-solovay-result" class="lab-result" aria-live="polite">Enter integer n &gt; 1 and rounds k.</output>
+            </form>
+
             <form id="challenge-form" class="lab-form crypto-tool">
               <div>
                 <p class="lab-eyebrow">Practice mode</p>
@@ -548,6 +580,7 @@
               <select id="challenge-topic" name="topic">
                 <option value="mixed">Mixed challenges</option>
                 <option value="legendre">Legendre symbol</option>
+                <option value="jacobi">Jacobi symbol</option>
                 <option value="sqrtmod">Modular square root</option>
                 <option value="factor">Prime factorization</option>
                 <option value="totient">Euler's totient</option>

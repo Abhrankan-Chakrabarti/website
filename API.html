@@ -1215,6 +1215,14 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>Euler’s criterion $(a/p)$ over odd prime $p$. Returns $1$, $-1$, or $0$.</td>
     </tr>
     <tr>
+      <td><strong>Jacobi</strong></td>
+      <td>Evaluates the Jacobi symbol $(a/n)$ for odd positive $n$ via quadratic reciprocity in $O(\log n)$ without factoring.</td>
+    </tr>
+    <tr>
+      <td><strong>Solovay–Strassen</strong></td>
+      <td>Probabilistic primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ with error bound $\le 2^{-\text{rounds}}$.</td>
+    </tr>
+    <tr>
       <td><strong>SqrtMod</strong></td>
       <td>Tonelli-Shanks modular square roots modulo odd prime $p$. Returns positive roots.</td>
     </tr>
@@ -1253,7 +1261,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.5.1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.6.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1262,6 +1270,10 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"POST /v1/hmac/verify"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/legendre"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/legendre"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/jacobi"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/jacobi"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/solovay"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/solovay"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/sqrtmod"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/sqrtmod"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/factor"</span><span class="p">,</span><span class="w">
@@ -1350,6 +1362,26 @@ http://127.0.0.1:8089/v1/hmac/verify
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="jacobi-symbol">Jacobi symbol</h4>
+
+<p>Evaluates the Jacobi symbol $(a/n)$ for odd positive integer $n$ via quadratic reciprocity without factoring:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/jacobi?a=10&amp;n=21"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="solovay-strassen-primality-test">Solovay–Strassen primality test</h4>
+
+<p>Probabilistic primality test verifying Euler's criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ for $k$ random bases $a$:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/solovay?n=104729&amp;rounds=20"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">104729</span><span class="p">,</span><span class="w"> </span><span class="nl">"rounds"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nl">"is_prime"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"solovay_strassen"</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h4 id="modular-square-root-tonelli-shanks">Modular square root (Tonelli-Shanks)</h4>

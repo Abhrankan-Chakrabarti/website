@@ -55,6 +55,26 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v098--2026-10-15">[v0.9.8] — 2026-10-15</h3>
+
+<p><strong>Jacobi symbol, Solovay–Strassen primality test &amp; crypto-lab v0.6.0.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.6.0</code>, introducing quadratic reciprocity and probabilistic primality primitives:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/jacobi</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/jacobi</code>: evaluates the Jacobi symbol $(a/n)$ for odd positive integers $n$ in $O(\log n)$ Euclidean steps using quadratic reciprocity without integer factorization.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/solovay</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/solovay</code>: Solovay–Strassen randomized primality test verifying Euler’s criterion $a^{(n-1)/2} \equiv (a/n) \pmod n$ across $k$ rounds with error probability bounded by $2^{-k}$.</li>
+      <li>Added <code class="language-plaintext highlighter-rouge">"jacobi"</code> topic to seeded challenge generator (<code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/challenge</code>) and interactive challenge mode on <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+      <li>Added interactive cards for <strong>Jacobi symbol</strong> (<code class="language-plaintext highlighter-rouge">#crypto-jacobi-form</code>) and <strong>Solovay–Strassen test</strong> (<code class="language-plaintext highlighter-rouge">#crypto-solovay-form</code>) to <code class="language-plaintext highlighter-rouge">lab.html</code> with real-time telemetry and cURL buttons.</li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code> with contract documentation, examples, and updated endpoint catalogue (39 total endpoints).</li>
+  <li>All 35 <code class="language-plaintext highlighter-rouge">crypto-lab</code> unit and HTTP integration tests passing with 0 compiler or Clippy warnings.</li>
+</ul>
+
+<hr />
+
 <h3 id="v097--2026-10-14">[v0.9.7] — 2026-10-14</h3>
 
 <p><strong>Unified arithmetic suite (/v1/math/arith), telemetry race condition fix &amp; crypto-lab v0.5.1.</strong></p>
