@@ -26,6 +26,22 @@ body {
   line-height: 1.5;
 }
 
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
 button,
 input {
   font: inherit;
@@ -482,11 +498,16 @@ header nav a.active {
 }
 
 .lab-form label {
-  display: grid;
-  gap: 6px;
+  display: block;
   color: var(--lab-muted);
   font-size: 0.95rem;
   font-weight: 650;
+}
+
+.lab-auth-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .lab-form [hidden] {
