@@ -1149,6 +1149,34 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>None</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/rsa/keygen</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/rsa/encrypt</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/rsa/decrypt</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/rsa/crack</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/dh/keygen</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/dh/derive</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/dh/crack</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code></td>
       <td>Nginx Basic Auth</td>
     </tr>
@@ -1250,6 +1278,34 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td><strong>Challenge</strong></td>
       <td>Deterministic seeded problem generator for practice and self-study.</td>
     </tr>
+    <tr>
+      <td><strong>RSA Keygen</strong></td>
+      <td>Generates $p, q, n, e, d, \phi, \lambda, d_p, d_q, q_{\text{inv}}$ for textbook RSA ($8 \le \text{bits} \le 62$).</td>
+    </tr>
+    <tr>
+      <td><strong>RSA Encrypt</strong></td>
+      <td>Computes ciphertext $c \equiv m^e \pmod n$.</td>
+    </tr>
+    <tr>
+      <td><strong>RSA Decrypt</strong></td>
+      <td>Decrypts $m \equiv c^d \pmod n$ with optional Chinese Remainder Theorem (CRT) acceleration.</td>
+    </tr>
+    <tr>
+      <td><strong>RSA Crack</strong></td>
+      <td>Modulus factoring attack via Pollard $\rho$; recovers $p, q, d$ and decrypts ciphertext.</td>
+    </tr>
+    <tr>
+      <td><strong>DH Keygen</strong></td>
+      <td>Generates Diffie–Hellman private key $a$ and public key $A \equiv g^a \pmod p$.</td>
+    </tr>
+    <tr>
+      <td><strong>DH Derive</strong></td>
+      <td>Derives shared secret $S \equiv B^a \pmod p$ from peer's public key $B$.</td>
+    </tr>
+    <tr>
+      <td><strong>DH Crack</strong></td>
+      <td>Recovers private exponent $a$ via Baby-step Giant-step discrete logarithm solver.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -1261,7 +1317,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.6.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.7.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1301,7 +1357,21 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"GET /v1/math/ecmul"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/ecmul"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/challenge"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/math/challenge"</span><span class="w">
+    </span><span class="s2">"POST /v1/math/challenge"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/rsa/keygen"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/rsa/keygen"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/rsa/encrypt"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/rsa/encrypt"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/rsa/decrypt"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/rsa/decrypt"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/rsa/crack"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/rsa/crack"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/dh/keygen"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/dh/keygen"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/dh/derive"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/dh/derive"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/dh/crack"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/dh/crack"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1544,6 +1614,76 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"topic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mixed"</span><span class="p">,</span><span class="w"> </span><span class="nl">"seed"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"problems"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"topic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sqrtmod"</span><span class="p">,</span><span class="w"> </span><span class="nl">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smaller positive root of x² ≡ 12 (mod 13)"</span><span class="p">,</span><span class="w"> </span><span class="nl">"answer"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}]}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="rsa-keygen">Textbook RSA key generation</h4>
+
+<p>Generates a public/private keypair $(p, q, n, e, d, \phi, \lambda, d_p, d_q, q_{\text{inv}})$ with configurable bit length ($8 \le \text{bits} \le 62$, default 32):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/keygen?bits=32&amp;seed=42"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">60169</span><span class="p">,</span><span class="w"> </span><span class="nl">"q"</span><span class="p">:</span><span class="w"> </span><span class="mi">54979</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">3307991451</span><span class="p">,</span><span class="w"> </span><span class="nl">"e"</span><span class="p">:</span><span class="w"> </span><span class="mi">65537</span><span class="p">,</span><span class="w"> </span><span class="nl">"d"</span><span class="p">:</span><span class="w"> </span><span class="mi">100729793</span><span class="p">,</span><span class="w"> </span><span class="nl">"phi"</span><span class="p">:</span><span class="w"> </span><span class="mi">3307876304</span><span class="p">,</span><span class="w"> </span><span class="nl">"lambda"</span><span class="p">:</span><span class="w"> </span><span class="mi">1653938152</span><span class="p">,</span><span class="w"> </span><span class="nl">"dp"</span><span class="p">:</span><span class="w"> </span><span class="mi">48113</span><span class="p">,</span><span class="w"> </span><span class="nl">"dq"</span><span class="p">:</span><span class="w"> </span><span class="mi">32805</span><span class="p">,</span><span class="w"> </span><span class="nl">"qinv"</span><span class="p">:</span><span class="w"> </span><span class="mi">53066</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="rsa-encrypt">Textbook RSA encryption</h4>
+
+<p>Encrypts integer plaintext $m$ under public key $(e, n)$ via $c \equiv m^e \pmod n$:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/encrypt?m=42&amp;e=65537&amp;n=3233"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"m"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="nl">"e"</span><span class="p">:</span><span class="w"> </span><span class="mi">65537</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">3233</span><span class="p">,</span><span class="w"> </span><span class="nl">"c"</span><span class="p">:</span><span class="w"> </span><span class="mi">2557</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="rsa-decrypt">Textbook RSA decryption</h4>
+
+<p>Decrypts ciphertext $c$ under private exponent $d$ via $m \equiv c^d \pmod n$ with optional CRT speedup:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/decrypt?c=2557&amp;d=2753&amp;n=3233&amp;p=61&amp;q=53"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"c"</span><span class="p">:</span><span class="w"> </span><span class="mi">2557</span><span class="p">,</span><span class="w"> </span><span class="nl">"d"</span><span class="p">:</span><span class="w"> </span><span class="mi">2753</span><span class="p">,</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">3233</span><span class="p">,</span><span class="w"> </span><span class="nl">"m"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="nl">"crt_used"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="rsa-crack">RSA modulus factoring attack</h4>
+
+<p>Factors modulus $n$ via Pollard $\rho$, derives private key $d$, and decrypts ciphertext $c$:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/crack?n=3233&amp;e=17&amp;c=2557"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">3233</span><span class="p">,</span><span class="w"> </span><span class="nl">"e"</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">61</span><span class="p">,</span><span class="w"> </span><span class="nl">"q"</span><span class="p">:</span><span class="w"> </span><span class="mi">53</span><span class="p">,</span><span class="w"> </span><span class="nl">"phi"</span><span class="p">:</span><span class="w"> </span><span class="mi">3120</span><span class="p">,</span><span class="w"> </span><span class="nl">"lambda"</span><span class="p">:</span><span class="w"> </span><span class="mi">780</span><span class="p">,</span><span class="w"> </span><span class="nl">"d"</span><span class="p">:</span><span class="w"> </span><span class="mi">2753</span><span class="p">,</span><span class="w"> </span><span class="nl">"c"</span><span class="p">:</span><span class="w"> </span><span class="mi">2557</span><span class="p">,</span><span class="w"> </span><span class="nl">"m"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="dh-keygen">Diffie–Hellman key generation</h4>
+
+<p>Generates public key $A \equiv g^a \pmod p$ from private scalar $a$:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/dh/keygen?p=23&amp;g=5&amp;private_key=6"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="nl">"g"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nl">"private_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nl">"public_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="dh-derive">Diffie–Hellman shared secret derivation</h4>
+
+<p>Derives shared secret $S \equiv B^a \pmod p$:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/dh/derive?private_key=6&amp;peer_public_key=19&amp;p=23"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"private_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="nl">"peer_public_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="nl">"shared_secret"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="dh-crack">Diffie–Hellman discrete log attack</h4>
+
+<p>Solves discrete log $g^a \equiv A \pmod p$ via Baby-step Giant-step to recover private key $a$:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/dh/crack?g=5&amp;public_key=8&amp;p=23"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"g"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nl">"public_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="nl">"private_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>

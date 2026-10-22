@@ -895,6 +895,13 @@ http://127.0.0.1:8089/v1/hmac/verify
 | `GET, POST /crypto-api/v1/math/ecadd` | None |
 | `GET, POST /crypto-api/v1/math/ecmul` | None |
 | `GET, POST /crypto-api/v1/math/challenge` | None |
+| `GET, POST /crypto-api/v1/math/rsa/keygen` | None |
+| `GET, POST /crypto-api/v1/math/rsa/encrypt` | None |
+| `GET, POST /crypto-api/v1/math/rsa/decrypt` | None |
+| `GET, POST /crypto-api/v1/math/rsa/crack` | None |
+| `GET, POST /crypto-api/v1/math/dh/keygen` | None |
+| `GET, POST /crypto-api/v1/math/dh/derive` | None |
+| `GET, POST /crypto-api/v1/math/dh/crack` | None |
 | `POST /crypto-api/v1/hash` | Nginx Basic Auth |
 | `POST /crypto-api/v1/hmac` | Nginx Basic Auth |
 | `POST /crypto-api/v1/hmac/verify` | Nginx Basic Auth |
@@ -942,6 +949,13 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **Dlog** | Discrete logarithm ($g^x \equiv h \pmod p$) via Baby-step Giant-step. |
 | **Arithmetic** | Foundational multiplicative functions: Möbius $\mu(n)$, divisor sum $\sigma_k(n)$, divisor count $\tau(n)$ via individual routes or unified suite (`/arith`). |
 | **Challenge** | Deterministic seeded problem generator for practice and self-study. |
+| **RSA Keygen** | Generates $p, q, n, e, d, \phi, \lambda, d_p, d_q, q_{\text{inv}}$ for textbook RSA ($8 \le \text{bits} \le 62$). |
+| **RSA Encrypt** | Computes ciphertext $c \equiv m^e \pmod n$. |
+| **RSA Decrypt** | Decrypts $m \equiv c^d \pmod n$ with optional Chinese Remainder Theorem (CRT) acceleration. |
+| **RSA Crack** | Modulus factoring attack via Pollard $\rho$; recovers $p, q, d$ and decrypts ciphertext. |
+| **DH Keygen** | Generates Diffie–Hellman private key $a$ and public key $A \equiv g^a \pmod p$. |
+| **DH Derive** | Derives shared secret $S \equiv B^a \pmod p$ from peer's public key $B$. |
+| **DH Crack** | Recovers private exponent $a$ via Baby-step Giant-step discrete logarithm solver. |
 
 ### Application information
 
@@ -953,7 +967,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -993,7 +1007,21 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/ecmul",
     "POST /v1/math/ecmul",
     "GET /v1/math/challenge",
-    "POST /v1/math/challenge"
+    "POST /v1/math/challenge",
+    "GET /v1/math/rsa/keygen",
+    "POST /v1/math/rsa/keygen",
+    "GET /v1/math/rsa/encrypt",
+    "POST /v1/math/rsa/encrypt",
+    "GET /v1/math/rsa/decrypt",
+    "POST /v1/math/rsa/decrypt",
+    "GET /v1/math/rsa/crack",
+    "POST /v1/math/rsa/crack",
+    "GET /v1/math/dh/keygen",
+    "POST /v1/math/dh/keygen",
+    "GET /v1/math/dh/derive",
+    "POST /v1/math/dh/derive",
+    "GET /v1/math/dh/crack",
+    "POST /v1/math/dh/crack"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1262,6 +1290,111 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/challenge?topic=mixed
 
 ```json
 {"topic": "mixed", "seed": 42, "count": 1, "problems": [{"topic": "sqrtmod", "question": "Smaller positive root of x² ≡ 12 (mod 13)", "answer": 5}]}
+```
+
+#### Textbook RSA key generation (`/v1/math/rsa/keygen`)
+
+Generates a public/private keypair $(p, q, n, e, d, \phi, \lambda, d_p, d_q, q_{\text{inv}})$ with configurable modulus bit length ($8 \le \text{bits} \le 62$, default `32`).
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/keygen?bits=32&seed=42"
+```
+
+```json
+{
+  "p": 60169,
+  "q": 54979,
+  "n": 3307991451,
+  "e": 65537,
+  "d": 100729793,
+  "phi": 3307876304,
+  "lambda": 1653938152,
+  "dp": 48113,
+  "dq": 32805,
+  "qinv": 53066
+}
+```
+
+#### Textbook RSA encryption (`/v1/math/rsa/encrypt`)
+
+Encrypts integer plaintext $m$ under public key $(e, n)$ via $c \equiv m^e \pmod n$. Validates $0 \le m < n$.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/encrypt?m=42&e=65537&n=3233"
+```
+
+```json
+{"m": 42, "e": 65537, "n": 3233, "c": 2557}
+```
+
+#### Textbook RSA decryption (`/v1/math/rsa/decrypt`)
+
+Decrypts ciphertext $c$ under private exponent $d$ via $m \equiv c^d \pmod n$. Supports Chinese Remainder Theorem (CRT) acceleration when prime factors $p$ and $q$ are supplied ($d_p \equiv d \pmod{p-1}$, $d_q \equiv d \pmod{q-1}$, $q_{\text{inv}} \equiv q^{-1} \pmod p$).
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/decrypt?c=2557&d=2753&n=3233&p=61&q=53"
+```
+
+```json
+{"c": 2557, "d": 2753, "n": 3233, "m": 42, "crt_used": true}
+```
+
+#### RSA modulus factoring attack (`/v1/math/rsa/crack`)
+
+Demonstrates textbook RSA cryptanalysis by factoring modulus $n$ via Pollard $\rho$, deriving $\lambda(n) = \mathrm{lcm}(p-1, q-1)$ and private exponent $d \equiv e^{-1} \pmod{\lambda(n)}$, and decrypting ciphertext $c$ if provided.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/rsa/crack?n=3233&e=17&c=2557"
+```
+
+```json
+{
+  "n": 3233,
+  "e": 17,
+  "p": 61,
+  "q": 53,
+  "phi": 3120,
+  "lambda": 780,
+  "d": 2753,
+  "c": 2557,
+  "m": 42
+}
+```
+
+#### Diffie–Hellman key generation (`/v1/math/dh/keygen`)
+
+Generates a Diffie–Hellman keypair: private scalar $a \in [2, p-2]$ and public key $A \equiv g^a \pmod p$.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dh/keygen?p=23&g=5&private_key=6"
+```
+
+```json
+{"p": 23, "g": 5, "private_key": 6, "public_key": 8}
+```
+
+#### Diffie–Hellman shared secret derivation (`/v1/math/dh/derive`)
+
+Derives shared secret $S \equiv B^a \pmod p$ given private scalar $a$ and peer's public key $B$.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dh/derive?private_key=6&peer_public_key=19&p=23"
+```
+
+```json
+{"private_key": 6, "peer_public_key": 19, "p": 23, "shared_secret": 2}
+```
+
+#### Diffie–Hellman discrete log attack (`/v1/math/dh/crack`)
+
+Solves the discrete logarithm $g^a \equiv A \pmod p$ via Baby-step Giant-step in $O(\sqrt{p})$ time and space, recovering private key $a$.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dh/crack?g=5&public_key=8&p=23"
+```
+
+```json
+{"g": 5, "public_key": 8, "p": 23, "private_key": 6}
 ```
 
 ### Input contract and status codes

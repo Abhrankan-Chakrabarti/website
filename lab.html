@@ -390,7 +390,7 @@
           </div>
           <p class="lab-muted">
             High-performance pure Rust number theory and Weierstrass elliptic curve arithmetic powered by
-            <code>crypto-lab</code> v0.6.0. Endpoints are unauthenticated and open for exploration.
+            <code>crypto-lab</code> v0.7.0. Endpoints are unauthenticated and open for exploration.
           </p>
 
           <div class="crypto-tools">
@@ -571,6 +571,110 @@
               <output id="crypto-solovay-result" class="lab-result" aria-live="polite">Enter integer n &gt; 1 and rounds k.</output>
             </form>
 
+            <form id="crypto-rsa-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Asymmetric encryption</p>
+                <h3>Textbook RSA cryptosystem</h3>
+              </div>
+              <label for="crypto-rsa-action">Operation</label>
+              <select id="crypto-rsa-action" name="action">
+                <option value="keygen">Key Generation (keygen)</option>
+                <option value="encrypt">Encryption (m^e mod n)</option>
+                <option value="decrypt">Decryption (c^d mod n with CRT)</option>
+                <option value="crack">Factoring Attack (Pollard's rho)</option>
+              </select>
+
+              <div id="crypto-rsa-keygen-group" class="crypto-rsa-group">
+                <label for="crypto-rsa-bits">Modulus bit length (bits, default 32)</label>
+                <input id="crypto-rsa-bits" name="bits" type="number" min="8" max="62" value="32">
+                <label for="crypto-rsa-e-gen">Public exponent (e, default 65537)</label>
+                <input id="crypto-rsa-e-gen" name="e_gen" type="number" min="3" step="2" value="65537">
+              </div>
+
+              <div id="crypto-rsa-encrypt-group" class="crypto-rsa-group" style="display: none;">
+                <label for="crypto-rsa-m">Message integer (m, 0 &le; m &lt; n)</label>
+                <input id="crypto-rsa-m" name="m" type="number" min="0" value="42">
+                <label for="crypto-rsa-enc-e">Public exponent (e)</label>
+                <input id="crypto-rsa-enc-e" name="enc_e" type="number" min="1" value="65537">
+                <label for="crypto-rsa-enc-n">Modulus (n)</label>
+                <input id="crypto-rsa-enc-n" name="enc_n" type="text" inputmode="numeric" value="3233">
+              </div>
+
+              <div id="crypto-rsa-decrypt-group" class="crypto-rsa-group" style="display: none;">
+                <label for="crypto-rsa-c">Ciphertext integer (c)</label>
+                <input id="crypto-rsa-c" name="c" type="number" min="0" value="2557">
+                <label for="crypto-rsa-d">Private exponent (d)</label>
+                <input id="crypto-rsa-d" name="d" type="number" min="1" value="2753">
+                <label for="crypto-rsa-dec-n">Modulus (n)</label>
+                <input id="crypto-rsa-dec-n" name="dec_n" type="text" inputmode="numeric" value="3233">
+                <label for="crypto-rsa-p">Prime factor p (optional for CRT acceleration)</label>
+                <input id="crypto-rsa-p" name="p" type="number" placeholder="Optional p (e.g. 61)">
+                <label for="crypto-rsa-q">Prime factor q (optional for CRT acceleration)</label>
+                <input id="crypto-rsa-q" name="q" type="number" placeholder="Optional q (e.g. 53)">
+              </div>
+
+              <div id="crypto-rsa-crack-group" class="crypto-rsa-group" style="display: none;">
+                <label for="crypto-rsa-crack-n">Modulus to factor (n)</label>
+                <input id="crypto-rsa-crack-n" name="crack_n" type="text" inputmode="numeric" value="3233">
+                <label for="crypto-rsa-crack-e">Public exponent (e)</label>
+                <input id="crypto-rsa-crack-e" name="crack_e" type="number" min="1" value="17">
+                <label for="crypto-rsa-crack-c">Ciphertext to decrypt (optional c)</label>
+                <input id="crypto-rsa-crack-c" name="crack_c" type="number" placeholder="Optional c (e.g. 2557)">
+              </div>
+
+              <div class="lab-actions">
+                <button id="submit-crypto-rsa" class="lab-button" type="submit">Generate keypair</button>
+                <button id="clear-crypto-rsa" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-rsa-result" class="lab-result" aria-live="polite">Select an operation and configure parameters.</output>
+            </form>
+
+            <form id="crypto-dh-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Key exchange</p>
+                <h3>Diffie&ndash;Hellman protocol</h3>
+              </div>
+              <label for="crypto-dh-action">Operation</label>
+              <select id="crypto-dh-action" name="action">
+                <option value="keygen">Key Generation (A = g^a mod p)</option>
+                <option value="derive">Derive Secret (S = B^a mod p)</option>
+                <option value="crack">Discrete Log Attack (BSGS crack)</option>
+              </select>
+
+              <div id="crypto-dh-keygen-group" class="crypto-dh-group">
+                <label for="crypto-dh-p">Prime modulus (p &gt; 2)</label>
+                <input id="crypto-dh-p" name="p" type="number" min="3" value="23" required>
+                <label for="crypto-dh-g">Generator (1 &lt; g &lt; p)</label>
+                <input id="crypto-dh-g" name="g" type="number" min="2" value="5" required>
+                <label for="crypto-dh-priv">Private scalar a (optional, random if blank)</label>
+                <input id="crypto-dh-priv" name="private_key" type="number" min="2" value="6" placeholder="Optional (e.g. 6)">
+              </div>
+
+              <div id="crypto-dh-derive-group" class="crypto-dh-group" style="display: none;">
+                <label for="crypto-dh-derive-priv">Your private scalar (a)</label>
+                <input id="crypto-dh-derive-priv" name="derive_priv" type="number" min="1" value="6">
+                <label for="crypto-dh-derive-pub">Peer's public key (B)</label>
+                <input id="crypto-dh-derive-pub" name="derive_pub" type="number" min="1" value="19">
+                <label for="crypto-dh-derive-p">Modulus (p)</label>
+                <input id="crypto-dh-derive-p" name="derive_p" type="number" min="3" value="23">
+              </div>
+
+              <div id="crypto-dh-crack-group" class="crypto-dh-group" style="display: none;">
+                <label for="crypto-dh-crack-g">Generator (g)</label>
+                <input id="crypto-dh-crack-g" name="crack_g" type="number" min="2" value="5">
+                <label for="crypto-dh-crack-pub">Observed public key (A)</label>
+                <input id="crypto-dh-crack-pub" name="crack_pub" type="number" min="1" value="8">
+                <label for="crypto-dh-crack-p">Modulus (p)</label>
+                <input id="crypto-dh-crack-p" name="crack_p" type="number" min="3" value="23">
+              </div>
+
+              <div class="lab-actions">
+                <button id="submit-crypto-dh" class="lab-button" type="submit">Generate key</button>
+                <button id="clear-crypto-dh" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-dh-result" class="lab-result" aria-live="polite">Select an operation and configure parameters.</output>
+            </form>
+
             <form id="challenge-form" class="lab-form crypto-tool">
               <div>
                 <p class="lab-eyebrow">Practice mode</p>
@@ -587,6 +691,8 @@
                 <option value="dlog">Discrete logarithm</option>
                 <option value="crt">Chinese Remainder Theorem</option>
                 <option value="ecdlp">Elliptic Curve DLP</option>
+                <option value="rsa">Textbook RSA</option>
+                <option value="dh">Diffie–Hellman</option>
               </select>
               <label for="challenge-seed">Seed (optional number)</label>
               <input id="challenge-seed" name="seed" type="number" min="0" placeholder="e.g. 42">

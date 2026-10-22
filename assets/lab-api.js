@@ -166,6 +166,47 @@ const cryptoSolovayRounds = document.querySelector("#crypto-solovay-rounds");
 const cryptoSolovayResult = document.querySelector("#crypto-solovay-result");
 const clearCryptoSolovayButton = document.querySelector("#clear-crypto-solovay");
 
+const cryptoRsaForm = document.querySelector("#crypto-rsa-form");
+const cryptoRsaAction = document.querySelector("#crypto-rsa-action");
+const cryptoRsaKeygenGroup = document.querySelector("#crypto-rsa-keygen-group");
+const cryptoRsaEncryptGroup = document.querySelector("#crypto-rsa-encrypt-group");
+const cryptoRsaDecryptGroup = document.querySelector("#crypto-rsa-decrypt-group");
+const cryptoRsaCrackGroup = document.querySelector("#crypto-rsa-crack-group");
+const cryptoRsaBits = document.querySelector("#crypto-rsa-bits");
+const cryptoRsaEGen = document.querySelector("#crypto-rsa-e-gen");
+const cryptoRsaM = document.querySelector("#crypto-rsa-m");
+const cryptoRsaEncE = document.querySelector("#crypto-rsa-enc-e");
+const cryptoRsaEncN = document.querySelector("#crypto-rsa-enc-n");
+const cryptoRsaC = document.querySelector("#crypto-rsa-c");
+const cryptoRsaD = document.querySelector("#crypto-rsa-d");
+const cryptoRsaDecN = document.querySelector("#crypto-rsa-dec-n");
+const cryptoRsaP = document.querySelector("#crypto-rsa-p");
+const cryptoRsaQ = document.querySelector("#crypto-rsa-q");
+const cryptoRsaCrackN = document.querySelector("#crypto-rsa-crack-n");
+const cryptoRsaCrackE = document.querySelector("#crypto-rsa-crack-e");
+const cryptoRsaCrackC = document.querySelector("#crypto-rsa-crack-c");
+const submitCryptoRsa = document.querySelector("#submit-crypto-rsa");
+const clearCryptoRsaButton = document.querySelector("#clear-crypto-rsa");
+const cryptoRsaResult = document.querySelector("#crypto-rsa-result");
+
+const cryptoDhForm = document.querySelector("#crypto-dh-form");
+const cryptoDhAction = document.querySelector("#crypto-dh-action");
+const cryptoDhKeygenGroup = document.querySelector("#crypto-dh-keygen-group");
+const cryptoDhDeriveGroup = document.querySelector("#crypto-dh-derive-group");
+const cryptoDhCrackGroup = document.querySelector("#crypto-dh-crack-group");
+const cryptoDhP = document.querySelector("#crypto-dh-p");
+const cryptoDhG = document.querySelector("#crypto-dh-g");
+const cryptoDhPriv = document.querySelector("#crypto-dh-priv");
+const cryptoDhDerivePriv = document.querySelector("#crypto-dh-derive-priv");
+const cryptoDhDerivePub = document.querySelector("#crypto-dh-derive-pub");
+const cryptoDhDeriveP = document.querySelector("#crypto-dh-derive-p");
+const cryptoDhCrackG = document.querySelector("#crypto-dh-crack-g");
+const cryptoDhCrackPub = document.querySelector("#crypto-dh-crack-pub");
+const cryptoDhCrackP = document.querySelector("#crypto-dh-crack-p");
+const submitCryptoDh = document.querySelector("#submit-crypto-dh");
+const clearCryptoDhButton = document.querySelector("#clear-crypto-dh");
+const cryptoDhResult = document.querySelector("#crypto-dh-result");
+
 const challengeForm = document.querySelector("#challenge-form");
 const challengeTopic = document.querySelector("#challenge-topic");
 const challengeSeed = document.querySelector("#challenge-seed");
@@ -1820,6 +1861,294 @@ function clearCryptoSolovay() {
   clearTelemetry(cryptoSolovayResult);
 }
 
+function syncRsaForm() {
+  const action = cryptoRsaAction?.value || "keygen";
+  if (cryptoRsaKeygenGroup) cryptoRsaKeygenGroup.style.display = action === "keygen" ? "block" : "none";
+  if (cryptoRsaEncryptGroup) cryptoRsaEncryptGroup.style.display = action === "encrypt" ? "block" : "none";
+  if (cryptoRsaDecryptGroup) cryptoRsaDecryptGroup.style.display = action === "decrypt" ? "block" : "none";
+  if (cryptoRsaCrackGroup) cryptoRsaCrackGroup.style.display = action === "crack" ? "block" : "none";
+
+  if (submitCryptoRsa) {
+    switch (action) {
+      case "keygen":
+        submitCryptoRsa.textContent = "Generate keypair";
+        break;
+      case "encrypt":
+        submitCryptoRsa.textContent = "Encrypt message";
+        break;
+      case "decrypt":
+        submitCryptoRsa.textContent = "Decrypt ciphertext";
+        break;
+      case "crack":
+        submitCryptoRsa.textContent = "Crack RSA modulus";
+        break;
+    }
+  }
+}
+
+async function runCryptoRsa(event) {
+  event.preventDefault();
+  const action = cryptoRsaAction.value;
+  const button = submitCryptoRsa;
+
+  try {
+    if (action === "keygen") {
+      const bits = parseInt(cryptoRsaBits.value, 10) || 32;
+      const e = parseInt(cryptoRsaEGen.value, 10) || 65537;
+      if (bits < 8 || bits > 62) {
+        cryptoRsaResult.textContent = "Modulus bit length must be between 8 and 62.";
+        return;
+      }
+      if (e < 3 || e % 2 === 0) {
+        cryptoRsaResult.textContent = "Public exponent e must be an odd integer ≥ 3.";
+        return;
+      }
+      cryptoRsaResult.textContent = "Generating RSA keypair...";
+      setBusy(button, true, "Generating");
+
+      const data = await fetchCryptoJson(
+        `/v1/math/rsa/keygen?bits=${bits}&e=${e}`,
+        {},
+        cryptoRsaResult,
+      );
+
+      // Auto-populate other RSA fields for seamless playground exploration
+      if (cryptoRsaEncN) cryptoRsaEncN.value = String(data.n);
+      if (cryptoRsaEncE) cryptoRsaEncE.value = String(data.e);
+      if (cryptoRsaDecN) cryptoRsaDecN.value = String(data.n);
+      if (cryptoRsaD) cryptoRsaD.value = String(data.d);
+      if (cryptoRsaP) cryptoRsaP.value = String(data.p);
+      if (cryptoRsaQ) cryptoRsaQ.value = String(data.q);
+      if (cryptoRsaCrackN) cryptoRsaCrackN.value = String(data.n);
+      if (cryptoRsaCrackE) cryptoRsaCrackE.value = String(data.e);
+
+      cryptoRsaResult.innerHTML = `
+        <strong>RSA Keypair Generated (${bits}-bit):</strong><br>
+        Modulus n: <code>${data.n}</code> (${data.p} &times; ${data.q})<br>
+        Public Exponent e: <code>${data.e}</code> | Private Exponent d: <code>${data.d}</code><br>
+        Totient &phi;(n): <code>${data.phi}</code> | Carmichael &lambda;(n): <code>${data.lambda}</code><br>
+        CRT Components: d<sub>p</sub> = <code>${data.dp}</code>, d<sub>q</sub> = <code>${data.dq}</code>, q<sub>inv</sub> = <code>${data.qinv}</code>
+      `;
+    } else if (action === "encrypt") {
+      const m = cryptoRsaM.value.trim();
+      const e = cryptoRsaEncE.value.trim();
+      const n = cryptoRsaEncN.value.trim();
+      if (!m || !e || !n) {
+        cryptoRsaResult.textContent = "Message m, exponent e, and modulus n are required.";
+        return;
+      }
+      cryptoRsaResult.textContent = "Encrypting message...";
+      setBusy(button, true, "Encrypting");
+
+      const data = await fetchCryptoJson(
+        `/v1/math/rsa/encrypt?m=${encodeURIComponent(m)}&e=${encodeURIComponent(e)}&n=${encodeURIComponent(n)}`,
+        {},
+        cryptoRsaResult,
+      );
+
+      // Auto-populate decrypt & crack ciphertext fields
+      if (cryptoRsaC) cryptoRsaC.value = String(data.c);
+      if (cryptoRsaCrackC) cryptoRsaCrackC.value = String(data.c);
+
+      cryptoRsaResult.innerHTML = `
+        <strong>Ciphertext c:</strong> <code>${data.c}</code><br>
+        <em>Calculation: ${data.m}<sup>${data.e}</sup> mod ${data.n} = ${data.c}</em>
+      `;
+    } else if (action === "decrypt") {
+      const c = cryptoRsaC.value.trim();
+      const d = cryptoRsaD.value.trim();
+      const n = cryptoRsaDecN.value.trim();
+      const p = cryptoRsaP.value.trim();
+      const q = cryptoRsaQ.value.trim();
+      if (!c || !d || !n) {
+        cryptoRsaResult.textContent = "Ciphertext c, private exponent d, and modulus n are required.";
+        return;
+      }
+      let query = `/v1/math/rsa/decrypt?c=${encodeURIComponent(c)}&d=${encodeURIComponent(d)}&n=${encodeURIComponent(n)}`;
+      if (p && q) {
+        query += `&p=${encodeURIComponent(p)}&q=${encodeURIComponent(q)}`;
+      }
+      cryptoRsaResult.textContent = "Decrypting ciphertext...";
+      setBusy(button, true, "Decrypting");
+
+      const data = await fetchCryptoJson(query, {}, cryptoRsaResult);
+
+      cryptoRsaResult.innerHTML = `
+        <strong>Plaintext message m:</strong> <code>${data.m}</code><br>
+        <em>${data.crt_used ? "Decrypted with Chinese Remainder Theorem (CRT) acceleration." : "Decrypted with direct modular exponentiation (c^d mod n)."}</em>
+      `;
+    } else if (action === "crack") {
+      const n = cryptoRsaCrackN.value.trim();
+      const e = cryptoRsaCrackE.value.trim();
+      const c = cryptoRsaCrackC.value.trim();
+      if (!n || !e) {
+        cryptoRsaResult.textContent = "Modulus n and public exponent e are required.";
+        return;
+      }
+      let query = `/v1/math/rsa/crack?n=${encodeURIComponent(n)}&e=${encodeURIComponent(e)}`;
+      if (c) {
+        query += `&c=${encodeURIComponent(c)}`;
+      }
+      cryptoRsaResult.textContent = "Factoring modulus and cracking key...";
+      setBusy(button, true, "Cracking");
+
+      const data = await fetchCryptoJson(query, {}, cryptoRsaResult);
+
+      let msg = `
+        <strong>RSA Modulus Cracked!</strong><br>
+        Prime factors: p = <code>${data.p}</code>, q = <code>${data.q}</code><br>
+        Private exponent recovered: d = <code>${data.d}</code> (&lambda; = ${data.lambda})
+      `;
+      if (data.m !== undefined && data.m !== null) {
+        msg += `<br>Intercepted ciphertext <code>${data.c}</code> decrypted to m = <strong>${data.m}</strong>`;
+      }
+      cryptoRsaResult.innerHTML = msg;
+    }
+  } catch (error) {
+    cryptoRsaResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, submitCryptoRsa.textContent);
+  }
+}
+
+function clearCryptoRsa() {
+  cryptoRsaBits.value = "32";
+  cryptoRsaEGen.value = "65537";
+  cryptoRsaM.value = "42";
+  cryptoRsaEncE.value = "65537";
+  cryptoRsaEncN.value = "3233";
+  cryptoRsaC.value = "2557";
+  cryptoRsaD.value = "2753";
+  cryptoRsaDecN.value = "3233";
+  cryptoRsaP.value = "";
+  cryptoRsaQ.value = "";
+  cryptoRsaCrackN.value = "3233";
+  cryptoRsaCrackE.value = "17";
+  cryptoRsaCrackC.value = "2557";
+  cryptoRsaResult.textContent = "Select an operation and configure parameters.";
+  clearTelemetry(cryptoRsaResult);
+}
+
+function syncDhForm() {
+  const action = cryptoDhAction?.value || "keygen";
+  if (cryptoDhKeygenGroup) cryptoDhKeygenGroup.style.display = action === "keygen" ? "block" : "none";
+  if (cryptoDhDeriveGroup) cryptoDhDeriveGroup.style.display = action === "derive" ? "block" : "none";
+  if (cryptoDhCrackGroup) cryptoDhCrackGroup.style.display = action === "crack" ? "block" : "none";
+
+  if (submitCryptoDh) {
+    switch (action) {
+      case "keygen":
+        submitCryptoDh.textContent = "Generate key";
+        break;
+      case "derive":
+        submitCryptoDh.textContent = "Derive shared secret";
+        break;
+      case "crack":
+        submitCryptoDh.textContent = "Crack private key";
+        break;
+    }
+  }
+}
+
+async function runCryptoDh(event) {
+  event.preventDefault();
+  const action = cryptoDhAction.value;
+  const button = submitCryptoDh;
+
+  try {
+    if (action === "keygen") {
+      const p = cryptoDhP.value.trim();
+      const g = cryptoDhG.value.trim();
+      const priv = cryptoDhPriv.value.trim();
+      if (!p || !g) {
+        cryptoDhResult.textContent = "Prime modulus p and generator g are required.";
+        return;
+      }
+      let query = `/v1/math/dh/keygen?p=${encodeURIComponent(p)}&g=${encodeURIComponent(g)}`;
+      if (priv) {
+        query += `&private_key=${encodeURIComponent(priv)}`;
+      }
+      cryptoDhResult.textContent = "Generating DH keypair...";
+      setBusy(button, true, "Generating");
+
+      const data = await fetchCryptoJson(query, {}, cryptoDhResult);
+
+      // Auto-populate derive and crack fields
+      if (cryptoDhDerivePriv) cryptoDhDerivePriv.value = String(data.private_key);
+      if (cryptoDhDeriveP) cryptoDhDeriveP.value = String(data.p);
+      if (cryptoDhCrackG) cryptoDhCrackG.value = String(data.g);
+      if (cryptoDhCrackPub) cryptoDhCrackPub.value = String(data.public_key);
+      if (cryptoDhCrackP) cryptoDhCrackP.value = String(data.p);
+
+      cryptoDhResult.innerHTML = `
+        <strong>Diffie–Hellman Keypair Generated:</strong><br>
+        Public Key A: <code>${data.public_key}</code> (${data.g}<sup>${data.private_key}</sup> mod ${data.p})<br>
+        Private Key a: <code>${data.private_key}</code>
+      `;
+    } else if (action === "derive") {
+      const priv = cryptoDhDerivePriv.value.trim();
+      const pub = cryptoDhDerivePub.value.trim();
+      const p = cryptoDhDeriveP.value.trim();
+      if (!priv || !pub || !p) {
+        cryptoDhResult.textContent = "Private key a, peer public key B, and modulus p are required.";
+        return;
+      }
+      cryptoDhResult.textContent = "Deriving shared secret...";
+      setBusy(button, true, "Deriving");
+
+      const data = await fetchCryptoJson(
+        `/v1/math/dh/derive?private_key=${encodeURIComponent(priv)}&peer_public_key=${encodeURIComponent(pub)}&p=${encodeURIComponent(p)}`,
+        {},
+        cryptoDhResult,
+      );
+
+      cryptoDhResult.innerHTML = `
+        <strong>Shared Secret S:</strong> <code>${data.shared_secret}</code><br>
+        <em>Calculation: ${data.peer_public_key}<sup>${data.private_key}</sup> mod ${data.p} = ${data.shared_secret}</em>
+      `;
+    } else if (action === "crack") {
+      const g = cryptoDhCrackG.value.trim();
+      const pub = cryptoDhCrackPub.value.trim();
+      const p = cryptoDhCrackP.value.trim();
+      if (!g || !pub || !p) {
+        cryptoDhResult.textContent = "Generator g, public key A, and modulus p are required.";
+        return;
+      }
+      cryptoDhResult.textContent = "Solving discrete logarithm...";
+      setBusy(button, true, "Cracking");
+
+      const data = await fetchCryptoJson(
+        `/v1/math/dh/crack?g=${encodeURIComponent(g)}&public_key=${encodeURIComponent(pub)}&p=${encodeURIComponent(p)}`,
+        {},
+        cryptoDhResult,
+      );
+
+      cryptoDhResult.innerHTML = `
+        <strong>Private Key Recovered via BSGS:</strong> a = <code>${data.private_key}</code><br>
+        <em>Verification: ${data.g}<sup>${data.private_key}</sup> mod ${data.p} = ${data.public_key}</em>
+      `;
+    }
+  } catch (error) {
+    cryptoDhResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, submitCryptoDh.textContent);
+  }
+}
+
+function clearCryptoDh() {
+  cryptoDhP.value = "23";
+  cryptoDhG.value = "5";
+  cryptoDhPriv.value = "6";
+  cryptoDhDerivePriv.value = "6";
+  cryptoDhDerivePub.value = "19";
+  cryptoDhDeriveP.value = "23";
+  cryptoDhCrackG.value = "5";
+  cryptoDhCrackPub.value = "8";
+  cryptoDhCrackP.value = "23";
+  cryptoDhResult.textContent = "Select an operation and configure parameters.";
+  clearTelemetry(cryptoDhResult);
+}
+
 async function runChallenge(event) {
   event.preventDefault();
   const topic = challengeTopic.value;
@@ -1936,6 +2265,12 @@ cryptoJacobiForm?.addEventListener("submit", runCryptoJacobi);
 clearCryptoJacobiButton?.addEventListener("click", clearCryptoJacobi);
 cryptoSolovayForm?.addEventListener("submit", runCryptoSolovay);
 clearCryptoSolovayButton?.addEventListener("click", clearCryptoSolovay);
+cryptoRsaAction?.addEventListener("change", syncRsaForm);
+cryptoRsaForm?.addEventListener("submit", runCryptoRsa);
+clearCryptoRsaButton?.addEventListener("click", clearCryptoRsa);
+cryptoDhAction?.addEventListener("change", syncDhForm);
+cryptoDhForm?.addEventListener("submit", runCryptoDh);
+clearCryptoDhButton?.addEventListener("click", clearCryptoDh);
 challengeForm?.addEventListener("submit", runChallenge);
 clearChallengeButton?.addEventListener("click", clearChallenge);
 
@@ -1947,6 +2282,8 @@ refreshInfo();
 refreshCryptoHealth();
 refreshCryptoInfo();
 syncHmacForm();
+syncRsaForm();
+syncDhForm();
 validateCatalanInput();
 validateFibonacciInput();
 validateGcdInputs();

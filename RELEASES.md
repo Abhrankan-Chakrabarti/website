@@ -1,5 +1,25 @@
 # Releases
 
+### [v0.9.9] — 2026-10-22
+
+**Textbook cryptosystems suite (RSA & Diffie–Hellman), 14 new endpoints & crypto-lab v0.7.0.**
+
+#### Added
+- Upgraded `crypto-lab` to `v0.7.0`, adding pure Rust textbook cryptosystems matching `foxmath v0.14.0`:
+  - `GET /crypto-api/v1/math/rsa/keygen` & `POST /crypto-api/v1/math/rsa/keygen`: generates textbook RSA keypairs $(p, q, n, e, d, \phi, \lambda, d_p, d_q, q_{\text{inv}})$ with configurable modulus bit length ($8 \le \text{bits} \le 62$, default 32).
+  - `GET /crypto-api/v1/math/rsa/encrypt` & `POST /crypto-api/v1/math/rsa/encrypt`: textbook RSA encryption ($c \equiv m^e \pmod n$) with message validation ($0 \le m < n$).
+  - `GET /crypto-api/v1/math/rsa/decrypt` & `POST /crypto-api/v1/math/rsa/decrypt`: textbook RSA decryption ($m \equiv c^d \pmod n$) with optional Chinese Remainder Theorem (CRT) acceleration when prime factors $p$ and $q$ are provided.
+  - `GET /crypto-api/v1/math/rsa/crack` & `POST /crypto-api/v1/math/rsa/crack`: Pollard $\rho$ modulus factoring attack, recovering private exponent $d$ and decrypting ciphertext $c$ if supplied.
+  - `GET /crypto-api/v1/math/dh/keygen` & `POST /crypto-api/v1/math/dh/keygen`: Diffie–Hellman keypair generation ($A \equiv g^a \pmod p$).
+  - `GET /crypto-api/v1/math/dh/derive` & `POST /crypto-api/v1/math/dh/derive`: Diffie–Hellman shared secret derivation ($S \equiv B^a \pmod p$).
+  - `GET /crypto-api/v1/math/dh/crack` & `POST /crypto-api/v1/math/dh/crack`: Baby-step Giant-step discrete logarithm solver to recover private key $a$.
+  - Added `"rsa"` and `"dh"` topics to the seeded challenge generator (`/crypto-api/v1/math/challenge`) and interactive challenge mode on `lab.html`.
+  - Added interactive playground cards for **Textbook RSA cryptosystem** (`#crypto-rsa-form`) and **Diffie–Hellman protocol** (`#crypto-dh-form`) to `lab.html` with real-time telemetry, operation switching, and cURL copy buttons.
+- Updated `API.md` and `API.html` with contract documentation, examples, and updated endpoint catalogue (53 total endpoints).
+- All 39 `crypto-lab` unit and HTTP integration tests passing with 0 compiler or Clippy warnings.
+
+---
+
 ### [v0.9.8] — 2026-10-15
 
 **Jacobi symbol, Solovay–Strassen primality test & crypto-lab v0.6.0.**

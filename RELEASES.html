@@ -55,6 +55,31 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v099--2026-10-22">[v0.9.9] — 2026-10-22</h3>
+
+<p><strong>Textbook cryptosystems suite (RSA &amp; Diffie–Hellman), 14 new endpoints &amp; crypto-lab v0.7.0.</strong></p>
+
+<h4 id="added">Added</h4>
+<ul>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.7.0</code>, adding pure Rust textbook cryptosystems matching <code class="language-plaintext highlighter-rouge">foxmath v0.14.0</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/rsa/keygen</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/rsa/keygen</code>: generates textbook RSA keypairs $(p, q, n, e, d, \phi, \lambda, d_p, d_q, q_{\text{inv}})$ with configurable modulus bit length ($8 \le \text{bits} \le 62$, default 32).</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/rsa/encrypt</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/rsa/encrypt</code>: textbook RSA encryption ($c \equiv m^e \pmod n$) with message validation ($0 \le m &lt; n$).</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/rsa/decrypt</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/rsa/decrypt</code>: textbook RSA decryption ($m \equiv c^d \pmod n$) with optional Chinese Remainder Theorem (CRT) acceleration when prime factors $p$ and $q$ are provided.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/rsa/crack</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/rsa/crack</code>: Pollard $\rho$ modulus factoring attack, recovering private exponent $d$ and decrypting ciphertext $c$ if supplied.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/dh/keygen</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/dh/keygen</code>: Diffie–Hellman keypair generation ($A \equiv g^a \pmod p$).</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/dh/derive</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/dh/derive</code>: Diffie–Hellman shared secret derivation ($S \equiv B^a \pmod p$).</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/dh/crack</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/dh/crack</code>: Baby-step Giant-step discrete logarithm solver to recover private key $a$.</li>
+      <li>Added <code class="language-plaintext highlighter-rouge">"rsa"</code> and <code class="language-plaintext highlighter-rouge">"dh"</code> topics to the seeded challenge generator (<code class="language-plaintext highlighter-rouge">/crypto-api/v1/math/challenge</code>) and interactive challenge mode on <code class="language-plaintext highlighter-rouge">lab.html</code>.</li>
+      <li>Added interactive playground cards for <strong>Textbook RSA cryptosystem</strong> (<code class="language-plaintext highlighter-rouge">#crypto-rsa-form</code>) and <strong>Diffie–Hellman protocol</strong> (<code class="language-plaintext highlighter-rouge">#crypto-dh-form</code>) to <code class="language-plaintext highlighter-rouge">lab.html</code> with real-time telemetry, operation switching, and cURL copy buttons.</li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code> with contract documentation, examples, and updated endpoint catalogue (53 total endpoints).</li>
+  <li>All 39 <code class="language-plaintext highlighter-rouge">crypto-lab</code> unit and HTTP integration tests passing with 0 compiler or Clippy warnings.</li>
+</ul>
+
+<hr />
+
 <h3 id="v098--2026-10-15">[v0.9.8] — 2026-10-15</h3>
 
 <p><strong>Jacobi symbol, Solovay–Strassen primality test &amp; crypto-lab v0.6.0.</strong></p>
