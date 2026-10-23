@@ -739,14 +739,58 @@
 
     // Input changes
     if (elInputN) {
+      // Disallow non-numeric keys
+      elInputN.addEventListener('keydown', (e) => {
+        if (
+          e.key === 'Backspace' ||
+          e.key === 'Delete' ||
+          e.key === 'Tab' ||
+          e.key === 'Escape' ||
+          e.key === 'Enter' ||
+          e.key === 'ArrowLeft' ||
+          e.key === 'ArrowRight' ||
+          e.key === 'ArrowUp' ||
+          e.key === 'ArrowDown' ||
+          e.key === 'Home' ||
+          e.key === 'End' ||
+          e.ctrlKey ||
+          e.metaKey
+        ) {
+          return;
+        }
+        if (!/^\d$/.test(e.key)) {
+          e.preventDefault();
+        }
+      });
+
       elInputN.addEventListener('input', () => {
-        const val = elInputN.value.trim();
+        // Enforce digits only (covers paste and drag)
+        const cleanVal = elInputN.value.replace(/\D/g, '');
+        if (elInputN.value !== cleanVal) {
+          elInputN.value = cleanVal;
+        }
+
         // Remove preset highlight when manually modified
         document.querySelectorAll('.chamber-preset-btn').forEach((btn) => {
           btn.classList.remove('active');
         });
-        if (elTabletN) elTabletN.textContent = val || '—';
-        if (elHieroglyphN) elHieroglyphN.textContent = toHieroglyphs(val);
+
+        // Formatted tablet-n with comma grouping
+        if (elTabletN) {
+          if (!cleanVal) {
+            elTabletN.textContent = '—';
+          } else {
+            try {
+              elTabletN.textContent = BigInt(cleanVal).toLocaleString();
+            } catch {
+              elTabletN.textContent = cleanVal;
+            }
+          }
+        }
+
+        if (elHieroglyphN) {
+          elHieroglyphN.textContent = cleanVal ? toHieroglyphs(cleanVal) : '—';
+        }
       });
     }
 
