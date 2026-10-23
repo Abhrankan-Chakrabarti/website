@@ -5,7 +5,10 @@
 **The Chamber of Primes (Fermat's Difference of Squares Visualizer), WebSockets & crypto-lab v0.8.0.**
 
 #### Added
-- Launched **The Chamber of Primes** (`/chamber.html`): an ancient Egyptian-themed interactive visualizer for Fermat's Difference of Squares factorization ($n = x^2 - y^2 = (x - y)(x + y)$).
+- Launched **The Chamber of Primes** (`/chamber.html`): an ancient Egyptian-themed interactive visualizer for Fermat's Difference of Squares factorization:
+
+  $$n = x^2 - y^2 = (x - y)(x + y)$$
+
   - **Geometric HTML5 Canvas**: Visualizes the outer $x \times x$ stone block and the carved $y \times y$ void, demonstrating how the gnomon rearranges into rectangle $(x - y) \times (x + y)$.
   - **Egyptian Hieroglyphic Numerals**: Real-time base-10 additive numeral converter generating authentic Unicode hieroglyphic cartouches (`𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺`).
   - **Sieve of Ma'at**: 20 small prime runes ($3 \dots 73$) displaying Legendre symbol quadratic residue filtering ($(r/p) = -1$) that rejects non-squares in $O(1)$ table lookups.

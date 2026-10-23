@@ -1404,7 +1404,11 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dh/crack?g=5&public_k
 
 #### Fermat's difference of squares factorization (`/v1/math/fermat`)
 
-Factors an odd composite integer $n$ by searching for $x, y$ such that $n = x^2 - y^2 = (x - y)(x + y)$. Starting at $x = \lceil\sqrt{n}\rceil$, each iteration checks whether $r = x^2 - n$ is a quadratic residue across a 20-prime Legendre symbol sieve ($3, 5, 7, \dots, 73$), eliminating $>99.999\%$ of non-squares in $O(1)$ table lookups before evaluating an exact integer square root.
+Factors an odd composite integer $n$ by searching for $x, y$ such that:
+
+$$n = x^2 - y^2 = (x - y)(x + y)$$
+
+Starting at $x = \lceil\sqrt{n}\rceil$, each iteration checks whether $r = x^2 - n$ is a quadratic residue across a 20-prime Legendre symbol sieve ($3, 5, 7, \dots, 73$), eliminating $>99.999\%$ of non-squares in $O(1)$ table lookups before evaluating an exact integer square root.
 
 Parameters:
 - `n` (string or integer, required): odd integer $\ge 3$.
