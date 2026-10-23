@@ -485,6 +485,20 @@
               <output id="crypto-factor-result" class="lab-result" aria-live="polite">Enter integer n (up to 2⁶³ - 1).</output>
             </form>
 
+            <form id="crypto-fermat-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Difference of squares</p>
+                <h3>Fermat factorization</h3>
+              </div>
+              <label for="crypto-fermat-n">Odd integer to factor (n &ge; 3)</label>
+              <input id="crypto-fermat-n" name="n" type="text" inputmode="numeric" value="5959" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Factor via Fermat</button>
+                <button id="clear-crypto-fermat" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-fermat-result" class="lab-result" aria-live="polite">Enter an odd composite integer n &ge; 3. For visual step streaming, visit <a href="/chamber.html" style="color: var(--lab-accent); font-weight: 600;">The Chamber of Primes &rsaquo;</a></output>
+            </form>
+
             <form id="crypto-totient-form" class="lab-form crypto-tool">
               <div>
                 <p class="lab-eyebrow">Totient &amp; Carmichael</p>

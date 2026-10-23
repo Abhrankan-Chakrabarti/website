@@ -130,6 +130,11 @@ const cryptoFactorN = document.querySelector("#crypto-factor-n");
 const cryptoFactorResult = document.querySelector("#crypto-factor-result");
 const clearCryptoFactorButton = document.querySelector("#clear-crypto-factor");
 
+const cryptoFermatForm = document.querySelector("#crypto-fermat-form");
+const cryptoFermatN = document.querySelector("#crypto-fermat-n");
+const cryptoFermatResult = document.querySelector("#crypto-fermat-result");
+const clearCryptoFermatButton = document.querySelector("#clear-crypto-fermat");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -1661,6 +1666,52 @@ function clearCryptoFactor() {
   clearTelemetry(cryptoFactorResult);
 }
 
+async function runCryptoFermat(event) {
+  event.preventDefault();
+  const nRaw = cryptoFermatN.value.trim();
+  let nBig;
+  try {
+    nBig = BigInt(nRaw);
+  } catch {
+    cryptoFermatResult.textContent = "Enter a valid integer n ≥ 3.";
+    return;
+  }
+  if (nBig < 3n) {
+    cryptoFermatResult.textContent = "Modulus n must be an odd integer ≥ 3.";
+    return;
+  }
+  if (nBig % 2n === 0n) {
+    cryptoFermatResult.textContent = "Fermat's method requires an odd composite integer (n is even).";
+    return;
+  }
+
+  const button = cryptoFermatForm.querySelector("button[type='submit']");
+  cryptoFermatResult.textContent = "Factoring via difference of squares...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/fermat?n=${encodeURIComponent(nRaw)}`,
+      {},
+      cryptoFermatResult
+    );
+    if (data.found) {
+      cryptoFermatResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.p.toLocaleString()} × ${data.q.toLocaleString()}</code><br><span class="lab-muted">x = ${data.x.toLocaleString()}, y = ${data.y.toLocaleString()} (x² - y² = ${data.x}² - ${data.y}²), ${data.steps_count} ${data.steps_count === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} µs</span>`;
+    } else {
+      cryptoFermatResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: No non-trivial factors found (${data.reason}).<br><span class="lab-muted">Initial x = ${data.initial_x.toLocaleString()}, evaluated ${data.steps_count} ${data.steps_count === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} µs</span>`;
+    }
+  } catch (error) {
+    cryptoFermatResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factoring");
+  }
+}
+
+function clearCryptoFermat() {
+  cryptoFermatN.value = "5959";
+  cryptoFermatResult.innerHTML = `Enter an odd composite integer n &ge; 3. For visual step streaming, visit <a href="/chamber.html" style="color: var(--lab-accent); font-weight: 600;">The Chamber of Primes &rsaquo;</a>`;
+  clearTelemetry(cryptoFermatResult);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2263,6 +2314,8 @@ crtForm?.addEventListener("submit", runCrt);
 clearCrtButton?.addEventListener("click", clearCrt);
 cryptoFactorForm?.addEventListener("submit", runCryptoFactor);
 clearCryptoFactorButton?.addEventListener("click", clearCryptoFactor);
+cryptoFermatForm?.addEventListener("submit", runCryptoFermat);
+clearCryptoFermatButton?.addEventListener("click", clearCryptoFermat);
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
 clearCryptoTotientButton?.addEventListener("click", clearCryptoTotient);
 cryptoOrderForm?.addEventListener("submit", runCryptoOrder);
