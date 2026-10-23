@@ -741,6 +741,10 @@
     if (elInputN) {
       elInputN.addEventListener('input', () => {
         const val = elInputN.value.trim();
+        // Remove preset highlight when manually modified
+        document.querySelectorAll('.chamber-preset-btn').forEach((btn) => {
+          btn.classList.remove('active');
+        });
         if (elTabletN) elTabletN.textContent = val || '—';
         if (elHieroglyphN) elHieroglyphN.textContent = toHieroglyphs(val);
       });
