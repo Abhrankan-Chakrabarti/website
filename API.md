@@ -956,6 +956,8 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **DH Keygen** | Generates Diffie–Hellman private key $a$ and public key $A \equiv g^a \pmod p$. |
 | **DH Derive** | Derives shared secret $S \equiv B^a \pmod p$ from peer's public key $B$. |
 | **DH Crack** | Recovers private exponent $a$ via Baby-step Giant-step discrete logarithm solver. |
+| **Fermat Factorization** | Fermat's difference of squares factorization ($n = x^2 - y^2$) with Legendre quadratic residue sieve. |
+| **Chamber WebSocket** | Real-time WebSocket streaming endpoint for step-by-step visual factorization ("The Chamber of Primes"). |
 
 ### Application information
 
@@ -967,7 +969,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1021,7 +1023,10 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/dh/derive",
     "POST /v1/math/dh/derive",
     "GET /v1/math/dh/crack",
-    "POST /v1/math/dh/crack"
+    "POST /v1/math/dh/crack",
+    "GET /v1/math/fermat",
+    "POST /v1/math/fermat",
+    "GET /v1/math/chamber/ws"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1396,6 +1401,60 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dh/crack?g=5&public_k
 ```json
 {"g": 5, "public_key": 8, "p": 23, "private_key": 6}
 ```
+
+#### Fermat's difference of squares factorization (`/v1/math/fermat`)
+
+Factors an odd composite integer $n$ by searching for $x, y$ such that $n = x^2 - y^2 = (x - y)(x + y)$. Starting at $x = \lceil\sqrt{n}\rceil$, each iteration checks whether $r = x^2 - n$ is a quadratic residue across a 16-prime Legendre symbol sieve ($3, 5, 7, \dots, 73$), eliminating $>99.999\%$ of non-squares in $O(1)$ table lookups before evaluating an exact integer square root.
+
+Parameters:
+- `n` (string or integer, required): odd integer $\ge 3$.
+- `max_steps` (integer, optional, default: 1000): upper bound on search iterations.
+- `record_steps` (boolean, optional, default: true): whether to return intermediate iteration records.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/fermat?n=5959"
+```
+
+```json
+{
+  "ok": true,
+  "n": 5959,
+  "initial_x": 78,
+  "steps_count": 3,
+  "found": true,
+  "p": 59,
+  "q": 101,
+  "x": 80,
+  "y": 21,
+  "elapsed_us": 42,
+  "reason": "found",
+  "steps": [
+    { "step": 1, "x": 78, "r": 125, "sieve_passed": false, "rejected_by": 3, "is_square": false },
+    { "step": 2, "x": 79, "r": 282, "sieve_passed": false, "rejected_by": 5, "is_square": false },
+    { "step": 3, "x": 80, "r": 441, "sieve_passed": true, "is_square": true, "y": 21 }
+  ],
+  "steps_truncated": false
+}
+```
+
+#### The Chamber of Primes WebSocket (`/v1/math/chamber/ws`)
+
+Bidirectional WebSocket streaming endpoint for real-time factorization visualization and step-by-step playback on `chamber.html`.
+
+- **Client Action Frames**:
+  - `{"action": "start", "n": "5959", "delay_ms": 50, "max_steps": 1000}`
+  - `{"action": "pause"}`
+  - `{"action": "resume"}`
+  - `{"action": "step"}`
+  - `{"action": "speed", "delay_ms": 20}`
+  - `{"action": "stop"}`
+
+- **Server Event Frames**:
+  - `{"type": "start", "n": 5959, "initial_x": 78}`
+  - `{"type": "step", "step": 1, "x": 78, "r": 125, "sieve_passed": false, "rejected_by": 3, "is_square": false}`
+  - `{"type": "candidate", "step": 3, "x": 80, "r": 441, "sieve_passed": true, "is_square": true, "y": 21}`
+  - `{"type": "found", "step": 3, "x": 80, "y": 21, "p": 59, "q": 101, "elapsed_us": 42}`
+  - `{"type": "done", "reason": "found", "step": 3, "p": 59, "q": 101, "elapsed_us": 42}`
 
 ### Input contract and status codes
 

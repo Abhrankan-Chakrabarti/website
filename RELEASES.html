@@ -45,6 +45,7 @@
             <a href="/writing.html">Writing</a>
             <a href="/now.html">Now</a>
             <a href="/lab.html">Lab</a>
+            <a href="/chamber.html">Chamber</a>
         </nav>
         <p class="site-links">
             <a href="/API.html">API docs</a>
@@ -54,6 +55,34 @@
       </header>
 
       <h1 id="releases">Releases</h1>
+
+<h3 id="v0100--2026-10-23">[v0.10.0] — 2026-10-23</h3>
+
+<p><strong>The Chamber of Primes (Fermat's Difference of Squares Visualizer), WebSockets &amp; crypto-lab v0.8.0.</strong></p>
+
+<h4 id="added-v0100">Added</h4>
+<ul>
+  <li>Launched <strong>The Chamber of Primes</strong> (<a href="/chamber.html"><code class="language-plaintext highlighter-rouge">/chamber.html</code></a>): an ancient Egyptian-themed interactive visualizer for Fermat's Difference of Squares factorization ($n = x^2 - y^2 = (x - y)(x + y)$).
+    <ul>
+      <li><strong>Geometric HTML5 Canvas</strong>: Visualizes the outer $x \times x$ stone block and the carved $y \times y$ void, demonstrating how the gnomon rearranges into rectangle $(x - y) \times (x + y)$.</li>
+      <li><strong>Egyptian Hieroglyphic Numerals</strong>: Real-time base-10 additive numeral converter generating authentic Unicode hieroglyphic cartouches (𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺).</li>
+      <li><strong>Sieve of Ma'at</strong>: 16 small prime runes ($3 \dots 73$) displaying Legendre symbol quadratic residue filtering ($(r/p) = -1$) that rejects non-squares in $O(1)$ table lookups.</li>
+      <li><strong>Pharaoh Presets</strong>: Tutankhamun ($n = 5959$), Cleopatra ($n = 8051$), Ramses II ($n = 10969569647$ factoring a 34-bit RSA modulus in just 2 steps), and Nefertiti ($n = 1000000007$).</li>
+      <li><strong>Dual-mode streaming</strong>: Bidirectional WebSocket connection with automatic REST simulation fallback.</li>
+    </ul>
+  </li>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.8.0</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/fermat</code> &amp; <code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/math/fermat</code>: difference of squares factorization endpoint with configurable iteration bounds and step tracing.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET /crypto-api/v1/math/chamber/ws</code>: real-time WebSocket streaming endpoint for interactive playback (play, pause, step, speed slider, stop).</li>
+      <li>Ported Legendre residue tables and exact integer square root algorithms from <code class="language-plaintext highlighter-rouge">diffsquare</code>.</li>
+      <li>Upgraded endpoint registry to 56 endpoints.</li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">API.md</code>, <code class="language-plaintext highlighter-rouge">API.html</code>, <code class="language-plaintext highlighter-rouge">lab.html</code>, <code class="language-plaintext highlighter-rouge">projects.html</code>, <code class="language-plaintext highlighter-rouge">index.html</code>, and <code class="language-plaintext highlighter-rouge">writing.html</code> with chamber navigation links and documentation.</li>
+</ul>
+
+<hr />
 
 <h3 id="v099--2026-10-22">[v0.9.9] — 2026-10-22</h3>
 

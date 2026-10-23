@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Chamber of Primes | Fermat's Difference of Squares Visualizer</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23090c10'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23d4af37'%3E𓁨%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/chamber.css">
+  </head>
+  <body>
+    <header>
+      <h1>website</h1>
+      <p class="subtitle">Abhrankan Chakrabarti</p>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/writing.html">Writing</a>
+        <a href="/now.html">Now</a>
+        <a href="/lab.html">Lab</a>
+        <a class="active" href="/chamber.html">Chamber</a>
+      </nav>
+      <p class="site-links">
+        <a href="/API.html">API docs</a>
+        ·
+        <a href="/RELEASES.html">Releases</a>
+      </p>
+    </header>
+
+    <main class="chamber-page">
+      <div class="chamber-header">
+        <div class="chamber-cartouche-title">
+          <h1>The Chamber of Primes</h1>
+        </div>
+        <p class="chamber-subtitle">Fermat's Difference of Squares &amp; The Sieve of Ma'at</p>
+        <div class="chamber-hieroglyph-banner">𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺</div>
+        <div class="chamber-connection-status">
+          <span id="chamber-status-dot" class="chamber-status-dot connecting"></span>
+          <span id="chamber-status-text">Connecting to WebSocket...</span>
+        </div>
+      </div>
+
+      <!-- Controls & Presets Panel -->
+      <section class="chamber-controls-panel" aria-label="Factorization Controls">
+        <div class="chamber-presets-group">
+          <span class="chamber-label">Pharaoh Presets &amp; Cryptographic Demonstrations</span>
+          <div class="chamber-preset-buttons">
+            <button type="button" class="chamber-preset-btn active" data-preset="tutankhamun">
+              <span>𓍢</span>
+              <strong>Tutankhamun</strong> (5,959)
+            </button>
+            <button type="button" class="chamber-preset-btn" data-preset="cleopatra">
+              <span>𓆼</span>
+              <strong>Cleopatra</strong> (8,051)
+            </button>
+            <button type="button" class="chamber-preset-btn" data-preset="ramses">
+              <span>𓂭</span>
+              <strong>Ramses II (RSA Close Primes)</strong> (10,969,569,647)
+            </button>
+            <button type="button" class="chamber-preset-btn" data-preset="nefertiti">
+              <span>𓆐</span>
+              <strong>Nefertiti (Prime)</strong> (1,000,000,007)
+            </button>
+          </div>
+        </div>
+
+        <div class="chamber-input-row">
+          <div class="chamber-input-field">
+            <label class="chamber-label" for="chamber-input-n">Modulus to factor (odd integer <em>n</em> &ge; 3)</label>
+            <input type="text" id="chamber-input-n" value="5959" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="chamber-actions-row">
+          <button type="button" id="chamber-btn-play" class="chamber-btn chamber-btn-primary">▶ Enter Chamber</button>
+          <button type="button" id="chamber-btn-step" class="chamber-btn chamber-btn-secondary">Step ❯</button>
+          <button type="button" id="chamber-btn-reset" class="chamber-btn chamber-btn-secondary">Reset</button>
+
+          <div class="chamber-slider-group">
+            <label for="chamber-slider-speed">Delay:</label>
+            <input type="range" id="chamber-slider-speed" min="10" max="400" step="10" value="60">
+            <span id="chamber-speed-label">60 ms</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Victory Banner (Appears when factored) -->
+      <div id="chamber-result-banner" class="chamber-result-banner" role="status" aria-live="polite">
+        <div class="chamber-result-title">𓁨 Factorization Revealed in the Chamber 𓁨</div>
+        <div id="chamber-result-formula" class="chamber-result-formula"></div>
+        <div id="chamber-result-meta" class="chamber-result-meta"></div>
+      </div>
+
+      <!-- The Grand Cartouche (Stone Tablet) -->
+      <section class="chamber-stone-tablet" aria-label="Stone Tablet Readings">
+        <div class="chamber-tablet-row">
+          <div>
+            <div class="chamber-tablet-label">Modulus <em>n</em> (Decimal)</div>
+            <div id="tablet-n" class="chamber-tablet-val">5,959</div>
+          </div>
+          <div>
+            <div class="chamber-tablet-label">Egyptian Hieroglyphic Numerals</div>
+            <div id="hieroglyph-n" class="chamber-hieroglyphic-display">𓆼𓆼𓆼𓆼𓆼 𓍢𓍢𓍢𓍢𓍢𓍢𓍢𓍢𓍢 𓎆𓎆𓎆𓎆𓎆 𓏺𓏺𓏺𓏺𓏺𓏺𓏺𓏺𓏺</div>
+          </div>
+        </div>
+
+        <div class="chamber-tablet-row">
+          <div>
+            <div class="chamber-tablet-label">Outer Side <em>x</em></div>
+            <div id="tablet-x" class="chamber-tablet-val">78</div>
+          </div>
+          <div>
+            <div class="chamber-tablet-label">Remainder <em>r</em> = <em>x</em>&sup2; - <em>n</em></div>
+            <div id="tablet-r" class="chamber-tablet-val">125</div>
+          </div>
+          <div>
+            <div class="chamber-tablet-label">Inner Void Root <em>y</em> = &radic;<em>r</em></div>
+            <div id="tablet-y" class="chamber-tablet-val">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Geometric Visualizer Canvas & Telemetry -->
+      <section class="chamber-visualizer-section">
+        <div class="chamber-canvas-box">
+          <canvas id="chamber-canvas" width="440" height="440"></canvas>
+          <div class="chamber-canvas-caption">
+            Outer square represents <em>x</em>&sup2;. The carved void represents <em>y</em>&sup2; = <em>x</em>&sup2; - <em>n</em>.
+            When <em>y</em>&sup2; is an exact square, the remaining L-tromino (gnomon) area equals <em>n</em>!
+          </div>
+        </div>
+
+        <div class="chamber-telemetry-box">
+          <h2 style="margin: 0; font-size: 1.05rem; color: var(--chamber-gold);">Live Chamber Telemetry</h2>
+          <div class="chamber-metric-grid">
+            <div class="chamber-metric-card">
+              <div class="chamber-metric-title">Attempt Step</div>
+              <div id="metric-step" class="chamber-metric-val">0</div>
+            </div>
+            <div class="chamber-metric-card">
+              <div class="chamber-metric-title">Square <em>x</em>&sup2;</div>
+              <div id="metric-x2" class="chamber-metric-val">6,084</div>
+            </div>
+            <div class="chamber-metric-card">
+              <div class="chamber-metric-title">Legendre Sieve Filter</div>
+              <div id="metric-sieve" class="chamber-metric-val">Ready</div>
+            </div>
+            <div class="chamber-metric-card">
+              <div class="chamber-metric-title">Exact Square Check</div>
+              <div id="metric-square" class="chamber-metric-val">Ready</div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.85rem; color: var(--chamber-muted); line-height: 1.5; margin-top: 0.5rem;">
+            <p style="margin: 0 0 0.5rem;">
+              <strong>Difference of Squares Theorem:</strong> Every odd composite integer satisfies
+              <em>n</em> = <em>x</em>&sup2; - <em>y</em>&sup2; = (<em>x</em> - <em>y</em>)(<em>x</em> + <em>y</em>).
+            </p>
+            <p style="margin: 0;">
+              Starting at <em>x</em> = &lceil;&radic;<em>n</em>&rceil;, each attempt increments <em>x</em> &rarr; <em>x</em> + 1 and tests whether
+              <em>r</em> is a perfect square. The Sieve of Ma'at eliminates &gt;99.999% of non-squares using Legendre table lookups before any square root is computed.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- The Sieve of Ma'at (Quadratic Residue Filter) -->
+      <section class="chamber-sieve-box" aria-label="Sieve of Ma'at">
+        <div class="chamber-sieve-title">
+          <span>The Sieve of Ma'at (Legendre Symbol Residue Filter)</span>
+          <span style="font-size: 0.75rem; color: var(--chamber-muted);">16 Small Primes (3 &hellip; 73)</span>
+        </div>
+        <div class="chamber-sieve-subtitle">
+          If <em>r</em> mod <em>p</em> has Legendre symbol (<em>r</em>/<em>p</em>) = -1, <em>r</em> cannot be a square. The sieve rejects it instantly in <em>O</em>(1) time.
+        </div>
+        <div id="chamber-sieve-grid" class="chamber-sieve-grid"></div>
+      </section>
+
+      <!-- Educational Guide & Mathematical Exposition -->
+      <article class="chamber-guide-section">
+        <h2>Fermat's Difference of Squares Factorization</h2>
+        <p>
+          In 1643, Pierre de Fermat discovered that every odd composite number <em>n</em> can be factored by finding two integers <em>x</em> and <em>y</em> such that:
+        </p>
+        <p style="text-align: center; font-size: 1.15rem; color: var(--chamber-gold-bright); font-family: ui-monospace, monospace;">
+          n = x&sup2; - y&sup2; = (x - y)(x + y) = p &times; q
+        </p>
+        <p>
+          The algorithm sets the initial candidate to the ceiling of the square root, <em>x</em> = &lceil;&radic;<em>n</em>&rceil;, and computes the remainder:
+        </p>
+        <p style="text-align: center; font-family: ui-monospace, monospace; color: var(--chamber-papyrus);">
+          r = x&sup2; - n
+        </p>
+        <p>
+          If <em>r</em> is a perfect square, say <em>r</em> = <em>y</em>&sup2;, we have found the factors <em>p</em> = <em>x</em> - <em>y</em> and <em>q</em> = <em>x</em> + <em>y</em>. If not, <em>x</em> is incremented by 1. Because:
+        </p>
+        <p style="text-align: center; font-family: ui-monospace, monospace; color: var(--chamber-papyrus);">
+          (x + 1)&sup2; - n = (x&sup2; - n) + (2x + 1)
+        </p>
+        <p>
+          The remainder can be updated using only additions: <code>r += 2x + 1</code>, completely eliminating expensive multiplications from the inner loop.
+        </p>
+
+        <h2>The Sieve of Ma'at: Legendre Symbol Quadratic Residue Filter</h2>
+        <p>
+          Testing whether an integer is an exact square using square roots is computationally costly. However, a square <em>y</em>&sup2; must be a quadratic residue modulo every prime <em>p</em>.
+        </p>
+        <p>
+          For any prime <em>p</em>, the Legendre symbol (<em>a</em>/<em>p</em>) indicates whether <em>a</em> is a quadratic residue modulo <em>p</em>:
+        </p>
+        <ul>
+          <li>(<em>a</em>/<em>p</em>) = 1 &rarr; <em>a</em> is a quadratic residue modulo <em>p</em>.</li>
+          <li>(<em>a</em>/<em>p</em>) = -1 &rarr; <em>a</em> is a quadratic non-residue modulo <em>p</em> (it is <strong>impossible</strong> for <em>a</em> to be a square).</li>
+          <li>(<em>a</em>/<em>p</em>) = 0 &rarr; <em>p</em> divides <em>a</em>.</li>
+        </ul>
+        <p>
+          By checking <em>r</em> against precomputed Legendre lookup tables for 16 small primes (3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73), more than 99.999% of non-squares are rejected in a fraction of a microsecond before any square root is attempted!
+        </p>
+
+        <h2>The RSA Vulnerability: Why Primes Must Not Be Close</h2>
+        <p>
+          In textbook RSA key generation, the modulus is <em>n</em> = <em>p</em> &times; <em>q</em>. If the primes <em>p</em> and <em>q</em> are chosen too close to each other, Fermat's difference of squares factorization cracks the private key almost instantly!
+        </p>
+        <p>
+          When |<em>p</em> - <em>q</em>| is small:
+        </p>
+        <p style="text-align: center; font-family: ui-monospace, monospace; color: var(--chamber-papyrus);">
+          x = (p + q) / 2 &approx; &radic;n
+        </p>
+        <p>
+          The initial candidate <em>x</em> = &lceil;&radic;<em>n</em>&rceil; is already adjacent to the true factor midpoint. In the <strong>Ramses II</strong> preset above, a 34-bit RSA modulus (<em>n</em> = 10,969,569,647 = 104,723 &times; 104,749) is factored in <strong>just 2 iterations</strong>! This visually demonstrates why cryptographic standards (FIPS 186-4, RFC 8017) strictly require |<em>p</em> - <em>q</em>| &gt; 2<sup>nlen/2 - 100</sup>.
+        </p>
+
+        <h2>Ancient Egyptian Hieroglyphic Numerals</h2>
+        <p>
+          Ancient Egyptians used a base-10 additive numeral system represented in stone carvings across temples, tombs, and papyri (such as the Rhind and Moscow Mathematical Papyri). Numbers were written by repeating glyphs for each power of 10:
+        </p>
+
+        <table class="chamber-hieroglyph-table">
+          <thead>
+            <tr>
+              <th>Value</th>
+              <th>Glyph</th>
+              <th>Egyptian Name / Symbol</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td class="glyph-cell">𓏺</td>
+              <td>Single vertical stroke</td>
+              <td>A single tally mark carved in stone</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td class="glyph-cell">𓎆</td>
+              <td>Hobble / Heel bone (medj)</td>
+              <td>An arch of woven cattle hobble</td>
+            </tr>
+            <tr>
+              <td>100</td>
+              <td class="glyph-cell">𓍢</td>
+              <td>Coil of rope (shet)</td>
+              <td>A coil of measuring surveyor rope</td>
+            </tr>
+            <tr>
+              <td>1,000</td>
+              <td class="glyph-cell">𓆼</td>
+              <td>Lotus plant (khaa)</td>
+              <td>A water lily blooming in the Nile</td>
+            </tr>
+            <tr>
+              <td>10,000</td>
+              <td class="glyph-cell">𓂭</td>
+              <td>Pointing finger (djeba)</td>
+              <td>A bent finger pointing upwards</td>
+            </tr>
+            <tr>
+              <td>100,000</td>
+              <td class="glyph-cell">𓆐</td>
+              <td>Tadpole / Frog (hefen)</td>
+              <td>A fertile tadpole in the Nile mud</td>
+            </tr>
+            <tr>
+              <td>1,000,000</td>
+              <td class="glyph-cell">𓁨</td>
+              <td>God Heh (heh)</td>
+              <td>The god Heh kneeling with upraised arms supporting eternity</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    </main>
+
+    <script src="assets/chamber.js"></script>
+  </body>
+</html>

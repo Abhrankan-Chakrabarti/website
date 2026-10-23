@@ -45,6 +45,7 @@
             <a href="/writing.html">Writing</a>
             <a href="/now.html">Now</a>
             <a href="/lab.html">Lab</a>
+            <a href="/chamber.html">Chamber</a>
         </nav>
         <p class="site-links">
             <a class="active" href="/API.html">API docs</a>
@@ -1177,6 +1178,14 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>None</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/fermat</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET (WS) /crypto-api/v1/math/chamber/ws</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code></td>
       <td>Nginx Basic Auth</td>
     </tr>
@@ -1317,7 +1326,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.7.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.8.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1371,7 +1380,10 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"GET /v1/math/dh/derive"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/dh/derive"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/dh/crack"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/math/dh/crack"</span><span class="w">
+    </span><span class="s2">"POST /v1/math/dh/crack"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/fermat"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/fermat"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/chamber/ws"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1685,6 +1697,22 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"g"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nl">"public_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="nl">"private_key"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
+
+<h4 id="fermat">Fermat's difference of squares factorization</h4>
+
+<p>Factors an odd composite integer $n$ by finding $x, y$ such that $n = x^2 - y^2 = (x - y)(x + y)$. Evaluates each attempt against a 16-prime Legendre quadratic residue sieve before testing exact square roots.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/fermat?n=5959"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"ok"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">5959</span><span class="p">,</span><span class="nl">"initial_x"</span><span class="p">:</span><span class="mi">78</span><span class="p">,</span><span class="nl">"steps_count"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nl">"found"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"p"</span><span class="p">:</span><span class="mi">59</span><span class="p">,</span><span class="nl">"q"</span><span class="p">:</span><span class="mi">101</span><span class="p">,</span><span class="nl">"x"</span><span class="p">:</span><span class="mi">80</span><span class="p">,</span><span class="nl">"y"</span><span class="p">:</span><span class="mi">21</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">42</span><span class="p">,</span><span class="nl">"reason"</span><span class="p">:</span><span class="s2">"found"</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="chamber-ws">The Chamber of Primes WebSocket</h4>
+
+<p>Bidirectional WebSocket streaming endpoint (<code class="language-plaintext highlighter-rouge">/v1/math/chamber/ws</code>) for real-time visualization and step-by-step playback on <a href="/chamber.html">The Chamber of Primes</a>.</p>
+
+<p>Supports client action frames (<code class="language-plaintext highlighter-rouge">start</code>, <code class="language-plaintext highlighter-rouge">pause</code>, <code class="language-plaintext highlighter-rouge">resume</code>, <code class="language-plaintext highlighter-rouge">step</code>, <code class="language-plaintext highlighter-rouge">speed</code>, <code class="language-plaintext highlighter-rouge">stop</code>) and streams server event frames (<code class="language-plaintext highlighter-rouge">start</code>, <code class="language-plaintext highlighter-rouge">step</code>, <code class="language-plaintext highlighter-rouge">candidate</code>, <code class="language-plaintext highlighter-rouge">found</code>, <code class="language-plaintext highlighter-rouge">done</code>).</p>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>
 
