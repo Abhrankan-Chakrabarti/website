@@ -106,7 +106,7 @@ An Ancient Egyptian-themed real-time interactive visualizer for Fermat's Differe
 
 - **Geometric HTML5 Canvas:** Dynamically visualizes the outer $x \times x$ stone square and the carved $y \times y$ void, demonstrating the gnomon's reassembly into $(x - y) \times (x + y)$.
 - **Egyptian Hieroglyphic Numerals:** Real-time base-10 additive numeral converter generating authentic Unicode hieroglyphs (`𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺`).
-- **The Sieve of Ma'at:** 16 small prime runes ($p \in [3, 73]$) providing live visual feedback for Legendre quadratic residue rejection ($(r/p) = -1$) that eliminates $>99.999\%$ of non-squares.
+- **The Sieve of Ma'at:** 20 small prime runes ($p \in [3, 73]$) providing live visual feedback for Legendre quadratic residue rejection ($(r/p) = -1$) that eliminates $>99.999\%$ of non-squares.
 - **Dual-Mode Streaming:** Bidirectional WebSocket stream (`/crypto-api/v1/math/chamber/ws`) with automated REST simulation fallback.
 - **Pharaoh Presets:** Tutankhamun ($n = 5959$), Cleopatra ($n = 8051$), Ramses II ($n = 10969629527$ factoring a 34-bit RSA modulus in step 1), and Nefertiti ($n = 1000000007$).
 
