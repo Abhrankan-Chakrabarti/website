@@ -387,13 +387,13 @@
 }
 
 .chamber-metric-title {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   color: var(--chamber-muted);
-  margin-bottom: 0.2rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 0.35rem;
+  line-height: 1.3;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .chamber-metric-val {
@@ -422,8 +422,10 @@
   letter-spacing: 1px;
   margin-bottom: 0.4rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 0.3rem 0.75rem;
 }
 
 .chamber-sieve-subtitle {
@@ -553,27 +555,93 @@
   margin-top: 0;
 }
 
+/* Responsive Table Wrapper */
+.chamber-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.25rem 0;
+  border: 1px solid var(--chamber-card-border);
+  border-radius: 8px;
+  background: rgba(9, 12, 16, 0.5);
+}
+
 .chamber-hieroglyph-table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin: 0;
   font-size: 0.9rem;
 }
 
 .chamber-hieroglyph-table th,
 .chamber-hieroglyph-table td {
   border: 1px solid var(--chamber-card-border);
-  padding: 0.6rem 0.8rem;
+  padding: 0.65rem 0.85rem;
   text-align: left;
 }
 
 .chamber-hieroglyph-table th {
-  background: rgba(212, 175, 55, 0.1);
-  color: var(--chamber-gold);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--chamber-gold-bright);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .chamber-hieroglyph-table td.glyph-cell {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   text-align: center;
   color: var(--chamber-gold-bright);
+  width: 60px;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 600px) {
+  .chamber-page {
+    padding: 1rem 0.5rem 3rem;
+  }
+
+  .chamber-cartouche-title {
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+  }
+
+  .chamber-cartouche-title h1 {
+    font-size: 1.35rem;
+  }
+
+  .chamber-controls-panel {
+    padding: 1rem;
+  }
+
+  .chamber-stone-tablet {
+    padding: 1rem;
+  }
+
+  .chamber-tablet-row > div {
+    flex: 1 1 100%;
+  }
+
+  .chamber-guide-section {
+    padding: 1.25rem 1rem;
+  }
+
+  .chamber-metric-grid {
+    gap: 0.5rem;
+  }
+
+  .chamber-metric-card {
+    padding: 0.55rem 0.65rem;
+  }
+
+  .chamber-metric-title {
+    font-size: 0.68rem;
+  }
+
+  .chamber-metric-val {
+    font-size: 0.95rem;
+  }
 }
