@@ -7,6 +7,7 @@ Personal website and portfolio for Abhrankan Chakrabarti:
 - [Writing](writing.html) — notes on mathematics, algorithms, cryptography, and related topics
 - [Now](now.html) — current focus and activity
 - [Lab](lab.html) — live service checks and interactive API tools
+- [Chamber](chamber.html) — The Chamber of Primes: Fermat's difference of squares visualizer & Sieve of Ma'at
 - [API documentation](API.md) — production-facing contracts for `lab-api` and `crypto-lab`
 - [Releases](RELEASES.md) — project and website release history
 
@@ -23,17 +24,21 @@ website/
 ├── writing.html               # Writing index
 ├── now.html                  # Current work and focus
 ├── lab.html                  # Interactive lab and service checks
+├── chamber.html               # The Chamber of Primes visualizer
 ├── API.md                    # Source Markdown for API.html
 ├── API.html                  # Generated API documentation page
 ├── RELEASES.md               # Source Markdown for RELEASES.html
 ├── RELEASES.html             # Generated release history page
 ├── style.css                 # Shared site styles
 ├── assets/
+│   ├── chamber.css           # Chamber visualizer styles
+│   ├── chamber.js            # Chamber WebSocket client & canvas visualizer
 │   ├── lab-api.css           # Lab-specific styles
 │   ├── lab-api.js            # Lab API client and interactions
 │   └── css/style.css         # Additional shared stylesheet
 └── writing/
     ├── calculating-pi/
+    ├── chamber-of-primes/
     ├── golden-ratio/
     ├── history-of-cryptography/
     └── pythagorean-triples/
@@ -84,6 +89,8 @@ Lab page uses its public health, information, and FoxMath number theory explorat
 and provides authenticated tools for:
 
 - Number-theoretic & elliptic curve exploration (Tonelli-Shanks, Legendre, CRT, continued fractions, ECC point ops)
+- Textbook cryptosystems suite (RSA keygen, encrypt, decrypt with CRT, crack; Diffie–Hellman keygen, derive, crack)
+- Fermat's difference of squares factorization engine & WebSocket streaming endpoint (`/v1/math/chamber/ws`)
 - SHA-256 and SHA-512 hashing
 - HMAC generation
 - HMAC verification
@@ -92,6 +99,16 @@ Credentials are requested only per protected operation (hash/HMAC), sent only wi
 and cleared from the form afterward. The page does not persist credentials. Math routes are public.
 
 Repository: <https://github.com/foxhackerzdevs/crypto-lab>
+
+### The Chamber of Primes (`chamber.html`)
+
+An Ancient Egyptian-themed real-time interactive visualizer for Fermat's Difference of Squares factorization ($n = x^2 - y^2 = (x - y)(x + y)$):
+
+- **Geometric HTML5 Canvas:** Dynamically visualizes the outer $x \times x$ stone square and the carved $y \times y$ void, demonstrating the gnomon's reassembly into $(x - y) \times (x + y)$.
+- **Egyptian Hieroglyphic Numerals:** Real-time base-10 additive numeral converter generating authentic Unicode hieroglyphs (`𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺`).
+- **The Sieve of Ma'at:** 16 small prime runes ($p \in [3, 73]$) providing live visual feedback for Legendre quadratic residue rejection ($(r/p) = -1$) that eliminates $>99.999\%$ of non-squares.
+- **Dual-Mode Streaming:** Bidirectional WebSocket stream (`/crypto-api/v1/math/chamber/ws`) with automated REST simulation fallback.
+- **Pharaoh Presets:** Tutankhamun ($n = 5959$), Cleopatra ($n = 8051$), Ramses II ($n = 10969569647$ factoring a 34-bit RSA modulus in just 2 steps), and Nefertiti ($n = 1000000007$).
 
 ## Nginx routing
 
