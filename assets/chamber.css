@@ -109,6 +109,8 @@
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .chamber-presets-group {
@@ -166,14 +168,20 @@
   gap: 1rem;
   align-items: flex-end;
   margin-bottom: 1.2rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .chamber-input-field {
   flex: 1 1 260px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .chamber-input-field input {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 0.65rem 0.9rem;
   font-size: 1.05rem;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -255,15 +263,26 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .chamber-tablet-row {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.75rem 1.5rem;
   border-bottom: 1px dashed rgba(212, 175, 55, 0.2);
-  padding-bottom: 0.6rem;
+  padding-bottom: 0.75rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chamber-tablet-row > div {
+  min-width: 0;
+  flex: 1 1 200px;
+  max-width: 100%;
 }
 
 .chamber-tablet-row:last-child {
@@ -276,6 +295,7 @@
   text-transform: uppercase;
   color: var(--chamber-gold);
   letter-spacing: 1px;
+  margin-bottom: 0.25rem;
 }
 
 .chamber-tablet-val {
@@ -283,6 +303,9 @@
   font-size: 1.15rem;
   color: #fff;
   font-weight: 600;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .chamber-hieroglyphic-display {
@@ -291,6 +314,8 @@
   color: var(--chamber-papyrus);
   text-shadow: 0 0 6px rgba(244, 236, 216, 0.3);
   word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 /* Visualization Canvas Section */
@@ -347,7 +372,7 @@
 
 .chamber-metric-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -356,6 +381,9 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .chamber-metric-title {
@@ -363,6 +391,9 @@
   text-transform: uppercase;
   color: var(--chamber-muted);
   margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chamber-metric-val {
@@ -371,6 +402,8 @@
   font-weight: 600;
   color: var(--chamber-papyrus);
   word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 /* Sieve of Ma'at Grid */
@@ -465,6 +498,9 @@
   text-align: center;
   box-shadow: 0 0 30px rgba(212, 175, 55, 0.35);
   animation: chamber-glow 2s infinite alternate;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 @keyframes chamber-glow {
@@ -486,6 +522,7 @@
   font-weight: 700;
   margin: 0.5rem 0;
   word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 .chamber-result-meta {
