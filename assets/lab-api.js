@@ -281,9 +281,19 @@ async function requestJson(
 
   if (text) {
     try {
-      body = JSON.parse(text);
+      // Prevent IEEE 754 precision loss on integers >= 2^53 (e.g. 62-bit RSA moduli)
+      // Matches quoted strings to leave them intact, and quotes any 15+ digit raw numbers
+      const safeText = text.replace(
+        /"(?:\\.|[^"\\])*"|(-?\b\d{15,}\b)/g,
+        (match, num) => (num ? `"${num}"` : match),
+      );
+      body = JSON.parse(safeText);
     } catch {
-      body = text;
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = text;
+      }
     }
   }
 
