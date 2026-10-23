@@ -58,8 +58,8 @@
     },
     ramses: {
       name: 'Ramses II',
-      n: '10969569647',
-      desc: 'RSA Vulnerability: 104723 × 104749. Huge modulus factored in 2 steps!',
+      n: '10969629527',
+      desc: 'RSA Vulnerability: 104723 × 104749. Huge modulus factored in step 1!',
     },
     nefertiti: {
       name: 'Nefertiti',

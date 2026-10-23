@@ -9,7 +9,7 @@
   - **Geometric HTML5 Canvas**: Visualizes the outer $x \times x$ stone block and the carved $y \times y$ void, demonstrating how the gnomon rearranges into rectangle $(x - y) \times (x + y)$.
   - **Egyptian Hieroglyphic Numerals**: Real-time base-10 additive numeral converter generating authentic Unicode hieroglyphic cartouches (`𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺`).
   - **Sieve of Ma'at**: 16 small prime runes ($3 \dots 73$) displaying Legendre symbol quadratic residue filtering ($(r/p) = -1$) that rejects non-squares in $O(1)$ table lookups.
-  - **Pharaoh Presets**: Tutankhamun ($n = 5959$), Cleopatra ($n = 8051$), Ramses II ($n = 10969569647$ factoring a 34-bit RSA modulus in just 2 steps), and Nefertiti ($n = 1000000007$).
+  - **Pharaoh Presets**: Tutankhamun ($n = 5959$), Cleopatra ($n = 8051$), Ramses II ($n = 10969629527$ factoring a 34-bit RSA modulus in step 1), and Nefertiti ($n = 1000000007$).
   - **Dual-mode streaming**: Bidirectional WebSocket connection with automatic REST simulation fallback.
 - Upgraded `crypto-lab` to `v0.8.0`:
   - `GET /crypto-api/v1/math/fermat` & `POST /crypto-api/v1/math/fermat`: difference of squares factorization endpoint with configurable iteration bounds and step tracing.
