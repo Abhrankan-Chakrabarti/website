@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d1117">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23d4af37'%3E𓁨%3C/text%3E%3C/svg%3E">
+    <meta name="description" content="Exploring Fermat's difference of squares factorization, Legendre symbol quadratic residue sieves, and the geometric visualizer in The Chamber of Primes.">
+    <title>The Chamber of Primes: Fermat's Factorization &amp; Sieve of Ma'at · Abhrankan</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav>
+            <a href="/">Home</a>
+            <a href="/projects.html">Projects</a>
+            <a class="active" href="/writing.html">Writing</a>
+            <a href="/now.html">Now</a>
+            <a href="/lab.html">Lab</a>
+            <a href="/chamber.html">Chamber</a>
+        </nav>
+        <p class="site-links">
+            <a href="/API.html">API docs</a>
+            ·
+            <a href="/RELEASES.html">Releases</a>
+        </p>
+    </header>
+
+    <main>
+        <article class="post">
+            <p class="meta">Mathematics · Cryptography · October 23, 2026</p>
+            <h1>The Chamber of Primes: Fermat's Factorization &amp; The Sieve of Ma'at</h1>
+
+            <p>
+                In 1643, French mathematician Pierre de Fermat introduced an elegant method to factor odd composite numbers by representing them as the difference of two perfect squares:
+            </p>
+            <p class="equation" style="text-align: center; font-size: 1.15rem; color: #d4af37; font-family: ui-monospace, monospace;">
+                n = x&sup2; - y&sup2; = (x - y)(x + y)
+            </p>
+            <p>
+                While modern general-purpose factorization relies on the General Number Field Sieve (GNFS) or Pollard's &rho;, Fermat's method remains uniquely compelling: it translates an algebraic factorization problem into a visual geometric search, and it cleanly exposes the fatal vulnerability of RSA moduli generated with close primes.
+            </p>
+
+            <h2>The Geometric Gnomon</h2>
+            <p>
+                Geometrically, if we construct a stone square of dimension <em>x</em> &times; <em>x</em> and carve out an inner square void of dimension <em>y</em> &times; <em>y</em> from its corner, the remaining shape is an <strong>L-tromino</strong> (ancient Greek: <em>gnomon</em>) whose area is exactly <em>x</em>&sup2; - <em>y</em>&sup2;.
+            </p>
+            <p>
+                Fermat noticed that this gnomon can always be sliced into two arms and reassembled into a rectangle of width (<em>x</em> - <em>y</em>) and height (<em>x</em> + <em>y</em>). Therefore, whenever the carved void <em>r</em> = <em>x</em>&sup2; - <em>n</em> forms an exact square <em>y</em>&sup2;, the sides of the reassembled rectangle yield the non-trivial factors:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #c9d1d9;">
+                p = x - y, &emsp; q = x + y &emsp; &implies; &emsp; p &times; q = n
+            </p>
+
+            <h2>Eliminating Multiplication: The Incremental Addition Loop</h2>
+            <p>
+                A naive implementation of Fermat's method would compute <em>x</em>&sup2; - <em>n</em> for each step <em>x</em> = &lceil;&radic;<em>n</em>&rceil;, &lceil;&radic;<em>n</em>&rceil; + 1, &hellip; using full multiplications. However, the difference between consecutive squares follows an arithmetic progression of odd numbers:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #c9d1d9;">
+                (x + 1)&sup2; - n = (x&sup2; - n) + (2x + 1)
+            </p>
+            <p>
+                By maintaining a running remainder <code>r</code> and incrementing it by <code>2x + 1</code> at each iteration, the inner loop requires only 64-bit/128-bit additions, making candidate generation exceptionally fast.
+            </p>
+
+            <h2>The Sieve of Ma'at: Legendre Quadratic Residue Filter</h2>
+            <p>
+                The primary performance bottleneck in Fermat's method is checking whether the remainder <em>r</em> is a perfect square. Exact integer square roots (even binary digit-by-digit square roots) are computationally expensive compared to addition.
+            </p>
+            <p>
+                To resolve this, we employ the <strong>Legendre symbol</strong> (<em>a</em>/<em>p</em>). If an integer <em>r</em> is a square, it <em>must</em> be a quadratic residue modulo every prime <em>p</em>. If:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #e74c3c;">
+                (r / p) = -1
+            </p>
+            <p>
+                then <em>r</em> is guaranteed to be a quadratic non-residue modulo <em>p</em>, meaning it is mathematically impossible for <em>r</em> to be a perfect square.
+            </p>
+            <p>
+                In our Rust engine (<a href="https://github.com/foxhackerzdevs/crypto-lab">crypto-lab</a>), we use precomputed lookup tables for 16 small primes (3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73). Modulo 3 alone rejects 33.3% of candidates; modulo 5 rejects 40% of the remainder. Across all 16 primes, the sieve eliminates <strong>more than 99.999%</strong> of non-squares in <em>O</em>(1) table lookups before any square root is ever evaluated.
+            </p>
+
+            <h2>The RSA Vulnerability: Why Primes Must Not Be Close</h2>
+            <p>
+                When constructing an RSA keypair, the public modulus is <em>n</em> = <em>p</em> &times; <em>q</em>. If prime factors <em>p</em> and <em>q</em> are chosen close to each other, their average:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #d4af37;">
+                x = (p + q) / 2 &approx; &radic;n
+            </p>
+            <p>
+                lies extremely close to the starting value &lceil;&radic;<em>n</em>&rceil;. In our Ramses II preset (<em>n</em> = 10,969,569,647 = 104,723 &times; 104,749), this 34-bit RSA modulus is cracked by Fermat's method in <strong>just 2 steps</strong>!
+            </p>
+            <p>
+                This visual demonstration highlights why modern cryptographic standards (such as FIPS 186-4 and RFC 8017) mandate that prime candidates must satisfy |<em>p</em> - <em>q</em>| &gt; 2<sup>nlen/2 - 100</sup>.
+            </p>
+
+            <h2>Interactive Visualizer</h2>
+            <p>
+                To experience the geometric gnomon, real-time WebSocket telemetry, and ancient Egyptian hieroglyphic numeral conversion in action, visit the live interactive tool:
+            </p>
+            <p style="text-align: center; margin: 1.5rem 0;">
+                <a href="/chamber.html" style="display: inline-block; padding: 0.65rem 1.4rem; background: linear-gradient(135deg, #d4af37 0%, #aa8214 100%); color: #090c10; font-weight: 700; text-decoration: none; border-radius: 6px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);">
+                    𓁨 Enter The Chamber of Primes ❯
+                </a>
+            </p>
+
+            <h2>Further Reading &amp; Code</h2>
+            <ul>
+                <li><a href="/chamber.html">The Chamber of Primes — Interactive Visualizer</a></li>
+                <li><a href="https://github.com/foxhackerzdevs/crypto-lab">crypto-lab (Rust Axum service &amp; Fermat engine)</a></li>
+                <li><a href="https://github.com/foxhackerzdevs/diffsquare">diffsquare (Rust Difference of Squares CLI)</a></li>
+                <li><a href="/writing/pythagorean-triples/">Exploring Almost Isosceles Pythagorean Triples</a></li>
+                <li><a href="/writing/history-of-cryptography/">History of Cryptography</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Abhrankan Chakrabarti</p>
+    </footer>
+</body>
+</html>
