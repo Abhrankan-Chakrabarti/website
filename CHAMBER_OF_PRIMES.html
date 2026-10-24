@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>The Chamber of Primes: Fermat Factorization &amp; Sieve of Ma'at | website</title>
+    <meta name="generator" content="Jekyll v3.10.0" />
+    <meta property="og:title" content="The Chamber of Primes: Fermat Factorization &amp; Sieve of Ma'at" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="description" content="Architecture, Fermat difference of squares engine, Legendre residue sieve, and WebSocket streaming visualizer report for Abhrankan Chakrabarti." />
+    <meta property="og:description" content="Architecture, Fermat difference of squares engine, Legendre residue sieve, and WebSocket streaming visualizer report for Abhrankan Chakrabarti." />
+    <link rel="canonical" href="https://abhrankan.duckdns.org/CHAMBER_OF_PRIMES.html" />
+    <meta property="og:url" content="https://abhrankan.duckdns.org/CHAMBER_OF_PRIMES.html" />
+    <meta property="og:site_name" content="website" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta property="twitter:title" content="The Chamber of Primes: Fermat Factorization &amp; Sieve of Ma'at" />
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23d4af37'%3E𓁨%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <header>
+        <h1>website</h1>
+        <p class="subtitle">Abhrankan Chakrabarti</p>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/projects.html">Projects</a>
+            <a href="/writing.html">Writing</a>
+            <a href="/now.html">Now</a>
+            <a href="/lab.html">Lab</a>
+            <a href="/chamber.html">Chamber</a>
+        </nav>
+        <p class="site-links">
+            <a href="/API.html">API docs</a>
+            ·
+            <a href="/RELEASES.html">Releases</a>
+            ·
+            <a class="active" href="/CHAMBER_OF_PRIMES.html">Chamber Report</a>
+        </p>
+      </header>
+
+      <h1 id="the-chamber-of-primes-fermat-factorization--sieve-of-maat">The Chamber of Primes: Fermat Factorization &amp; Sieve of Ma'at</h1>
+
+<blockquote>
+  <p><strong>Releases:</strong> <code class="language-plaintext highlighter-rouge">crypto-lab v0.8.0</code> &amp; <code class="language-plaintext highlighter-rouge">website v0.10.0</code><br />
+  <strong>Status:</strong> All 45 tests passing, zero Clippy/formatting warnings, pushed to GitHub and deployed to production.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="1-overview--conceptual-connection">1. Overview &amp; Conceptual Connection</h2>
+
+<p><strong>The Chamber of Primes</strong> brings Pierre de Fermat's 1643 Difference of Squares factorization algorithm to life through a real-time, bidirectional WebSocket streaming visualizer wrapped in an Ancient Egyptian temple aesthetic.</p>
+
+<p>By pairing the high-performance number-theoretic primitives of <a href="https://github.com/Abhrankan-Chakrabarti/diffsquare"><code class="language-plaintext highlighter-rouge">diffsquare</code></a> with the async Axum backend in <a href="https://github.com/foxhackerzdevs/crypto-lab"><code class="language-plaintext highlighter-rouge">crypto-lab</code></a> and the static showcase in <a href="https://github.com/Abhrankan-Chakrabarti/website"><code class="language-plaintext highlighter-rouge">website</code></a>, the visualizer demonstrates:</p>
+
+<ol>
+  <li><strong>Geometric Factorization (<em>n</em> = <em>x</em>&sup2; &minus; <em>y</em>&sup2; = (<em>x</em> &minus; <em>y</em>)(<em>x</em> + <em>y</em>)):</strong> Real-time canvas rendering of the outer stone square (<em>x</em> &times; <em>x</em>) and carved void (<em>y</em> &times; <em>y</em>) until the remaining gnomon area matches <em>n</em>.</li>
+  <li><strong>The Sieve of Ma'at:</strong> A 20-prime Legendre symbol quadratic residue filter (<em>p</em> &isin; [3, 73]) eliminating &gt;99.999% of non-squares in <em>O</em>(1) table lookups.</li>
+  <li><strong>The RSA Close Primes Vulnerability:</strong> Visual proof of why RSA prime selection requires distant factors (e.g. Ramses II factoring an RSA-style modulus in step 1).</li>
+  <li><strong>Ancient Egyptian Hieroglyphic Numerals:</strong> Authentic base-10 additive numeral conversion rendered using Unicode Block U+13000 (<code class="language-plaintext highlighter-rouge">𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺</code>).</li>
+</ol>
+
+<h3 id="architecture-diagram">Visualizer Architecture</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌────────────────────────────────────────────────────────┐
+│              Browser Client (chamber.html)             │
+│   Canvas Gnomon · Sieve Rune Grid · Cartouche Displays │
+└──────────────────────────┬─────────────────────────────┘
+                           │ ▲ Bidirectional WebSocket
+                           │ │ (/v1/math/chamber/ws)
+                           ▼ │ (Automatic REST Fallback)
+┌──────────────────────────┴─────────────────────────────┐
+│                 crypto-lab (Axum 0.7)                  │
+│                      src/fermat.rs                     │
+└──────────┬───────────────────────────────┬─────────────┘
+           │                               │
+           ▼                               ▼
+┌────────────────────────┐      ┌────────────────────────┐
+│  Legendre Sieve Engine │      │   Exact Integer Sqrt   │
+│  (20 Primes: 3 … 73)   │      │    &amp; Fermat Stepper    │
+└────────────────────────┘      └────────────────────────┘</code></pre></div></div>
+
+<hr />
+
+<h2 id="2-backend-implementation-crypto-lab-v080">2. Backend Implementation (<code class="language-plaintext highlighter-rouge">crypto-lab v0.8.0</code>)</h2>
+
+<h3 id="core-fermat-engine-srcfermatrs">Core Fermat Engine (<code class="language-plaintext highlighter-rouge">src/fermat.rs</code>)</h3>
+<ul>
+  <li><strong>Ported Legendre Residue Tables:</strong> Precomputed residues for 20 primes:
+    <p style="text-align: center; font-family: ui-monospace, monospace; color: #d4af37; margin: 0.75rem 0;">
+      <em>p</em> &isin; {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73}
+    </p>
+  </li>
+  <li><strong>Binary Integer Square Root:</strong> Exact <em>O</em>(log <em>n</em>) digit-by-digit square root (<code class="language-plaintext highlighter-rouge">integer_sqrt</code>, <code class="language-plaintext highlighter-rouge">sqrt_ceil</code>, <code class="language-plaintext highlighter-rouge">sqrt_exact</code>) operating on <code class="language-plaintext highlighter-rouge">u128</code> without floating-point precision loss.</li>
+  <li><strong>Fermat Difference of Squares Loop:</strong>
+    Starting at <em>x</em> = &lceil;&radic;<em>n</em>&rceil;, successive attempts increment <em>x</em> &rarr; <em>x</em> + 1 and update remainder <em>r</em> via pure addition:
+    <p style="text-align: center; font-family: ui-monospace, monospace; color: #d4af37; margin: 0.75rem 0;">
+      <em>r</em><sub><em>k</em>+1</sub> = <em>r</em><sub><em>k</em></sub> + 2<em>x</em><sub><em>k</em></sub> + 1
+    </p>
+  </li>
+  <li><strong>Step Outcome Dispatch:</strong> Generates structured records detailing step index, current <em>x</em>, remainder <em>r</em>, sieve verdict, rejecting prime (if any), and factor resolution (<em>p</em>, <em>q</em>).</li>
+</ul>
+
+<h3 id="api-routes--endpoints">API Routes &amp; Endpoints</h3>
+<ul>
+  <li><strong>REST Factorization (<code class="language-plaintext highlighter-rouge">GET /v1/math/fermat</code> &amp; <code class="language-plaintext highlighter-rouge">POST /v1/math/fermat</code>):</strong><br />
+    Accepts query parameters or JSON body:
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5959"</span><span class="p">,</span><span class="w"> </span><span class="nl">"max_steps"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="nl">"record_steps"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+    <p>Returns non-trivial factor pair <em>p</em>, <em>q</em>, step count, microsecond timing, and step-by-step traces.</p>
+  </li>
+  <li><strong>The Chamber WebSocket (<code class="language-plaintext highlighter-rouge">GET /v1/math/chamber/ws</code>):</strong>
+    <ul>
+      <li><strong>Client Action Frames:</strong> <code class="language-plaintext highlighter-rouge">start</code> (<em>n</em>, <em>delay_ms</em>, <em>max_steps</em>), <code class="language-plaintext highlighter-rouge">pause</code>, <code class="language-plaintext highlighter-rouge">resume</code>, <code class="language-plaintext highlighter-rouge">step</code>, <code class="language-plaintext highlighter-rouge">speed</code> (<em>delay_ms</em>), <code class="language-plaintext highlighter-rouge">stop</code>.</li>
+      <li><strong>Server Event Frames:</strong> <code class="language-plaintext highlighter-rouge">start</code>, <code class="language-plaintext highlighter-rouge">step</code> (with residue &amp; sieve info), <code class="language-plaintext highlighter-rouge">candidate</code>, <code class="language-plaintext highlighter-rouge">found</code>, <code class="language-plaintext highlighter-rouge">done</code>.</li>
+      <li>Fully asynchronous with non-blocking cooperative yielding and socket lifecycle handling.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="3-frontend-showcase-website-v0100">3. Frontend Showcase (<code class="language-plaintext highlighter-rouge">website v0.10.0</code>)</h2>
+
+<h3 id="components-created--updated">Components Created &amp; Updated</h3>
+<ol>
+  <li><a href="/chamber.html"><code class="language-plaintext highlighter-rouge">chamber.html</code></a>: Dedicated showcase page featuring:
+    <ul>
+      <li>Basalt tomb and Egyptian gold card styling (<code class="language-plaintext highlighter-rouge">#090c10</code>, <code class="language-plaintext highlighter-rouge">#d4af37</code>, <code class="language-plaintext highlighter-rouge">#ffd700</code>).</li>
+      <li>Pharaoh presets:
+        <ul>
+          <li><strong>Tutankhamun</strong> (<em>n</em> = 5959 = 59 &times; 101, factors in 3 steps)</li>
+          <li><strong>Cleopatra</strong> (<em>n</em> = 8051 = 83 &times; 97, factors in 8 steps)</li>
+          <li><strong>Ramses II</strong> (<em>n</em> = 10,969,629,527 = 104,723 &times; 104,749, factors in step 1 &mdash; RSA vulnerability demo)</li>
+          <li><strong>Nefertiti</strong> (<em>n</em> = 1,000,000,007, prime modulus search)</li>
+          <li><strong>Custom input</strong> for any odd integer <em>n</em> &ge; 3.</li>
+        </ul>
+      </li>
+      <li>Play/Pause, Step-by-Step, Delay slider (10ms to 400ms), and Reset.</li>
+      <li>Live stone tablet cartouches for <em>n</em>, <em>x</em>, <em>r</em>, and <em>y</em>.</li>
+      <li>Victory banner revealing <em>n</em> = <em>p</em> &times; <em>q</em> = (<em>x</em> &minus; <em>y</em>)(<em>x</em> + <em>y</em>).</li>
+    </ul>
+  </li>
+  <li><a href="/assets/chamber.css"><code class="language-plaintext highlighter-rouge">assets/chamber.css</code></a>: Responsive Egyptian styling, glowing sieve rune tiles, stone cartouche borders, and dark ambient atmosphere.</li>
+  <li><a href="/assets/chamber.js"><code class="language-plaintext highlighter-rouge">assets/chamber.js</code></a>:
+    <ul>
+      <li><strong>Dual-mode streaming:</strong> Connects to WebSocket on <code class="language-plaintext highlighter-rouge">wss://</code> with automated fallback to the REST simulation engine.</li>
+      <li><strong>Hieroglyphic Numeral Encoder:</strong> Translates any decimal or BigInt value into Egyptian Unicode glyphs (<code class="language-plaintext highlighter-rouge">𓁨 𓆐 𓂭 𓆼 𓍢 𓎆 𓏺</code>).</li>
+      <li><strong>HTML5 Canvas:</strong> Draws outer square <em>x</em> &times; <em>x</em>, carved void <em>y</em> &times; <em>y</em>, measurement lines, and the L-tromino (gnomon).</li>
+      <li><strong>Sieve Grid:</strong> 20 glowing rune tiles showing live residue and rejection states.</li>
+    </ul>
+  </li>
+  <li><strong>Site Integration:</strong> Updated <a href="/lab.html"><code class="language-plaintext highlighter-rouge">lab.html</code></a> with a featured visualizer banner, added project cards to <a href="/projects.html"><code class="language-plaintext highlighter-rouge">projects.html</code></a>, and added navbar links across all pages (<code class="language-plaintext highlighter-rouge">index.html</code>, <code class="language-plaintext highlighter-rouge">writing.html</code>, <code class="language-plaintext highlighter-rouge">now.html</code>, <code class="language-plaintext highlighter-rouge">API.html</code>, <code class="language-plaintext highlighter-rouge">RELEASES.html</code>).</li>
+  <li><strong>Documentation &amp; Changelogs:</strong> Updated <a href="/API.html"><code class="language-plaintext highlighter-rouge">API.md</code></a>, <a href="/API.html"><code class="language-plaintext highlighter-rouge">API.html</code></a>, <a href="/RELEASES.html"><code class="language-plaintext highlighter-rouge">RELEASES.md</code></a>, and <a href="/RELEASES.html"><code class="language-plaintext highlighter-rouge">RELEASES.html</code></a>.</li>
+</ol>
+
+<hr />
+
+<h2 id="4-egyptian-hieroglyphic-numeral-system">4. Egyptian Hieroglyphic Numeral System</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Value</th>
+      <th style="text-align: left">Unicode</th>
+      <th style="text-align: center">Glyph</th>
+      <th style="text-align: left">Ancient Name</th>
+      <th style="text-align: left">Significance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+133FA</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓏺</td>
+      <td style="text-align: left">Single stroke</td>
+      <td style="text-align: left">A simple tally mark carved into stone</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">10</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+13386</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓎆</td>
+      <td style="text-align: left">Cattle hobble (<em>medj</em>)</td>
+      <td style="text-align: left">An arch of woven cattle tether rope</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">100</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+13362</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓍢</td>
+      <td style="text-align: left">Coil of rope (<em>shet</em>)</td>
+      <td style="text-align: left">A coil of surveyor measuring rope</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">1,000</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+131BC</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓆼</td>
+      <td style="text-align: left">Water lily (<em>khaa</em>)</td>
+      <td style="text-align: left">A sacred lotus blooming in the Nile</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">10,000</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+130AD</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓂭</td>
+      <td style="text-align: left">Pointing finger (<em>djeba</em>)</td>
+      <td style="text-align: left">A bent finger pointing toward the heavens</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">100,000</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+13190</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓆐</td>
+      <td style="text-align: left">Tadpole (<em>hefen</em>)</td>
+      <td style="text-align: left">A fertile frog emerging from Nile silt</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">1,000,000</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">U+13068</code></td>
+      <td style="text-align: center; font-size: 1.3rem;">𓁨</td>
+      <td style="text-align: left">God Heh (<em>heh</em>)</td>
+      <td style="text-align: left">Kneeling deity with upraised arms supporting eternity</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="5-deployment-guide-ec2-server">5. Deployment Guide (EC2 Server)</h2>
+
+<p>On your EC2 server (<code class="language-plaintext highlighter-rouge">ec2-user@ip-172-31-77-184</code>), run the following commands in fish shell:</p>
+
+<h3 id="step-1-update--rebuild-crypto-lab">Step 1: Update &amp; Rebuild <code class="language-plaintext highlighter-rouge">crypto-lab</code></h3>
+<div class="language-fish highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd ~/rust/crypto-lab
+git pull
+cargo build --release
+sudo install -m 755 target/release/crypto-lab /usr/local/bin/crypto-lab
+sudo systemctl restart crypto-lab
+</code></pre></div></div>
+
+<h3 id="step-2-deploy-updated-website">Step 2: Deploy Updated Website</h3>
+<div class="language-fish highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/deploy.sh
+</code></pre></div></div>
+
+<h3 id="step-3-verify-nginx-websocket-headers-optional--recommended">Step 3: Verify Nginx WebSocket Headers (Optional / Recommended)</h3>
+<p>In <code class="language-plaintext highlighter-rouge">/etc/nginx/conf.d/abhrankan.conf</code>, ensure the math proxy block forwards WebSocket upgrade headers:</p>
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">location</span> <span class="n">/crypto-api/v1/math/</span> <span class="p">{</span>
+    <span class="kn">proxy_pass</span> <span class="s">http://127.0.0.1:8089/v1/math/</span><span class="p">;</span>
+
+    <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="s">"upgrade"</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><em>(Note: If Nginx is not yet updated for WebSockets, <code class="language-plaintext highlighter-rouge">assets/chamber.js</code> automatically falls back to the REST simulation engine, ensuring 100% immediate availability.)</em></p>
+
+<hr />
+
+<h2 id="6-verification--test-commands">6. Verification &amp; Test Commands</h2>
+
+<h3 id="1-test-rest-factorization-endpoint">1. Test REST Factorization Endpoint</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/fermat?n=5959"</span> | jq <span class="nb">.</span>
+</code></pre></div></div>
+<p>Expected output:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"ok"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">5959</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"initial_x"</span><span class="p">:</span><span class="w"> </span><span class="mi">78</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"steps_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"found"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">59</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"q"</span><span class="p">:</span><span class="w"> </span><span class="mi">101</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"found"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="2-test-34-bit-rsa-modulus-factorization-ramses-ii">2. Test 34-bit RSA Modulus Factorization (Ramses II)</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/fermat?n=10969629527"</span> | jq <span class="nb">.</span>
+</code></pre></div></div>
+<p>Expected output:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"ok"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"n"</span><span class="p">:</span><span class="w"> </span><span class="mi">10969629527</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"initial_x"</span><span class="p">:</span><span class="w"> </span><span class="mi">104736</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"steps_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"found"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"p"</span><span class="p">:</span><span class="w"> </span><span class="mi">104723</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"q"</span><span class="p">:</span><span class="w"> </span><span class="mi">104749</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"x"</span><span class="p">:</span><span class="w"> </span><span class="mi">104736</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"y"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"found"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="3-test-metadata-endpoint">3. Test Metadata Endpoint</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> https://abhrankan.duckdns.org/crypto-api/v1/info | jq <span class="s1">'{version: .version, count: (.endpoints | length)}'</span>
+</code></pre></div></div>
+<p>Expected output:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.8.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">56</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        <a href="/chamber.html">Enter The Chamber of Primes ❯</a> · <a href="/writing/chamber-of-primes/">Read the Article</a>
+      </div>
+      
+    </div>
+    <footer>
+        <p>&copy; 2026 Abhrankan Chakrabarti</p>
+    </footer>
+      
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

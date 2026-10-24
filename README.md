@@ -26,7 +26,8 @@ website/
 ├── now.html                  # Current work and focus
 ├── lab.html                  # Interactive lab and service checks
 ├── chamber.html               # The Chamber of Primes visualizer
-├── CHAMBER_OF_PRIMES.md      # Architecture and implementation report for The Chamber of Primes
+├── CHAMBER_OF_PRIMES.md      # Source Markdown for CHAMBER_OF_PRIMES.html
+├── CHAMBER_OF_PRIMES.html    # Architecture and implementation report for The Chamber of Primes
 ├── API.md                    # Source Markdown for API.html
 ├── API.html                  # Generated API documentation page
 ├── RELEASES.md               # Source Markdown for RELEASES.html
