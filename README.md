@@ -8,6 +8,7 @@ Personal website and portfolio for Abhrankan Chakrabarti:
 - [Now](now.html) — current focus and activity
 - [Lab](lab.html) — live service checks and interactive API tools
 - [Chamber](chamber.html) — The Chamber of Primes: Fermat's difference of squares visualizer & Sieve of Ma'at
+- [The Chamber of Primes Report](CHAMBER_OF_PRIMES.md) — architecture, Fermat engine, Legendre sieve, and visualizer implementation report
 - [API documentation](API.md) — production-facing contracts for `lab-api` and `crypto-lab`
 - [Releases](RELEASES.md) — project and website release history
 
@@ -25,6 +26,7 @@ website/
 ├── now.html                  # Current work and focus
 ├── lab.html                  # Interactive lab and service checks
 ├── chamber.html               # The Chamber of Primes visualizer
+├── CHAMBER_OF_PRIMES.md      # Architecture and implementation report for The Chamber of Primes
 ├── API.md                    # Source Markdown for API.html
 ├── API.html                  # Generated API documentation page
 ├── RELEASES.md               # Source Markdown for RELEASES.html
