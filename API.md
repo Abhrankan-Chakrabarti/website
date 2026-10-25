@@ -958,6 +958,8 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **DH Crack** | Recovers private exponent $a$ via Baby-step Giant-step discrete logarithm solver. |
 | **Fermat Factorization** | Fermat's difference of squares factorization ($n = x^2 - y^2$) with Legendre quadratic residue sieve. |
 | **Chamber WebSocket** | Real-time WebSocket streaming endpoint for step-by-step visual factorization ("The Chamber of Primes"). |
+| **Mersenne Primality** | Deterministic Lucas–Lehmer primality test for Mersenne numbers $M_p = 2^p - 1$ ($2 \le p \le 5000$) and Euclid–Euler even perfect numbers. Also enumerates known Mersenne primes via `?limit=...`. |
+| **Perfect Numbers** | Euclid–Euler even perfect number verification ($\sigma(n) = 2n$) or generation for prime exponent $p$ ($2^{p-1}(2^p - 1)$). |
 
 ### Application information
 
@@ -969,7 +971,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1026,7 +1028,11 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "POST /v1/math/dh/crack",
     "GET /v1/math/fermat",
     "POST /v1/math/fermat",
-    "GET /v1/math/chamber/ws"
+    "GET /v1/math/chamber/ws",
+    "GET /v1/math/mersenne",
+    "POST /v1/math/mersenne",
+    "GET /v1/math/perfect",
+    "POST /v1/math/perfect"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1459,6 +1465,65 @@ Bidirectional WebSocket streaming endpoint for real-time factorization visualiza
   - `{"type": "candidate", "step": 3, "x": 80, "r": 441, "sieve_passed": true, "is_square": true, "y": 21}`
   - `{"type": "found", "step": 3, "x": 80, "y": 21, "p": 59, "q": 101, "elapsed_us": 42}`
   - `{"type": "done", "reason": "found", "step": 3, "p": 59, "q": 101, "elapsed_us": 42}`
+
+#### Mersenne numbers & Lucas–Lehmer test (`/v1/math/mersenne`)
+
+Performs the deterministic Lucas–Lehmer primality test on Mersenne number $M_p = 2^p - 1$ for exponent $2 \le p \le 5000$. When $M_p$ is prime, also computes the corresponding Euclid–Euler even perfect number $2^{p-1}(2^p - 1)$ using pure Rust arbitrary-precision bit arithmetic.
+
+Parameters:
+- `p` (integer, optional): prime exponent to evaluate.
+- `limit` (integer, optional, default: 127): when `p` is omitted, returns a list of all prime exponents $\le \text{limit}$ yielding Mersenne primes.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/mersenne?p=31"
+```
+
+```json
+{
+  "p": 31,
+  "mp": "2147483647",
+  "p_is_prime": true,
+  "is_prime": true,
+  "bits": 31,
+  "digits": 10,
+  "perfect_number": "2305843008139952128"
+}
+```
+
+Enumerate Mersenne prime exponents up to limit:
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/mersenne?limit=127"
+```
+
+```json
+{
+  "limit": 127,
+  "primes": [2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127]
+}
+```
+
+#### Euclid–Euler perfect numbers (`/v1/math/perfect`)
+
+Evaluates whether a given integer $n$ is a perfect number ($\sigma(n) = 2n$), or generates the even perfect number corresponding to prime exponent $p$.
+
+Parameters:
+- `n` (integer, optional): test if sum of proper divisors equals $n$.
+- `p` (integer, optional): generate even perfect number for Mersenne prime exponent $p$.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/perfect?n=28&p=7"
+```
+
+```json
+{
+  "n": 28,
+  "is_perfect": true,
+  "sigma": 56,
+  "p": 7,
+  "perfect_number": "8128"
+}
+```
 
 ### Input contract and status codes
 

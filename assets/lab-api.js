@@ -135,6 +135,17 @@ const cryptoFermatN = document.querySelector("#crypto-fermat-n");
 const cryptoFermatResult = document.querySelector("#crypto-fermat-result");
 const clearCryptoFermatButton = document.querySelector("#clear-crypto-fermat");
 
+const cryptoMersenneForm = document.querySelector("#crypto-mersenne-form");
+const cryptoMersenneP = document.querySelector("#crypto-mersenne-p");
+const cryptoMersenneResult = document.querySelector("#crypto-mersenne-result");
+const clearCryptoMersenneButton = document.querySelector("#clear-crypto-mersenne");
+
+const cryptoPerfectForm = document.querySelector("#crypto-perfect-form");
+const cryptoPerfectN = document.querySelector("#crypto-perfect-n");
+const cryptoPerfectP = document.querySelector("#crypto-perfect-p");
+const cryptoPerfectResult = document.querySelector("#crypto-perfect-result");
+const clearCryptoPerfectButton = document.querySelector("#clear-crypto-perfect");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -1712,6 +1723,99 @@ function clearCryptoFermat() {
   clearTelemetry(cryptoFermatResult);
 }
 
+async function runCryptoMersenne(event) {
+  event.preventDefault();
+  const pRaw = cryptoMersenneP.value.trim();
+  const p = parseInt(pRaw, 10);
+  if (isNaN(p) || p < 2 || p > 5000) {
+    cryptoMersenneResult.textContent = "Please enter an integer exponent p between 2 and 5000.";
+    return;
+  }
+
+  const button = cryptoMersenneForm.querySelector("button[type='submit']");
+  cryptoMersenneResult.textContent = `Testing Mersenne number M_${p} = 2^${p} - 1 via Lucas–Lehmer test...`;
+  setBusy(button, true, "Testing");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/mersenne?p=${encodeURIComponent(p)}`,
+      {},
+      cryptoMersenneResult
+    );
+    if (data.is_prime) {
+      cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is PRIME!</strong><br>` +
+        `<code>${data.mp}</code><br>` +
+        `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits).</span><br>` +
+        `<span style="color: var(--lab-accent); font-weight: 600;">Euclid–Euler even perfect number 2<sup>${data.p - 1}</sup>(2<sup>${data.p}</sup> &minus; 1):</span><br>` +
+        `<code>${data.perfect_number}</code>`;
+    } else {
+      const reason = !data.p_is_prime ? `exponent ${data.p} is composite` : `failed Lucas–Lehmer primality test (s_${data.p - 2} ≠ 0 mod M_${data.p})`;
+      cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is COMPOSITE</strong> (${reason}).<br>` +
+        `<code>${data.mp}</code><br>` +
+        `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits). No even perfect number corresponds to this exponent.</span>`;
+    }
+  } catch (error) {
+    cryptoMersenneResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Testing");
+  }
+}
+
+function clearCryptoMersenne() {
+  cryptoMersenneP.value = "31";
+  cryptoMersenneResult.textContent = "Enter exponent p ≥ 2 (e.g. 2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521).";
+  clearTelemetry(cryptoMersenneResult);
+}
+
+async function runCryptoPerfect(event) {
+  event.preventDefault();
+  const nRaw = cryptoPerfectN.value.trim();
+  const pRaw = cryptoPerfectP.value.trim();
+
+  if (!nRaw && !pRaw) {
+    cryptoPerfectResult.textContent = "Please enter either an integer n (to test if n is perfect) or prime exponent p (to generate a perfect number).";
+    return;
+  }
+
+  const queryParams = new URLSearchParams();
+  if (nRaw) queryParams.set("n", nRaw);
+  if (pRaw) queryParams.set("p", pRaw);
+
+  const button = cryptoPerfectForm.querySelector("button[type='submit']");
+  cryptoPerfectResult.textContent = "Evaluating perfect number properties...";
+  setBusy(button, true, "Evaluating");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/perfect?${queryParams.toString()}`,
+      {},
+      cryptoPerfectResult
+    );
+    let html = "";
+    if (data.n !== undefined && data.n !== null) {
+      const isPerf = data.is_perfect;
+      const sigmaVal = data.sigma;
+      html += `<strong>n = ${data.n.toLocaleString()}</strong>: ${isPerf ? '<span style="color:#2ea043; font-weight:bold;">PERFECT NUMBER</span>' : '<span style="color:#f85149; font-weight:bold;">NOT PERFECT</span>'}<br>` +
+        `<span class="lab-muted">Sum of all divisors &sigma;(${data.n}) = ${sigmaVal !== undefined ? sigmaVal.toLocaleString() : "N/A"} (target: 2n = ${(2 * data.n).toLocaleString()})</span><br>`;
+    }
+    if (data.p !== undefined && data.p !== null) {
+      if (html) html += "<hr style='margin:0.5rem 0; border:0; border-top:1px solid var(--lab-border);'>";
+      html += `<strong>Even perfect number for exponent p = ${data.p}:</strong><br>` +
+        `<code>${data.perfect_number}</code>`;
+    }
+    cryptoPerfectResult.innerHTML = html;
+  } catch (error) {
+    cryptoPerfectResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Evaluating");
+  }
+}
+
+function clearCryptoPerfect() {
+  cryptoPerfectN.value = "";
+  cryptoPerfectP.value = "";
+  cryptoPerfectResult.textContent = "Enter n to test if σ(n) = 2n, or p to generate 2^(p-1)(2^p - 1).";
+  clearTelemetry(cryptoPerfectResult);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2316,6 +2420,10 @@ cryptoFactorForm?.addEventListener("submit", runCryptoFactor);
 clearCryptoFactorButton?.addEventListener("click", clearCryptoFactor);
 cryptoFermatForm?.addEventListener("submit", runCryptoFermat);
 clearCryptoFermatButton?.addEventListener("click", clearCryptoFermat);
+cryptoMersenneForm?.addEventListener("submit", runCryptoMersenne);
+clearCryptoMersenneButton?.addEventListener("click", clearCryptoMersenne);
+cryptoPerfectForm?.addEventListener("submit", runCryptoPerfect);
+clearCryptoPerfectButton?.addEventListener("click", clearCryptoPerfect);
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
 clearCryptoTotientButton?.addEventListener("click", clearCryptoTotient);
 cryptoOrderForm?.addEventListener("submit", runCryptoOrder);

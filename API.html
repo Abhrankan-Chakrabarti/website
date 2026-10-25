@@ -1188,6 +1188,14 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>None</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/mersenne</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/perfect</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code></td>
       <td>Nginx Basic Auth</td>
     </tr>
@@ -1328,7 +1336,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.8.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.9.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1385,7 +1393,11 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"POST /v1/math/dh/crack"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/fermat"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/fermat"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"GET /v1/math/chamber/ws"</span><span class="w">
+    </span><span class="s2">"GET /v1/math/chamber/ws"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/mersenne"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/mersenne"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/perfect"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/perfect"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1715,6 +1727,34 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 <p>Bidirectional WebSocket streaming endpoint (<code class="language-plaintext highlighter-rouge">/v1/math/chamber/ws</code>) for real-time visualization and step-by-step playback on <a href="/chamber.html">The Chamber of Primes</a>.</p>
 
 <p>Supports client action frames (<code class="language-plaintext highlighter-rouge">start</code>, <code class="language-plaintext highlighter-rouge">pause</code>, <code class="language-plaintext highlighter-rouge">resume</code>, <code class="language-plaintext highlighter-rouge">step</code>, <code class="language-plaintext highlighter-rouge">speed</code>, <code class="language-plaintext highlighter-rouge">stop</code>) and streams server event frames (<code class="language-plaintext highlighter-rouge">start</code>, <code class="language-plaintext highlighter-rouge">step</code>, <code class="language-plaintext highlighter-rouge">candidate</code>, <code class="language-plaintext highlighter-rouge">found</code>, <code class="language-plaintext highlighter-rouge">done</code>).</p>
+
+<h4 id="mersenne">Mersenne numbers &amp; Lucas–Lehmer test</h4>
+
+<p>Performs the deterministic Lucas–Lehmer primality test on Mersenne number <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1 for exponent 2 &le; <em>p</em> &le; 5000. When <em>M<sub>p</sub></em> is prime, also computes the corresponding Euclid–Euler even perfect number 2<sup><em>p</em>&minus;1</sup>(2<sup><em>p</em></sup> &minus; 1).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/mersenne?p=31"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"p"</span><span class="p">:</span><span class="mi">31</span><span class="p">,</span><span class="nl">"mp"</span><span class="p">:</span><span class="s2">"2147483647"</span><span class="p">,</span><span class="nl">"p_is_prime"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"is_prime"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"bits"</span><span class="p">:</span><span class="mi">31</span><span class="p">,</span><span class="nl">"digits"</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="nl">"perfect_number"</span><span class="p">:</span><span class="s2">"2305843008139952128"</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>Enumerate known Mersenne prime exponents up to limit:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/mersenne?limit=127"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"limit"</span><span class="p">:</span><span class="mi">127</span><span class="p">,</span><span class="nl">"primes"</span><span class="p">:[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">61</span><span class="p">,</span><span class="mi">89</span><span class="p">,</span><span class="mi">107</span><span class="p">,</span><span class="mi">127</span><span class="p">]}</span>
+</code></pre></div></div>
+
+<h4 id="perfect">Euclid–Euler perfect numbers</h4>
+
+<p>Evaluates whether a given integer <em>n</em> is a perfect number (&sigma;(<em>n</em>) = 2<em>n</em>), or generates the even perfect number corresponding to prime exponent <em>p</em>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/perfect?n=28&amp;p=7"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">28</span><span class="p">,</span><span class="nl">"is_perfect"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"sigma"</span><span class="p">:</span><span class="mi">56</span><span class="p">,</span><span class="nl">"p"</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span><span class="nl">"perfect_number"</span><span class="p">:</span><span class="s2">"8128"</span><span class="p">}</span>
+</code></pre></div></div>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>
 

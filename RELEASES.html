@@ -58,6 +58,33 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v0110--2026-10-25">[v0.11.0] — 2026-10-25</h3>
+
+<p><strong>Mersenne primes &amp; Lucas–Lehmer test suite, Euclid–Euler perfect numbers, Chamber of Primes Report &amp; crypto-lab v0.9.0.</strong></p>
+
+<h4 id="added-v0110">Added</h4>
+<ul>
+  <li>Published <strong>The Chamber of Primes Report</strong> (<a href="/CHAMBER_OF_PRIMES.html"><code class="language-plaintext highlighter-rouge">/CHAMBER_OF_PRIMES.html</code></a> &amp; <a href="/CHAMBER_OF_PRIMES.md"><code class="language-plaintext highlighter-rouge">/CHAMBER_OF_PRIMES.md</code></a>): comprehensive architecture report and technical specification covering Fermat factorization, ancient Egyptian hieroglyphic mathematics, Legendre residue sieve theory, and dual-mode WebSocket streaming. Added site-links navigation header across all 14 pages and responsive horizontal scrolling wrappers for mobile layouts.</li>
+  <li>Upgraded <code class="language-plaintext highlighter-rouge">crypto-lab</code> to <code class="language-plaintext highlighter-rouge">v0.9.0</code> (expanded registry to 60 endpoints):
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/mersenne</code>: deterministic Lucas–Lehmer primality test for Mersenne numbers <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1 (2 &le; <em>p</em> &le; 5000), decimal digit count, bit length, and Euclid–Euler even perfect number computation via pure Rust arbitrary-precision bit arithmetic. Supports <code class="language-plaintext highlighter-rouge">?limit=...</code> to enumerate Mersenne prime exponents.</li>
+      <li><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/perfect</code>: test whether integer <em>n</em> is a perfect number (&sigma;(<em>n</em>) = 2<em>n</em>) or generate the even perfect number 2<sup><em>p</em>&minus;1</sup>(2<sup><em>p</em></sup> &minus; 1) for prime exponent <em>p</em>.</li>
+      <li>Expanded deterministic problem generator (<code class="language-plaintext highlighter-rouge">/v1/math/challenge</code>) with topics <code class="language-plaintext highlighter-rouge">mersenne</code> and <code class="language-plaintext highlighter-rouge">perfect</code>.</li>
+      <li>All 48 unit and integration tests passing with 0 Clippy warnings.</li>
+    </ul>
+  </li>
+  <li>Added interactive exploration tools to <strong>The Lab</strong> (<a href="/lab.html"><code class="language-plaintext highlighter-rouge">/lab.html</code></a>):
+    <ul>
+      <li><strong>Mersenne primes &amp; Lucas–Lehmer test calculator</strong>: tests prime exponents up to <em>p</em> = 5000, displaying exact decimal values and Euclid–Euler even perfect numbers.</li>
+      <li><strong>Perfect numbers calculator</strong>: evaluates divisor sum &sigma;(<em>n</em>) = 2<em>n</em> and generates even perfect numbers.</li>
+      <li>Added <code class="language-plaintext highlighter-rouge">mersenne</code> and <code class="language-plaintext highlighter-rouge">perfect</code> options to the Challenge generator dropdown.</li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">API.md</code> and <code class="language-plaintext highlighter-rouge">API.html</code> with complete endpoint specifications, curl examples, and JSON response models.</li>
+</ul>
+
+<hr />
+
 <h3 id="v0100--2026-10-23">[v0.10.0] — 2026-10-23</h3>
 
 <p><strong>The Chamber of Primes (Fermat's Difference of Squares Visualizer), WebSockets &amp; crypto-lab v0.8.0.</strong></p>
