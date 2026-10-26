@@ -515,6 +515,15 @@
               <div id="crypto-mersenne-test-group" class="crypto-mersenne-group">
                 <label for="crypto-mersenne-p">Prime exponent <em>p</em> (2 &le; <em>p</em> &le; 5000)</label>
                 <input id="crypto-mersenne-p" name="p" type="number" min="2" max="5000" value="31">
+                <div style="margin-top: 0.4rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
+                  <span class="lab-muted" style="font-size: 0.8rem;">Presets:</span>
+                  <button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-preset-btn" data-p="7" style="font-size: 0.75rem; padding: 0.15rem 0.45rem;">M₇ (127)</button>
+                  <button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-preset-btn" data-p="11" style="font-size: 0.75rem; padding: 0.15rem 0.45rem;">M₁₁ (Composite)</button>
+                  <button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-preset-btn" data-p="31" style="font-size: 0.75rem; padding: 0.15rem 0.45rem;">M₃₁ (Euler)</button>
+                  <button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-preset-btn" data-p="61" style="font-size: 0.75rem; padding: 0.15rem 0.45rem;">M₆₁ (Pervushin)</button>
+                  <button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-preset-btn" data-p="127" style="font-size: 0.75rem; padding: 0.15rem 0.45rem;">M₁₂₇ (Lucas 1876)</button>
+                  <button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-preset-btn" data-p="521" style="font-size: 0.75rem; padding: 0.15rem 0.45rem;">M₅₂₁ (SWAC 1952)</button>
+                </div>
               </div>
 
               <div id="crypto-mersenne-seq-group" class="crypto-mersenne-group" style="display: none;">

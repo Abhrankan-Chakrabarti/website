@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d1117">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' text-anchor='middle' fill='%23d4af37'%3E𝔐%3C/text%3E%3C/svg%3E">
+    <meta name="description" content="Exploring Mersenne numbers M_p = 2^p - 1, the deterministic Lucas–Lehmer primality test, Euclid–Euler even perfect numbers, and division-free modular reduction.">
+    <title>Mersenne Primes, Lucas–Lehmer &amp; Euclid–Euler Perfect Numbers · Abhrankan</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav>
+            <a href="/">Home</a>
+            <a href="/projects.html">Projects</a>
+            <a class="active" href="/writing.html">Writing</a>
+            <a href="/now.html">Now</a>
+            <a href="/lab.html">Lab</a>
+            <a href="/chamber.html">Chamber</a>
+        </nav>
+        <p class="site-links">
+            <a href="/API.html">API docs</a>
+            ·
+            <a href="/RELEASES.html">Releases</a>
+            ·
+            <a href="/CHAMBER_OF_PRIMES.html">Chamber Report</a>
+        </p>
+    </header>
+
+    <main>
+        <article class="post">
+            <p class="meta">Mathematics · Algorithms · October 26, 2026</p>
+            <h1>Mersenne Primes, Lucas–Lehmer &amp; Euclid–Euler Perfect Numbers</h1>
+
+            <p>
+                For over two millennia, mathematicians have been fascinated by prime numbers of the special form:
+            </p>
+            <p class="equation" style="text-align: center; font-size: 1.15rem; color: #d4af37; font-family: ui-monospace, monospace;">
+                M<sub>p</sub> = 2<sup>p</sup> &minus; 1
+            </p>
+            <p>
+                Named after the 17th-century French Minim friar Marin Mersenne, who published a famous (though imperfect) list of them in his 1644 <em>Cogitata Physico-Mathematica</em>, these numbers hold nearly every historical world record for the largest known prime. But their significance extends far deeper into number theory: they are intimately connected to ancient geometry, perfect numbers, and one of the fastest deterministic primality tests ever conceived.
+            </p>
+
+            <h2>Why Must the Exponent Be Prime?</h2>
+            <p>
+                A simple algebraic identity reveals why we only ever test prime exponents <em>p</em>. If an integer exponent <em>n</em> is composite, say <em>n</em> = <em>a</em> &times; <em>b</em> with <em>a</em>, <em>b</em> &gt; 1, then 2<sup><em>n</em></sup> &minus; 1 factors algebraically:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #c9d1d9;">
+                2<sup>ab</sup> &minus; 1 = (2<sup>a</sup> &minus; 1)(2<sup>a(b&minus;1)</sup> + 2<sup>a(b&minus;2)</sup> + &hellip; + 2<sup>a</sup> + 1)
+            </p>
+            <p>
+                For example, 2<sup>4</sup> &minus; 1 = 15 = 3 &times; 5, and 2<sup>6</sup> &minus; 1 = 63 = 7 &times; 9. Therefore, <strong><em>p</em> being prime is a strict prerequisite</strong> for 2<sup><em>p</em></sup> &minus; 1 to be prime.
+            </p>
+            <p>
+                However, <em>p</em> being prime is not sufficient. In 1536, Hudalrichus Regius proved that <em>p</em> = 11 fails:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #e74c3c;">
+                M<sub>11</sub> = 2<sup>11</sup> &minus; 1 = 2047 = 23 &times; 89
+            </p>
+            <p>
+                As <em>p</em> grows, Mersenne numbers become composite far more often than they are prime.
+            </p>
+
+            <h2>The Euclid–Euler Theorem: Perfect Numbers</h2>
+            <p>
+                Around 300 BCE, in Book IX, Proposition 36 of <em>Elements</em>, Euclid proved an extraordinary relationship: if the Mersenne number 2<sup><em>p</em></sup> &minus; 1 is prime, then:
+            </p>
+            <p class="equation" style="text-align: center; font-size: 1.15rem; color: #d4af37; font-family: ui-monospace, monospace;">
+                N = 2<sup>p&minus;1</sup>(2<sup>p</sup> &minus; 1)
+            </p>
+            <p>
+                is a <strong>perfect number</strong>—an integer equal to the exact sum of its proper positive divisors (&sigma;(<em>N</em>) = 2<em>N</em>).
+            </p>
+            <p>
+                The ancient Greeks knew the first four perfect numbers:
+            </p>
+            <ul>
+                <li><em>p</em> = 2 &rarr; <em>M</em><sub>2</sub> = 3 &rarr; <strong>6</strong> = 1 + 2 + 3</li>
+                <li><em>p</em> = 3 &rarr; <em>M</em><sub>3</sub> = 7 &rarr; <strong>28</strong> = 1 + 2 + 4 + 7 + 14</li>
+                <li><em>p</em> = 5 &rarr; <em>M</em><sub>5</sub> = 31 &rarr; <strong>496</strong> = 1 + 2 + 4 + 8 + 16 + 31 + 62 + 124 + 248</li>
+                <li><em>p</em> = 7 &rarr; <em>M</em><sub>7</sub> = 127 &rarr; <strong>8,128</strong></li>
+            </ul>
+            <p>
+                Two millennia later, in the 18th century, Leonhard Euler proved the converse: <em>every even perfect number must be of Euclid's form</em>. This established a 1-to-1 correspondence between Mersenne primes and even perfect numbers. (Whether any <em>odd</em> perfect number exists remains one of the oldest unsolved problems in all of mathematics).
+            </p>
+
+            <h2>The Lucas–Lehmer Deterministic Test</h2>
+            <p>
+                General-purpose primality tests for arbitrary numbers (such as Miller–Rabin or AKS) require significant computational overhead. For Mersenne numbers, however, French mathematician Édouard Lucas discovered in 1876 a remarkably elegant recurrence, later simplified and proven by Derrick Henry Lehmer in 1930:
+            </p>
+            <div style="background: rgba(0, 0, 0, 0.04); border-left: 3px solid #d4af37; padding: 0.8rem 1.2rem; margin: 1.2rem 0; font-family: ui-monospace, monospace;">
+                <strong>Lucas–Lehmer Sequence:</strong><br>
+                s<sub>0</sub> = 4<br>
+                s<sub>i</sub> = (s<sub>i&minus;1</sub>&sup2; &minus; 2) mod M<sub>p</sub>
+            </div>
+            <p>
+                <strong>The Theorem:</strong> For any odd prime <em>p</em>, the Mersenne number <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1 is prime <strong>if and only if</strong>:
+            </p>
+            <p class="equation" style="text-align: center; font-size: 1.15rem; color: #2ea043; font-family: ui-monospace, monospace;">
+                s<sub>p&minus;2</sub> &equiv; 0 &pmod; M<sub>p</sub>
+            </p>
+            <p>
+                Consider <em>p</em> = 5 (<em>M</em><sub>5</sub> = 31):
+            </p>
+            <ul>
+                <li><em>s</em><sub>0</sub> = 4</li>
+                <li><em>s</em><sub>1</sub> = (4&sup2; &minus; 2) mod 31 = 14 mod 31 = 14</li>
+                <li><em>s</em><sub>2</sub> = (14&sup2; &minus; 2) mod 31 = 194 mod 31 = 8</li>
+                <li><em>s</em><sub>3</sub> = (8&sup2; &minus; 2) mod 31 = 62 mod 31 = <strong>0</strong> &nbsp; <span style="color: #2ea043; font-weight: bold;">(✓ PRIME)</span></li>
+            </ul>
+            <p>
+                Since <em>s</em><sub>5&minus;2</sub> = <em>s</em><sub>3</sub> = 0, <em>M</em><sub>5</sub> = 31 is proven prime in just 3 squarings!
+            </p>
+            <p>
+                In 1876, Édouard Lucas computed this test entirely by hand for <em>p</em> = 127:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #d4af37; word-break: break-all;">
+                M<sub>127</sub> = 170,141,183,460,469,231,731,687,303,715,884,105,727
+            </p>
+            <p>
+                This 39-digit monster stood as the largest prime ever discovered by manual calculation for all of human history.
+            </p>
+
+            <h2>The Secret to Speed: Division-Free Modular Reduction</h2>
+            <p>
+                Why is the Lucas–Lehmer test so fast on computers?
+            </p>
+            <p>
+                In standard modular arithmetic, calculating <em>X</em> mod <em>M</em> requires multi-precision division, which is costly ($O(n^2)$ bit complexity). But when the modulus is a Mersenne number <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1, binary arithmetic behaves like clockwork:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #c9d1d9;">
+                2<sup>p</sup> &equiv; 1 &pmod; 2<sup>p</sup> &minus; 1
+            </p>
+            <p>
+                Because 2<sup><em>p</em></sup> is congruent to 1, any number <em>X</em> written in base 2<sup><em>p</em></sup>:
+            </p>
+            <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #d4af37;">
+                X = A &times; 2<sup>p</sup> + B &emsp; &rArr; &emsp; X &equiv; A + B &pmod; 2<sup>p</sup> &minus; 1
+            </p>
+            <p>
+                Here, <em>B</em> is simply the lowest <em>p</em> bits of <em>X</em>, and <em>A</em> is <em>X</em> bit-shifted right by <em>p</em> bits! In code:
+            </p>
+            <pre style="background: rgba(0,0,0,0.04); border-radius: 6px; padding: 0.8rem; font-family: ui-monospace, monospace; overflow-x: auto;"><code>// Division-free Mersenne modular reduction:
+let rem = (sq >> p) + (sq &amp; ((1 &lt;&lt; p) - 1));
+if rem &gt;= mp { rem -= mp; }</code></pre>
+            <p>
+                No integer division is ever required! A single squaring, a bitwise shift, a bitwise mask, and a conditional addition suffice for each iteration. In our pure Rust backend (<a href="https://github.com/foxhackerzdevs/crypto-lab">crypto-lab</a>), this allows our engine to verify Lucas's 39-digit prime <em>M</em><sub>127</sub> in just <strong>77 microseconds</strong>, and Robinson's 157-digit <em>M</em><sub>521</sub> in <strong>1.2 milliseconds</strong>.
+            </p>
+
+            <h2>Interactive Lab Tools</h2>
+            <p>
+                You can test any prime exponent up to <em>p</em> = 5000 and view the step-by-step recurrence trace or enumerate the sequence of known Mersenne primes in our live web tools:
+            </p>
+            <p style="text-align: center; margin: 1.5rem 0;">
+                <a href="/lab.html" style="display: inline-block; padding: 0.65rem 1.4rem; background: linear-gradient(135deg, #d4af37 0%, #aa8214 100%); color: #090c10; font-weight: 700; text-decoration: none; border-radius: 6px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);">
+                    𝔐 Explore Mersenne Primes in The Lab ❯
+                </a>
+            </p>
+
+            <h2>Further Reading &amp; Code</h2>
+            <ul>
+                <li><a href="/lab.html">The Lab — Interactive Mersenne &amp; Perfect Numbers Suite</a></li>
+                <li><a href="/API.html#mersenne">Crypto Lab REST API — /v1/math/mersenne &amp; /v1/math/perfect</a></li>
+                <li><a href="https://github.com/foxhackerzdevs/crypto-lab">crypto-lab (Pure Rust BigUint &amp; Lucas–Lehmer engine)</a></li>
+                <li><a href="https://github.com/Abhrankan-Chakrabarti/foxmath">FoxMath (Python number theory library &amp; CLI)</a></li>
+                <li><a href="/writing/chamber-of-primes/">The Chamber of Primes: Fermat's Factorization &amp; Sieve of Ma'at</a></li>
+                <li><a href="/writing/calculating-pi/">Calculating pi with Catalan Numbers</a></li>
+            </ul>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Abhrankan Chakrabarti</p>
+    </footer>
+</body>
+</html>

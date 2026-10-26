@@ -2534,6 +2534,15 @@ clearCryptoFermatButton?.addEventListener("click", clearCryptoFermat);
 cryptoMersenneAction?.addEventListener("change", syncMersenneForm);
 cryptoMersenneForm?.addEventListener("submit", runCryptoMersenne);
 clearCryptoMersenneButton?.addEventListener("click", clearCryptoMersenne);
+document.querySelectorAll(".mersenne-preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const pVal = btn.getAttribute("data-p");
+    if (cryptoMersenneAction) cryptoMersenneAction.value = "test";
+    syncMersenneForm();
+    if (cryptoMersenneP) cryptoMersenneP.value = pVal;
+    runCryptoMersenne();
+  });
+});
 cryptoPerfectForm?.addEventListener("submit", runCryptoPerfect);
 clearCryptoPerfectButton?.addEventListener("click", clearCryptoPerfect);
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
