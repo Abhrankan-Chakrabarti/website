@@ -1737,6 +1737,51 @@ function syncMersenneForm() {
   }
 }
 
+function renderLucasLehmerTrace(p, isPrime, pIsPrime) {
+  if (p === 2) {
+    return `<div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.03); border-radius: 4px; font-size: 0.85rem;">` +
+      `<strong>Lucas–Lehmer sequence:</strong><br><code>s₀ = 4 ≡ 1 mod 3</code> (M₂ = 3 is prime by definition).</div>`;
+  }
+  if (!pIsPrime) {
+    return `<div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.03); border-radius: 4px; font-size: 0.85rem;">` +
+      `<span class="lab-muted">Lucas–Lehmer test skipped: exponent p = ${p} is composite (2<sup>${p}</sup> &minus; 1 cannot be prime).</span></div>`;
+  }
+  if (p > 500) {
+    return `<div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.03); border-radius: 4px; font-size: 0.85rem;">` +
+      `<span class="lab-muted">Lucas–Lehmer sequence for p = ${p} evaluated (${p - 2} iterations of s<sub>i</sub> = (s<sub>i-1</sub>² &minus; 2) mod M<sub>${p}</sub>). Final residue s<sub>${p - 2}</sub> ${isPrime ? "≡ 0" : "≠ 0"} mod M<sub>${p}</sub>.</span></div>`;
+  }
+
+  const pBig = BigInt(p);
+  const mp = (1n << pBig) - 1n;
+  let s = 4n;
+  const total = p - 2;
+  const rows = [];
+  rows.push(`<div><code>s₀ = 4</code></div>`);
+
+  for (let i = 1; i <= total; i++) {
+    const prev = s;
+    s = (s * s - 2n) % mp;
+    if (total <= 10 || i <= 4 || i >= total - 1) {
+      const badge = (i === total)
+        ? (s === 0n ? ` <span style="color: #2ea043; font-weight: bold;">(≡ 0 ✓ PRIME)</span>` : ` <span style="color: #f85149; font-weight: bold;">(≠ 0 ✗ COMPOSITE)</span>`)
+        : "";
+      const prevStr = prev.toString();
+      const prevDisplay = prevStr.length > 25 ? `${prevStr.slice(0, 12)}…${prevStr.slice(-8)}` : prevStr;
+      const sStr = s.toString();
+      const sDisplay = sStr.length > 35 ? `${sStr.slice(0, 16)}…${sStr.slice(-12)}` : sStr;
+      rows.push(`<div><code>s<sub>${i}</sub> = (${prevDisplay}² &minus; 2) mod M<sub>${p}</sub> = <strong>${sDisplay}</strong></code>${badge}</div>`);
+    } else if (i === 5) {
+      rows.push(`<div style="color: var(--lab-muted); padding: 0.2rem 0;"><em>… (${total - 6} iterations omitted for brevity) …</em></div>`);
+    }
+  }
+
+  return `<div style="margin-top: 0.65rem; border-top: 1px solid var(--lab-border); padding-top: 0.5rem;">` +
+    `<strong style="font-size: 0.85rem;">Lucas–Lehmer Recurrence Trace (s<sub>i</sub> &equiv; s<sub>i&minus;1</sub>&sup2; &minus; 2 mod M<sub>${p}</sub>):</strong>` +
+    `<div style="margin-top: 0.35rem; max-height: 200px; overflow-y: auto; font-family: var(--font-mono, monospace); font-size: 0.82rem; line-height: 1.6; background: rgba(0, 0, 0, 0.04); border-radius: 4px; padding: 0.5rem 0.65rem;">` +
+    rows.join("") +
+    `</div></div>`;
+}
+
 async function runCryptoMersenne(event) {
   event?.preventDefault();
   const action = cryptoMersenneAction?.value || "test";
@@ -1758,17 +1803,20 @@ async function runCryptoMersenne(event) {
         {},
         cryptoMersenneResult
       );
+      const traceHtml = renderLucasLehmerTrace(data.p, data.is_prime, data.p_is_prime);
       if (data.is_prime) {
         cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is PRIME!</strong><br>` +
           `<code>${data.mp}</code><br>` +
           `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits).</span><br>` +
           `<span style="color: var(--lab-accent); font-weight: 600;">Euclid–Euler even perfect number 2<sup>${data.p - 1}</sup>(2<sup>${data.p}</sup> &minus; 1):</span><br>` +
-          `<code>${data.perfect_number}</code>`;
+          `<code>${data.perfect_number}</code>` +
+          traceHtml;
       } else {
         const reason = !data.p_is_prime ? `exponent ${data.p} is composite` : `failed Lucas–Lehmer primality test (s_${data.p - 2} ≠ 0 mod M_${data.p})`;
         cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is COMPOSITE</strong> (${reason}).<br>` +
           `<code>${data.mp}</code><br>` +
-          `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits). No even perfect number corresponds to this exponent.</span>`;
+          `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits). No even perfect number corresponds to this exponent.</span>` +
+          traceHtml;
       }
     } catch (error) {
       cryptoMersenneResult.textContent = error.message;
