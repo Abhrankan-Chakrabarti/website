@@ -44,6 +44,7 @@ website/
     ├── chamber-of-primes/
     ├── golden-ratio/
     ├── history-of-cryptography/
+    ├── mersenne-primes/
     └── pythagorean-triples/
 ```
 
@@ -89,14 +90,17 @@ Repository: <https://github.com/Abhrankan-Chakrabarti/lab-api>
 
 `crypto-lab` is a separate Rust/Axum service bound to `127.0.0.1:8089`. The
 Lab page uses its public health, information, and FoxMath number theory exploration routes,
-and provides authenticated tools for:
+and provides interactive tools for:
 
 - Number-theoretic & elliptic curve exploration (Tonelli-Shanks, Legendre, CRT, continued fractions, ECC point ops)
 - Textbook cryptosystems suite (RSA keygen, encrypt, decrypt with CRT, crack; Diffie–Hellman keygen, derive, crack)
 - Fermat's difference of squares factorization engine & WebSocket streaming endpoint (`/v1/math/chamber/ws`)
-- SHA-256 and SHA-512 hashing
-- HMAC generation
-- HMAC verification
+- Mersenne primes, deterministic Lucas–Lehmer primality testing, and prime sequence enumeration ($M_p = 2^p - 1$) with recurrence step tracing
+- Euclid–Euler even perfect numbers ($2^{p-1}(2^p - 1)$) and aliquot sum verification ($\sigma(n) = 2n$)
+- Seeded, reproducible challenge generation across 12 mathematical & cryptographic topics
+- SHA-256 and SHA-512 hashing (authenticated)
+- HMAC generation (authenticated)
+- HMAC verification (authenticated)
 
 Credentials are requested only per protected operation (hash/HMAC), sent only with that request,
 and cleared from the form afterward. The page does not persist credentials. Math routes are public.
