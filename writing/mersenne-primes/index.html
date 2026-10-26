@@ -99,7 +99,7 @@
                 <strong>The Theorem:</strong> For any odd prime <em>p</em>, the Mersenne number <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1 is prime <strong>if and only if</strong>:
             </p>
             <p class="equation" style="text-align: center; font-size: 1.15rem; color: #2ea043; font-family: ui-monospace, monospace;">
-                s<sub>p&minus;2</sub> &equiv; 0 &pmod; M<sub>p</sub>
+                s<sub>p&minus;2</sub> &equiv; 0 &nbsp; (mod M<sub>p</sub>)
             </p>
             <p>
                 Consider <em>p</em> = 5 (<em>M</em><sub>5</sub> = 31):
@@ -128,16 +128,16 @@
                 Why is the Lucas–Lehmer test so fast on computers?
             </p>
             <p>
-                In standard modular arithmetic, calculating <em>X</em> mod <em>M</em> requires multi-precision division, which is costly ($O(n^2)$ bit complexity). But when the modulus is a Mersenne number <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1, binary arithmetic behaves like clockwork:
+                In standard modular arithmetic, calculating <em>X</em> mod <em>M</em> requires multi-precision division, which is costly (<em>O</em>(<em>n</em>&sup2;) bit complexity). But when the modulus is a Mersenne number <em>M<sub>p</sub></em> = 2<sup><em>p</em></sup> &minus; 1, binary arithmetic behaves like clockwork:
             </p>
             <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #c9d1d9;">
-                2<sup>p</sup> &equiv; 1 &pmod; 2<sup>p</sup> &minus; 1
+                2<sup>p</sup> &equiv; 1 &nbsp; (mod 2<sup>p</sup> &minus; 1)
             </p>
             <p>
                 Because 2<sup><em>p</em></sup> is congruent to 1, any number <em>X</em> written in base 2<sup><em>p</em></sup>:
             </p>
             <p class="equation" style="text-align: center; font-family: ui-monospace, monospace; color: #d4af37;">
-                X = A &times; 2<sup>p</sup> + B &emsp; &rArr; &emsp; X &equiv; A + B &pmod; 2<sup>p</sup> &minus; 1
+                X = A &times; 2<sup>p</sup> + B &emsp; &rArr; &emsp; X &equiv; A + B &nbsp; (mod 2<sup>p</sup> &minus; 1)
             </p>
             <p>
                 Here, <em>B</em> is simply the lowest <em>p</em> bits of <em>X</em>, and <em>A</em> is <em>X</em> bit-shifted right by <em>p</em> bits! In code:
