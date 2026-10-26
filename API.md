@@ -958,8 +958,8 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **DH Crack** | Recovers private exponent $a$ via Baby-step Giant-step discrete logarithm solver. |
 | **Fermat Factorization** | Fermat's difference of squares factorization ($n = x^2 - y^2$) with Legendre quadratic residue sieve. |
 | **Chamber WebSocket** | Real-time WebSocket streaming endpoint for step-by-step visual factorization ("The Chamber of Primes"). |
-| **Mersenne Primality** | Deterministic Lucas–Lehmer primality test for Mersenne numbers $M_p = 2^p - 1$ ($2 \le p \le 5000$) and Euclid–Euler even perfect numbers. Also enumerates known Mersenne primes via `?limit=...`. |
-| **Perfect Numbers** | Euclid–Euler even perfect number verification ($\sigma(n) = 2n$) or generation for prime exponent $p$ ($2^{p-1}(2^p - 1)$). |
+| **Mersenne Primality** | Deterministic Lucas–Lehmer primality test for Mersenne numbers M<sub>p</sub> = 2<sup>p</sup> − 1 (2 ≤ p ≤ 5000) and Euclid–Euler even perfect numbers. Also enumerates known Mersenne primes via `?limit=...`. |
+| **Perfect Numbers** | Euclid–Euler even perfect number verification (σ(n) = 2n) or generation for prime exponent p (2<sup>p−1</sup>(2<sup>p</sup> − 1)). |
 
 ### Application information
 
@@ -1468,7 +1468,7 @@ Bidirectional WebSocket streaming endpoint for real-time factorization visualiza
 
 #### Mersenne numbers & Lucas–Lehmer test (`/v1/math/mersenne`)
 
-Performs the deterministic Lucas–Lehmer primality test on Mersenne number $M_p = 2^p - 1$ for exponent $2 \le p \le 5000$. When $M_p$ is prime, also computes the corresponding Euclid–Euler even perfect number $2^{p-1}(2^p - 1)$ using pure Rust arbitrary-precision bit arithmetic.
+Performs the deterministic Lucas–Lehmer primality test on Mersenne number $M_p = 2^p - 1$ for exponent $2 \le p \le 5000$. When $M_p$ is prime, also computes the corresponding Euclid–Euler even perfect number 2<sup>p−1</sup>(2<sup>p</sup> − 1) using pure Rust arbitrary-precision bit arithmetic.
 
 Parameters:
 - `p` (integer, optional): prime exponent to evaluate.

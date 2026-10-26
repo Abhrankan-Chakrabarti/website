@@ -1923,7 +1923,7 @@ async function runCryptoPerfect(event) {
 function clearCryptoPerfect() {
   cryptoPerfectN.value = "";
   cryptoPerfectP.value = "";
-  cryptoPerfectResult.textContent = "Enter n to test if σ(n) = 2n, or p to generate 2^(p-1)(2^p - 1).";
+  cryptoPerfectResult.innerHTML = "Enter n to test if &sigma;(n) = 2n, or p to generate 2<sup>p&minus;1</sup>(2<sup>p</sup> &minus; 1).";
   clearTelemetry(cryptoPerfectResult);
 }
 
