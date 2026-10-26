@@ -136,7 +136,12 @@ const cryptoFermatResult = document.querySelector("#crypto-fermat-result");
 const clearCryptoFermatButton = document.querySelector("#clear-crypto-fermat");
 
 const cryptoMersenneForm = document.querySelector("#crypto-mersenne-form");
+const cryptoMersenneAction = document.querySelector("#crypto-mersenne-action");
+const cryptoMersenneTestGroup = document.querySelector("#crypto-mersenne-test-group");
+const cryptoMersenneSeqGroup = document.querySelector("#crypto-mersenne-seq-group");
 const cryptoMersenneP = document.querySelector("#crypto-mersenne-p");
+const cryptoMersenneLimit = document.querySelector("#crypto-mersenne-limit");
+const submitCryptoMersenne = document.querySelector("#submit-crypto-mersenne");
 const cryptoMersenneResult = document.querySelector("#crypto-mersenne-result");
 const clearCryptoMersenneButton = document.querySelector("#clear-crypto-mersenne");
 
@@ -1723,46 +1728,104 @@ function clearCryptoFermat() {
   clearTelemetry(cryptoFermatResult);
 }
 
-async function runCryptoMersenne(event) {
-  event.preventDefault();
-  const pRaw = cryptoMersenneP.value.trim();
-  const p = parseInt(pRaw, 10);
-  if (isNaN(p) || p < 2 || p > 5000) {
-    cryptoMersenneResult.textContent = "Please enter an integer exponent p between 2 and 5000.";
-    return;
+function syncMersenneForm() {
+  const action = cryptoMersenneAction?.value || "test";
+  if (cryptoMersenneTestGroup) cryptoMersenneTestGroup.style.display = action === "test" ? "block" : "none";
+  if (cryptoMersenneSeqGroup) cryptoMersenneSeqGroup.style.display = action === "sequence" ? "block" : "none";
+  if (submitCryptoMersenne) {
+    submitCryptoMersenne.textContent = action === "test" ? "Test via Lucas–Lehmer" : "Enumerate sequence";
   }
+}
 
-  const button = cryptoMersenneForm.querySelector("button[type='submit']");
-  cryptoMersenneResult.textContent = `Testing Mersenne number M_${p} = 2^${p} - 1 via Lucas–Lehmer test...`;
-  setBusy(button, true, "Testing");
-  try {
-    const data = await fetchCryptoJson(
-      `/v1/math/mersenne?p=${encodeURIComponent(p)}`,
-      {},
-      cryptoMersenneResult
-    );
-    if (data.is_prime) {
-      cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is PRIME!</strong><br>` +
-        `<code>${data.mp}</code><br>` +
-        `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits).</span><br>` +
-        `<span style="color: var(--lab-accent); font-weight: 600;">Euclid–Euler even perfect number 2<sup>${data.p - 1}</sup>(2<sup>${data.p}</sup> &minus; 1):</span><br>` +
-        `<code>${data.perfect_number}</code>`;
-    } else {
-      const reason = !data.p_is_prime ? `exponent ${data.p} is composite` : `failed Lucas–Lehmer primality test (s_${data.p - 2} ≠ 0 mod M_${data.p})`;
-      cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is COMPOSITE</strong> (${reason}).<br>` +
-        `<code>${data.mp}</code><br>` +
-        `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits). No even perfect number corresponds to this exponent.</span>`;
+async function runCryptoMersenne(event) {
+  event?.preventDefault();
+  const action = cryptoMersenneAction?.value || "test";
+  const button = submitCryptoMersenne || cryptoMersenneForm.querySelector("button[type='submit']");
+
+  if (action === "test") {
+    const pRaw = cryptoMersenneP.value.trim();
+    const p = parseInt(pRaw, 10);
+    if (isNaN(p) || p < 2 || p > 5000) {
+      cryptoMersenneResult.textContent = "Please enter an integer exponent p between 2 and 5000.";
+      return;
     }
-  } catch (error) {
-    cryptoMersenneResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Testing");
+
+    cryptoMersenneResult.textContent = `Testing Mersenne number M_${p} = 2^${p} - 1 via Lucas–Lehmer test...`;
+    setBusy(button, true, "Testing");
+    try {
+      const data = await fetchCryptoJson(
+        `/v1/math/mersenne?p=${encodeURIComponent(p)}`,
+        {},
+        cryptoMersenneResult
+      );
+      if (data.is_prime) {
+        cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is PRIME!</strong><br>` +
+          `<code>${data.mp}</code><br>` +
+          `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits).</span><br>` +
+          `<span style="color: var(--lab-accent); font-weight: 600;">Euclid–Euler even perfect number 2<sup>${data.p - 1}</sup>(2<sup>${data.p}</sup> &minus; 1):</span><br>` +
+          `<code>${data.perfect_number}</code>`;
+      } else {
+        const reason = !data.p_is_prime ? `exponent ${data.p} is composite` : `failed Lucas–Lehmer primality test (s_${data.p - 2} ≠ 0 mod M_${data.p})`;
+        cryptoMersenneResult.innerHTML = `<strong>M<sub>${data.p}</sub> = 2<sup>${data.p}</sup> &minus; 1 is COMPOSITE</strong> (${reason}).<br>` +
+          `<code>${data.mp}</code><br>` +
+          `<span class="lab-muted">${data.digits.toLocaleString()} decimal digits (${data.bits} bits). No even perfect number corresponds to this exponent.</span>`;
+      }
+    } catch (error) {
+      cryptoMersenneResult.textContent = error.message;
+    } finally {
+      setBusy(button, false, "Testing");
+    }
+  } else {
+    // Sequence mode
+    const limitRaw = cryptoMersenneLimit?.value.trim() || "127";
+    const limit = parseInt(limitRaw, 10);
+    if (isNaN(limit) || limit < 2 || limit > 5000) {
+      cryptoMersenneResult.textContent = "Please enter an upper bound limit between 2 and 5000.";
+      return;
+    }
+
+    cryptoMersenneResult.textContent = `Finding Mersenne prime exponents for p ≤ ${limit}...`;
+    setBusy(button, true, "Enumerating");
+    try {
+      const data = await fetchCryptoJson(
+        `/v1/math/mersenne?limit=${encodeURIComponent(limit)}`,
+        {},
+        cryptoMersenneResult
+      );
+      const primes = data.primes || [];
+      let html = `<strong>Found ${primes.length} Mersenne prime ${primes.length === 1 ? "exponent" : "exponents"} for <em>p</em> &le; ${data.limit}:</strong><br>`;
+      html += `<div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">`;
+      primes.forEach(p => {
+        html += `<button type="button" class="lab-button lab-button--secondary lab-button--compact mersenne-chip" data-p="${p}" title="Click to test M_${p}" style="font-weight: 600; padding: 0.2rem 0.5rem; cursor: pointer;">p = ${p}</button>`;
+      });
+      html += `</div>`;
+      html += `<p class="lab-muted" style="margin-top: 0.5rem; font-size: 0.85rem;">Click any exponent pill to inspect its full decimal expansion and Euclid–Euler perfect number.</p>`;
+      cryptoMersenneResult.innerHTML = html;
+
+      // Attach click listeners to chips to switch to test mode and run test immediately
+      cryptoMersenneResult.querySelectorAll(".mersenne-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const pVal = chip.getAttribute("data-p");
+          if (cryptoMersenneAction) cryptoMersenneAction.value = "test";
+          syncMersenneForm();
+          if (cryptoMersenneP) cryptoMersenneP.value = pVal;
+          runCryptoMersenne();
+        });
+      });
+    } catch (error) {
+      cryptoMersenneResult.textContent = error.message;
+    } finally {
+      setBusy(button, false, "Enumerating");
+    }
   }
 }
 
 function clearCryptoMersenne() {
-  cryptoMersenneP.value = "31";
-  cryptoMersenneResult.textContent = "Enter exponent p ≥ 2 (e.g. 2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521).";
+  if (cryptoMersenneAction) cryptoMersenneAction.value = "test";
+  syncMersenneForm();
+  if (cryptoMersenneP) cryptoMersenneP.value = "31";
+  if (cryptoMersenneLimit) cryptoMersenneLimit.value = "127";
+  cryptoMersenneResult.textContent = "Select an operation and configure parameters.";
   clearTelemetry(cryptoMersenneResult);
 }
 
@@ -2420,6 +2483,7 @@ cryptoFactorForm?.addEventListener("submit", runCryptoFactor);
 clearCryptoFactorButton?.addEventListener("click", clearCryptoFactor);
 cryptoFermatForm?.addEventListener("submit", runCryptoFermat);
 clearCryptoFermatButton?.addEventListener("click", clearCryptoFermat);
+cryptoMersenneAction?.addEventListener("change", syncMersenneForm);
 cryptoMersenneForm?.addEventListener("submit", runCryptoMersenne);
 clearCryptoMersenneButton?.addEventListener("click", clearCryptoMersenne);
 cryptoPerfectForm?.addEventListener("submit", runCryptoPerfect);
@@ -2455,6 +2519,7 @@ refreshCryptoInfo();
 syncHmacForm();
 syncRsaForm();
 syncDhForm();
+syncMersenneForm();
 validateCatalanInput();
 validateFibonacciInput();
 validateGcdInputs();

@@ -506,13 +506,27 @@
                 <p class="lab-eyebrow">Primality testing</p>
                 <h3>Mersenne primes &amp; Lucas–Lehmer test</h3>
               </div>
-              <label for="crypto-mersenne-p">Prime exponent <em>p</em> (2 &le; <em>p</em> &le; 5000)</label>
-              <input id="crypto-mersenne-p" name="p" type="number" min="2" max="5000" value="31" required>
+              <label for="crypto-mersenne-action">Operation</label>
+              <select id="crypto-mersenne-action" name="action">
+                <option value="test">Lucas–Lehmer primality test (single exponent p)</option>
+                <option value="sequence">Mersenne prime sequence (exponents p &le; limit)</option>
+              </select>
+
+              <div id="crypto-mersenne-test-group" class="crypto-mersenne-group">
+                <label for="crypto-mersenne-p">Prime exponent <em>p</em> (2 &le; <em>p</em> &le; 5000)</label>
+                <input id="crypto-mersenne-p" name="p" type="number" min="2" max="5000" value="31">
+              </div>
+
+              <div id="crypto-mersenne-seq-group" class="crypto-mersenne-group" style="display: none;">
+                <label for="crypto-mersenne-limit">Upper bound limit (2 &le; <em>limit</em> &le; 5000)</label>
+                <input id="crypto-mersenne-limit" name="limit" type="number" min="2" max="5000" value="127">
+              </div>
+
               <div class="lab-actions">
-                <button class="lab-button" type="submit">Test via Lucas–Lehmer</button>
+                <button id="submit-crypto-mersenne" class="lab-button" type="submit">Test via Lucas–Lehmer</button>
                 <button id="clear-crypto-mersenne" class="lab-button lab-button--secondary" type="button">Clear</button>
               </div>
-              <output id="crypto-mersenne-result" class="lab-result" aria-live="polite">Enter exponent p &ge; 2 (e.g. 2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521).</output>
+              <output id="crypto-mersenne-result" class="lab-result" aria-live="polite">Select an operation and configure parameters.</output>
             </form>
 
             <form id="crypto-perfect-form" class="lab-form crypto-tool">
