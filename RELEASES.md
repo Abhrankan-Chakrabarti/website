@@ -1,5 +1,58 @@
 # Releases
 
+### [v0.12.0] — 2026-10-30
+
+**Two-Stage Pollard's $p-1$ Integer Factorization Suite, crypto-lab v0.10.0 & foxmath v0.16.0.**
+
+#### Added
+- Added **Two-Stage Pollard's $p-1$ Integer Factorization** across the stack:
+  - **`crypto-lab` v0.10.0** (expanded registry to 62 endpoints):
+    - `GET, POST /crypto-api/v1/math/pm1`: two-stage Pollard $p-1$ factoring with Stage 1 prime-power exponentiation, automatic prime backtracking on complete congruence ($\gcd = n$), and Stage 2 prime difference table for smooth factor search with bounds $B_1$ and $B_2$.
+    - Returns factor $p$, cofactor $q$, smoothness verification of $p-1$ with prime factor breakdown and formatted expression, step count, and execution latency.
+    - Expanded deterministic problem generator (`/v1/math/challenge`) with topic `"pm1"`.
+    - All 51 unit and HTTP integration tests passing with 0 Clippy warnings.
+  - **`foxmath` v0.16.0**:
+    - Pure Python algorithm `pollard_pm1(n, b1, b2, a)` with Stage 1 prime powers and Stage 2 baby-step prime gaps.
+    - CLI subcommand `foxmath pm1` and standalone symlink `foxmath-pm1`.
+    - Challenge topic `"pm1"` and all 336 unit/CLI tests passing.
+  - **The Lab** (`/lab.html`):
+    - Interactive **Pollard's $p-1$ factoring tool** (`#crypto-pm1-form`) with real-time telemetry, stage detection, smoothness verification, and one-click presets (*7-smooth*, *Stage 2*, *Fermat F4 cofactor*, *30-bit modulus*).
+    - Added `"pm1"` option to the Challenge generator dropdown.
+- Updated `projects.html`, `API.md`, `API.html`, `now.html`, and `README.md`.
+
+---
+
+### [v0.11.1] — 2026-10-26
+
+**Mersenne Primes & Euclid–Euler Essay, Lucas–Lehmer Recurrence Trace Visualizer & Lab Benchmark Presets.**
+
+#### Added
+- Published new mathematics essay [**Mersenne Primes, Lucas–Lehmer & Euclid–Euler Perfect Numbers**](/writing/mersenne-primes/) covering Euclid's Elements (IX.36), Euler's converse, Lucas's 1876 manual verification of $M_{127}$, and division-free Mersenne reduction.
+- Added **Lucas–Lehmer Recurrence Trace Visualizer** in `lab.html`: renders step-by-step modular residues ($s_0 \dots s_{p-2}$) with smart truncation and visual primality badges.
+- Added **Sequence Enumeration Mode** & **Historical Benchmark Presets** ($M_7$, $M_{11}$, $M_{31}$, $M_{61}$, $M_{127}$, $M_{521}$) for one-click exploration in The Lab.
+- Updated `now.html` and `writing.html` catalogues.
+
+---
+
+### [v0.11.0] — 2026-10-25
+
+**Mersenne primes & Lucas–Lehmer test suite, Euclid–Euler perfect numbers, Chamber of Primes Report & crypto-lab v0.9.0.**
+
+#### Added
+- Published **The Chamber of Primes Report** ([`/CHAMBER_OF_PRIMES.html`](/CHAMBER_OF_PRIMES.html) & [`/CHAMBER_OF_PRIMES.md`](/CHAMBER_OF_PRIMES.md)): comprehensive architecture report and technical specification covering Fermat factorization, ancient Egyptian hieroglyphic mathematics, Legendre residue sieve theory, and dual-mode WebSocket streaming. Added site-links navigation header across all 14 pages and responsive horizontal scrolling wrappers for mobile layouts.
+- Upgraded `crypto-lab` to `v0.9.0` (expanded registry to 60 endpoints):
+  - `GET, POST /crypto-api/v1/math/mersenne`: deterministic Lucas–Lehmer primality test for Mersenne numbers M<sub>p</sub> = 2<sup>p</sup> − 1 (2 ≤ p ≤ 5000), decimal digit count, bit length, and Euclid–Euler even perfect number computation via pure Rust arbitrary-precision bit arithmetic. Supports `?limit=...` to enumerate Mersenne prime exponents.
+  - `GET, POST /crypto-api/v1/math/perfect`: test whether integer $n$ is a perfect number ($\sigma(n) = 2n$) or generate the even perfect number 2<sup>p−1</sup>(2<sup>p</sup> − 1) for prime exponent $p$.
+  - Expanded deterministic problem generator (`/v1/math/challenge`) with topics `"mersenne"` and `"perfect"`.
+  - All 48 unit and integration tests passing with 0 Clippy warnings.
+- Added interactive exploration tools to **The Lab** (`/lab.html`):
+  - **Mersenne primes & Lucas–Lehmer test calculator**: tests prime exponents up to $p = 5000$, displaying exact decimal values and Euclid–Euler even perfect numbers.
+  - **Perfect numbers calculator**: evaluates divisor sum $\sigma(n) = 2n$ and generates even perfect numbers.
+  - Added `"mersenne"` and `"perfect"` options to the Challenge generator dropdown.
+- Updated `API.md` and `API.html` with complete endpoint specifications, curl examples, and JSON response models.
+
+---
+
 ### [v0.10.0] — 2026-10-23
 
 **The Chamber of Primes (Fermat's Difference of Squares Visualizer), WebSockets & crypto-lab v0.8.0.**

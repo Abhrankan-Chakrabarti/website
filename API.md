@@ -960,6 +960,7 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **Chamber WebSocket** | Real-time WebSocket streaming endpoint for step-by-step visual factorization ("The Chamber of Primes"). |
 | **Mersenne Primality** | Deterministic Lucas–Lehmer primality test for Mersenne numbers M<sub>p</sub> = 2<sup>p</sup> − 1 (2 ≤ p ≤ 5000) and Euclid–Euler even perfect numbers. Also enumerates known Mersenne primes via `?limit=...`. |
 | **Perfect Numbers** | Euclid–Euler even perfect number verification (σ(n) = 2n) or generation for prime exponent p (2<sup>p−1</sup>(2<sup>p</sup> − 1)). |
+| **Pollard's p − 1** | Two-stage Pollard's $p-1$ algorithm ($B_1, B_2$) for composite integers with smooth prime factors. |
 
 ### Application information
 
@@ -971,7 +972,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1032,7 +1033,9 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/mersenne",
     "POST /v1/math/mersenne",
     "GET /v1/math/perfect",
-    "POST /v1/math/perfect"
+    "POST /v1/math/perfect",
+    "GET /v1/math/pm1",
+    "POST /v1/math/pm1"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1522,6 +1525,43 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/perfect?n=28&p=7"
   "sigma": 56,
   "p": 7,
   "perfect_number": "8128"
+}
+```
+
+#### Pollard's $p-1$ integer factorization (`/v1/math/pm1`)
+
+Executes two-stage Pollard's $p-1$ algorithm to find non-trivial factors of composite integer $n$. Stage 1 uses prime powers up to bound $B_1$ with automatic prime backtracking to prevent factor collapse ($\gcd = n$). Stage 2 searches for factors where $p-1$ has a single larger prime factor $q \in (B_1, B_2]$ using a cached prime-gap baby-step table.
+
+Parameters:
+- `n` (integer, required): composite integer to factor ($n \ge 2$).
+- `b1` (integer, optional, default: 1000): Stage 1 smoothness bound ($2 \le B_1 \le 1\,000\,000$).
+- `b2` (integer, optional, default: $10 \times B_1$): Stage 2 smoothness bound ($B_1 \le B_2 \le 5\,000\,000$).
+- `base` (integer, optional, default: 2): initial exponentiation base $a$ ($1 < a < n$).
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/pm1?n=1393429&b1=20&b2=100"
+```
+
+```json
+{
+  "n": 1393429,
+  "factor": 1009,
+  "cofactor": 1381,
+  "success": true,
+  "stage": 1,
+  "b1": 20,
+  "b2": 100,
+  "base": 2,
+  "p_minus_1": 1008,
+  "p_minus_1_factors": [
+    { "prime": 2, "exponent": 4 },
+    { "prime": 3, "exponent": 2 },
+    { "prime": 7, "exponent": 1 }
+  ],
+  "p_minus_1_expression": "2^4 * 3^2 * 7",
+  "steps": 8,
+  "message": "Found non-trivial factor p = 1009 in Stage 1",
+  "elapsed_us": 42
 }
 ```
 

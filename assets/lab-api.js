@@ -151,6 +151,13 @@ const cryptoPerfectP = document.querySelector("#crypto-perfect-p");
 const cryptoPerfectResult = document.querySelector("#crypto-perfect-result");
 const clearCryptoPerfectButton = document.querySelector("#clear-crypto-perfect");
 
+const cryptoPm1Form = document.querySelector("#crypto-pm1-form");
+const cryptoPm1N = document.querySelector("#crypto-pm1-n");
+const cryptoPm1B1 = document.querySelector("#crypto-pm1-b1");
+const cryptoPm1B2 = document.querySelector("#crypto-pm1-b2");
+const cryptoPm1Result = document.querySelector("#crypto-pm1-result");
+const clearCryptoPm1Button = document.querySelector("#clear-crypto-pm1");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -1927,6 +1934,62 @@ function clearCryptoPerfect() {
   clearTelemetry(cryptoPerfectResult);
 }
 
+async function runCryptoPm1(event) {
+  if (event) event.preventDefault();
+  const nRaw = cryptoPm1N.value.trim();
+  const b1Raw = cryptoPm1B1.value.trim();
+  const b2Raw = cryptoPm1B2.value.trim();
+
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoPm1Result.textContent = "Enter a valid integer n ≥ 3.";
+    return;
+  }
+  const nVal = BigInt(nRaw);
+  if (nVal < 3n) {
+    cryptoPm1Result.textContent = "Integer n must be composite and ≥ 3.";
+    return;
+  }
+
+  const queryParams = new URLSearchParams({ n: nRaw });
+  if (b1Raw && /^[1-9]\d*$/.test(b1Raw)) queryParams.set("b1", b1Raw);
+  if (b2Raw && /^[1-9]\d*$/.test(b2Raw)) queryParams.set("b2", b2Raw);
+
+  const button = cryptoPm1Form.querySelector("button[type='submit']");
+  cryptoPm1Result.textContent = "Factoring via Pollard's p - 1...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/pm1?${queryParams.toString()}`,
+      {},
+      cryptoPm1Result
+    );
+    if (data.success && data.factor) {
+      const stageLabel = data.stage === 1 ? "Stage 1" : data.stage === 2 ? "Stage 2" : "Initial GCD";
+      let html = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.factor.toLocaleString()} &times; ${data.cofactor.toLocaleString()}</code><br>` +
+        `<span class="lab-muted">Found in <strong>${stageLabel}</strong> (B1 = ${data.b1.toLocaleString()}, B2 = ${data.b2.toLocaleString()}) &bull; ${data.steps} ${data.steps === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+      if (data.p_minus_1_expression) {
+        html += `<br><span class="lab-muted">Smoothness: p &minus; 1 = ${data.p_minus_1.toLocaleString()} = <code>${data.p_minus_1_expression}</code></span>`;
+      }
+      cryptoPm1Result.innerHTML = html;
+    } else {
+      cryptoPm1Result.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+        `<span class="lab-muted">Evaluated ${data.steps} steps (B1 = ${data.b1.toLocaleString()}, B2 = ${data.b2.toLocaleString()}) in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+    }
+  } catch (error) {
+    cryptoPm1Result.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factor via p - 1");
+  }
+}
+
+function clearCryptoPm1() {
+  cryptoPm1N.value = "1393429";
+  cryptoPm1B1.value = "20";
+  cryptoPm1B2.value = "100";
+  cryptoPm1Result.textContent = "Enter composite n and smoothness bounds B1, B2.";
+  clearTelemetry(cryptoPm1Result);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2545,6 +2608,16 @@ document.querySelectorAll(".mersenne-preset-btn").forEach(btn => {
 });
 cryptoPerfectForm?.addEventListener("submit", runCryptoPerfect);
 clearCryptoPerfectButton?.addEventListener("click", clearCryptoPerfect);
+cryptoPm1Form?.addEventListener("submit", runCryptoPm1);
+clearCryptoPm1Button?.addEventListener("click", clearCryptoPm1);
+document.querySelectorAll(".pm1-preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (cryptoPm1N && btn.dataset.n) cryptoPm1N.value = btn.dataset.n;
+    if (cryptoPm1B1 && btn.dataset.b1) cryptoPm1B1.value = btn.dataset.b1;
+    if (cryptoPm1B2 && btn.dataset.b2) cryptoPm1B2.value = btn.dataset.b2;
+    runCryptoPm1();
+  });
+});
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
 clearCryptoTotientButton?.addEventListener("click", clearCryptoTotient);
 cryptoOrderForm?.addEventListener("submit", runCryptoOrder);
