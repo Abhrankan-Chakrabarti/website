@@ -1,5 +1,27 @@
 # Releases
 
+### [v0.13.0] — 2026-10-31
+
+**Lenstra's ECM Elliptic Curve Factorization Suite, crypto-lab v0.11.0 & foxmath v0.17.0.**
+
+#### Added
+- Added **Lenstra's Elliptic Curve Factorization (ECM)** across the stack:
+  - **`crypto-lab` v0.11.0** (expanded registry to 64 endpoints):
+    - `GET, POST /crypto-api/v1/math/ecm`: two-stage Lenstra ECM integer factorization with pseudo-random Weierstrass curves $y^2 \equiv x^3 + ax + b \pmod n$ generated via deterministic SplitMix64 PRNG. Traps non-trivial factors at affine group slope divisions with $\gcd(\text{denominator}, n) > 1$. Stage 1 prime-power point multiplication ($B_1$) and Stage 2 prime difference steps ($B_2$).
+    - Returns factor $p$, cofactor $q$, curve index, curves tested count, stage, curve parameters $a, b$, step count, and execution latency.
+    - Expanded deterministic problem generator (`/v1/math/challenge`) with topic `"ecm"` (now 14 topics).
+    - All 54 unit and HTTP integration tests passing with 0 Clippy warnings.
+  - **`foxmath` v0.17.0**:
+    - Pure Python implementation `lenstra_ecm(n, b1, b2, max_curves, seed)` matching `crypto-lab` PRNG determinism and two-stage logic.
+    - CLI subcommand `foxmath ecm` and standalone symlink `foxmath-ecm`.
+    - Challenge topic `"ecm"` and all 345 unit/CLI tests passing.
+  - **The Lab** (`/lab.html`):
+    - Interactive **Lenstra ECM factoring tool** (`#crypto-ecm-form`) with real-time telemetry, curve parameter readout, stage detection, and one-click presets (*1393429 (Stage 1)*, *1042387 (Stage 2)*, *Fermat F4 cofactor*, *32-bit RSA modulus*).
+    - Added `"ecm"` option to the Challenge generator dropdown.
+- Updated `projects.html`, `API.md`, `API.html`, `now.html`, and `README.md`.
+
+---
+
 ### [v0.12.0] — 2026-10-30
 
 **Two-Stage Pollard's $p-1$ Integer Factorization Suite, crypto-lab v0.10.0 & foxmath v0.16.0.**

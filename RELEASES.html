@@ -58,6 +58,42 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v0130--2026-10-31">[v0.13.0] — 2026-10-31</h3>
+
+<p><strong>Lenstra's ECM Elliptic Curve Factorization Suite, crypto-lab v0.11.0 &amp; foxmath v0.17.0.</strong></p>
+
+<h4 id="added-v0130">Added</h4>
+<ul>
+  <li>Added <strong>Lenstra's Elliptic Curve Factorization (ECM)</strong> across the stack:
+    <ul>
+      <li><strong><code class="language-plaintext highlighter-rouge">crypto-lab</code> v0.11.0</strong> (expanded registry to 64 endpoints):
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/ecm</code>: two-stage Lenstra ECM integer factorization with pseudo-random Weierstrass curves <em>y</em><sup>2</sup> &equiv; <em>x</em><sup>3</sup> + <em>ax</em> + <em>b</em> (mod <em>n</em>) generated via deterministic SplitMix64 PRNG. Traps non-trivial factors at affine group slope divisions with gcd(denominator, <em>n</em>) &gt; 1. Stage 1 prime-power point multiplication (<em>B</em><sub>1</sub>) and Stage 2 prime difference steps (<em>B</em><sub>2</sub>).</li>
+          <li>Returns factor <em>p</em>, cofactor <em>q</em>, curve index, curves tested count, stage, curve parameters <em>a, b</em>, step count, and execution latency.</li>
+          <li>Expanded deterministic problem generator (<code class="language-plaintext highlighter-rouge">/v1/math/challenge</code>) with topic <code class="language-plaintext highlighter-rouge">ecm</code> (now 14 topics).</li>
+          <li>All 54 unit and HTTP integration tests passing with 0 Clippy warnings.</li>
+        </ul>
+      </li>
+      <li><strong><code class="language-plaintext highlighter-rouge">foxmath</code> v0.17.0</strong>:
+        <ul>
+          <li>Pure Python implementation <code class="language-plaintext highlighter-rouge">lenstra_ecm(n, b1, b2, max_curves, seed)</code> matching <code class="language-plaintext highlighter-rouge">crypto-lab</code> PRNG determinism and two-stage logic.</li>
+          <li>CLI subcommand <code class="language-plaintext highlighter-rouge">foxmath ecm</code> and standalone symlink <code class="language-plaintext highlighter-rouge">foxmath-ecm</code>.</li>
+          <li>Challenge topic <code class="language-plaintext highlighter-rouge">ecm</code> and all 345 unit/CLI tests passing.</li>
+        </ul>
+      </li>
+      <li><strong>The Lab</strong> (<a href="/lab.html"><code class="language-plaintext highlighter-rouge">/lab.html</code></a>):
+        <ul>
+          <li>Interactive <strong>Lenstra ECM factoring tool</strong> (<code class="language-plaintext highlighter-rouge">#crypto-ecm-form</code>) with real-time telemetry, curve parameter readout, stage detection, and one-click presets (<em>1393429 (Stage 1)</em>, <em>1042387 (Stage 2)</em>, <em>Fermat F4 cofactor</em>, <em>32-bit RSA modulus</em>).</li>
+          <li>Added <code class="language-plaintext highlighter-rouge">ecm</code> option to the Challenge generator dropdown.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">projects.html</code>, <code class="language-plaintext highlighter-rouge">API.md</code>, <code class="language-plaintext highlighter-rouge">API.html</code>, <code class="language-plaintext highlighter-rouge">now.html</code>, and <code class="language-plaintext highlighter-rouge">README.md</code>.</li>
+</ul>
+
+<hr />
+
 <h3 id="v0120--2026-10-30">[v0.12.0] — 2026-10-30</h3>
 
 <p><strong>Two-Stage Pollard's <em>p</em> &minus; 1 Integer Factorization Suite, crypto-lab v0.10.0 &amp; foxmath v0.16.0.</strong></p>

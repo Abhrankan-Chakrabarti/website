@@ -961,6 +961,7 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **Mersenne Primality** | Deterministic Lucas–Lehmer primality test for Mersenne numbers M<sub>p</sub> = 2<sup>p</sup> − 1 (2 ≤ p ≤ 5000) and Euclid–Euler even perfect numbers. Also enumerates known Mersenne primes via `?limit=...`. |
 | **Perfect Numbers** | Euclid–Euler even perfect number verification (σ(n) = 2n) or generation for prime exponent p (2<sup>p−1</sup>(2<sup>p</sup> − 1)). |
 | **Pollard's p − 1** | Two-stage Pollard's $p-1$ algorithm ($B_1, B_2$) for composite integers with smooth prime factors. |
+| **Lenstra ECM** | Two-stage Lenstra elliptic curve factorization ($B_1, B_2$) with random Weierstrass curves. |
 
 ### Application information
 
@@ -972,7 +973,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1035,7 +1036,9 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/perfect",
     "POST /v1/math/perfect",
     "GET /v1/math/pm1",
-    "POST /v1/math/pm1"
+    "POST /v1/math/pm1",
+    "GET /v1/math/ecm",
+    "POST /v1/math/ecm"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1562,6 +1565,40 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/pm1?n=1393429&b1=20&b
   "steps": 8,
   "message": "Found non-trivial factor p = 1009 in Stage 1",
   "elapsed_us": 42
+}
+```
+
+#### Lenstra's elliptic curve factorization (ECM) (`/v1/math/ecm`)
+
+Executes Lenstra's Elliptic Curve Method (ECM) to factor composite integer $n$. Generates pseudo-random Weierstrass curves $y^2 \equiv x^3 + ax + b \pmod n$ using deterministic SplitMix64 pseudo-random generation with seed $s$. Tests curves in two stages: Stage 1 multiplies point $P$ by prime powers up to bound $B_1$, trapping non-trivial factors when affine coordinate slopes have $\gcd(\text{denominator}, n) > 1$. Stage 2 tests prime difference steps in $(B_1, B_2]$.
+
+Parameters:
+- `n` (integer, required): composite integer to factor ($n \ge 2$).
+- `b1` (integer, optional, default: 1000): Stage 1 smoothness bound ($2 \le B_1 \le 1\,000\,000$).
+- `b2` (integer, optional, default: $10 \times B_1$): Stage 2 smoothness bound ($B_1 \le B_2 \le 5\,000\,000$).
+- `curves` (integer, optional, default: 20): maximum number of curves to test ($1 \le \text{curves} \le 500$).
+- `seed` (integer, optional, default: 42): PRNG seed for reproducible curve generation.
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/ecm?n=1393429&b1=50&curves=10&seed=42"
+```
+
+```json
+{
+  "n": 1393429,
+  "factor": 1009,
+  "cofactor": 1381,
+  "success": true,
+  "curve_index": 1,
+  "curves_tested": 1,
+  "stage": 1,
+  "b1": 50,
+  "b2": 500,
+  "a": 237890,
+  "b": 478392,
+  "steps": 15,
+  "message": "Found non-trivial factor p = 1009 on curve 1 in Stage 1",
+  "elapsed_us": 142
 }
 ```
 

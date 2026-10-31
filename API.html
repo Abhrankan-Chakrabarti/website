@@ -1200,6 +1200,10 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>None</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/ecm</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code></td>
       <td>Nginx Basic Auth</td>
     </tr>
@@ -1340,7 +1344,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.10.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.11.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1403,7 +1407,9 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"GET /v1/math/perfect"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/perfect"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/pm1"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/math/pm1"</span><span class="w">
+    </span><span class="s2">"POST /v1/math/pm1"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/ecm"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/ecm"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1770,6 +1776,16 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">1393429</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">1009</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">1381</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"stage"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"b1"</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span><span class="nl">"b2"</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span><span class="nl">"base"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nl">"p_minus_1"</span><span class="p">:</span><span class="mi">1008</span><span class="p">,</span><span class="nl">"p_minus_1_factors"</span><span class="p">:[{</span><span class="nl">"prime"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nl">"exponent"</span><span class="p">:</span><span class="mi">4</span><span class="p">},{</span><span class="nl">"prime"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nl">"exponent"</span><span class="p">:</span><span class="mi">2</span><span class="p">},{</span><span class="nl">"prime"</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span><span class="nl">"exponent"</span><span class="p">:</span><span class="mi">1</span><span class="p">}],</span><span class="nl">"p_minus_1_expression"</span><span class="p">:</span><span class="s2">"2^4 * 3^2 * 7"</span><span class="p">,</span><span class="nl">"steps"</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found non-trivial factor p = 1009 in Stage 1"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">42</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="ecm">Lenstra's elliptic curve factorization (ECM)</h4>
+
+<p>Executes Lenstra's Elliptic Curve Method (ECM) to factor composite integer <em>n</em>. Generates pseudo-random Weierstrass curves <em>y</em><sup>2</sup> &equiv; <em>x</em><sup>3</sup> + <em>ax</em> + <em>b</em> (mod <em>n</em>) using deterministic SplitMix64 pseudo-random generation with seed <em>s</em>. Tests curves in two stages: Stage 1 multiplies point <em>P</em> by prime powers up to bound <em>B</em><sub>1</sub>, trapping non-trivial factors when affine coordinate slopes have gcd(denominator, <em>n</em>) &gt; 1. Stage 2 tests prime difference steps in (<em>B</em><sub>1</sub>, <em>B</em><sub>2</sub>].</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/ecm?n=1393429&amp;b1=50&amp;curves=10&amp;seed=42"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">1393429</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">1009</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">1381</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"curve_index"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"curves_tested"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"stage"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"b1"</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span><span class="nl">"b2"</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span><span class="nl">"a"</span><span class="p">:</span><span class="mi">237890</span><span class="p">,</span><span class="nl">"b"</span><span class="p">:</span><span class="mi">478392</span><span class="p">,</span><span class="nl">"steps"</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found non-trivial factor p = 1009 on curve 1 in Stage 1"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">142</span><span class="p">}</span>
 </code></pre></div></div>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>

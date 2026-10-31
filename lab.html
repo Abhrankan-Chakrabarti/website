@@ -402,7 +402,7 @@
           </div>
           <p class="lab-muted">
             High-performance pure Rust number theory and Weierstrass elliptic curve arithmetic powered by
-            <code>crypto-lab</code> v0.10.0. Endpoints are unauthenticated and open for exploration.
+            <code>crypto-lab</code> v0.11.0. Endpoints are unauthenticated and open for exploration.
           </p>
 
           <div class="crypto-tools">
@@ -533,6 +533,51 @@
                 <button id="clear-crypto-pm1" class="lab-button lab-button--secondary" type="button">Clear</button>
               </div>
               <output id="crypto-pm1-result" class="lab-result" aria-live="polite">Enter composite n and smoothness bounds B1, B2.</output>
+            </form>
+
+            <form id="crypto-ecm-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Elliptic curve factorization</p>
+                <h3>Lenstra's ECM factoring</h3>
+              </div>
+              <label for="crypto-ecm-n">Composite integer to factor (<em>n</em> &ge; 3)</label>
+              <input id="crypto-ecm-n" name="n" type="text" inputmode="numeric" value="1393429" required>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <div>
+                  <label for="crypto-ecm-b1">Stage 1 bound (<em>B</em><sub>1</sub>)</label>
+                  <input id="crypto-ecm-b1" name="b1" type="number" min="2" max="1000000" value="50">
+                </div>
+                <div>
+                  <label for="crypto-ecm-b2">Stage 2 bound (<em>B</em><sub>2</sub>)</label>
+                  <input id="crypto-ecm-b2" name="b2" type="number" min="2" max="5000000" value="500">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <div>
+                  <label for="crypto-ecm-curves">Max curves to test</label>
+                  <input id="crypto-ecm-curves" name="curves" type="number" min="1" max="500" value="20">
+                </div>
+                <div>
+                  <label for="crypto-ecm-seed">PRNG seed (deterministic)</label>
+                  <input id="crypto-ecm-seed" name="seed" type="number" min="0" value="42">
+                </div>
+              </div>
+
+              <div style="margin-top: 0.4rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
+                <span class="lab-muted" style="font-size: 0.8rem;">Presets:</span>
+                <button type="button" class="lab-button lab-button--secondary ecm-preset-btn" style="padding: 0.15rem 0.45rem; font-size: 0.75rem;" data-n="1393429" data-b1="50" data-b2="500" data-curves="10" data-seed="42">1393429 (Stage 1)</button>
+                <button type="button" class="lab-button lab-button--secondary ecm-preset-btn" style="padding: 0.15rem 0.45rem; font-size: 0.75rem;" data-n="1042387" data-b1="30" data-b2="200" data-curves="20" data-seed="42">1042387 (Stage 2)</button>
+                <button type="button" class="lab-button lab-button--secondary ecm-preset-btn" style="padding: 0.15rem 0.45rem; font-size: 0.75rem;" data-n="16843009" data-b1="100" data-b2="1000" data-curves="25" data-seed="42">Fermat F4 cofactor</button>
+                <button type="button" class="lab-button lab-button--secondary ecm-preset-btn" style="padding: 0.15rem 0.45rem; font-size: 0.75rem;" data-n="2369625997" data-b1="150" data-b2="1500" data-curves="30" data-seed="42">32-bit RSA modulus</button>
+              </div>
+
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Factor via Lenstra ECM</button>
+                <button id="clear-crypto-ecm" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="crypto-ecm-result" class="lab-result" aria-live="polite">Enter composite n, bounds B1, B2, and curve count.</output>
             </form>
 
             <form id="crypto-mersenne-form" class="lab-form crypto-tool">
@@ -809,6 +854,7 @@
                 <option value="mersenne">Mersenne primes</option>
                 <option value="perfect">Perfect numbers</option>
                 <option value="pm1">Pollard's p-1 factoring</option>
+                <option value="ecm">Lenstra's ECM factoring</option>
               </select>
               <label for="challenge-seed">Seed (optional number)</label>
               <input id="challenge-seed" name="seed" type="number" min="0" placeholder="e.g. 42">

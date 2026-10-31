@@ -158,6 +158,15 @@ const cryptoPm1B2 = document.querySelector("#crypto-pm1-b2");
 const cryptoPm1Result = document.querySelector("#crypto-pm1-result");
 const clearCryptoPm1Button = document.querySelector("#clear-crypto-pm1");
 
+const cryptoEcmForm = document.querySelector("#crypto-ecm-form");
+const cryptoEcmN = document.querySelector("#crypto-ecm-n");
+const cryptoEcmB1 = document.querySelector("#crypto-ecm-b1");
+const cryptoEcmB2 = document.querySelector("#crypto-ecm-b2");
+const cryptoEcmCurves = document.querySelector("#crypto-ecm-curves");
+const cryptoEcmSeed = document.querySelector("#crypto-ecm-seed");
+const cryptoEcmResult = document.querySelector("#crypto-ecm-result");
+const clearCryptoEcmButton = document.querySelector("#clear-crypto-ecm");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -1990,6 +1999,68 @@ function clearCryptoPm1() {
   clearTelemetry(cryptoPm1Result);
 }
 
+async function runCryptoEcm(event) {
+  if (event) event.preventDefault();
+  const nRaw = cryptoEcmN.value.trim();
+  const b1Raw = cryptoEcmB1.value.trim();
+  const b2Raw = cryptoEcmB2.value.trim();
+  const curvesRaw = cryptoEcmCurves.value.trim();
+  const seedRaw = cryptoEcmSeed.value.trim();
+
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoEcmResult.textContent = "Enter a valid integer n ≥ 3.";
+    return;
+  }
+  const nVal = BigInt(nRaw);
+  if (nVal < 3n) {
+    cryptoEcmResult.textContent = "Integer n must be composite and ≥ 3.";
+    return;
+  }
+
+  const queryParams = new URLSearchParams({ n: nRaw });
+  if (b1Raw && /^[1-9]\d*$/.test(b1Raw)) queryParams.set("b1", b1Raw);
+  if (b2Raw && /^[1-9]\d*$/.test(b2Raw)) queryParams.set("b2", b2Raw);
+  if (curvesRaw && /^[1-9]\d*$/.test(curvesRaw)) queryParams.set("curves", curvesRaw);
+  if (seedRaw && /^\d+$/.test(seedRaw)) queryParams.set("seed", seedRaw);
+
+  const button = cryptoEcmForm.querySelector("button[type='submit']");
+  cryptoEcmResult.textContent = "Factoring via Lenstra's ECM...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/ecm?${queryParams.toString()}`,
+      {},
+      cryptoEcmResult
+    );
+    if (data.success && data.factor) {
+      const stageLabel = data.stage === 1 ? "Stage 1" : data.stage === 2 ? "Stage 2" : "Initial GCD";
+      let html = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.factor.toLocaleString()} &times; ${data.cofactor.toLocaleString()}</code><br>` +
+        `<span class="lab-muted">Found on curve <strong>${data.curve_index}</strong> (of ${data.curves_tested} tested) in <strong>${stageLabel}</strong> &bull; ${data.steps} point ops in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+      if (data.a !== null && data.b !== null) {
+        html += `<br><span class="lab-muted">Weierstrass curve: <em>y</em><sup>2</sup> = <em>x</em><sup>3</sup> + ${data.a.toLocaleString()}<em>x</em> + ${data.b.toLocaleString()} (mod <em>n</em>)</span>`;
+      }
+      cryptoEcmResult.innerHTML = html;
+    } else {
+      cryptoEcmResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+        `<span class="lab-muted">Tested ${data.curves_tested} curves (${data.steps} point ops, B1 = ${data.b1.toLocaleString()}, B2 = ${data.b2.toLocaleString()}) in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+    }
+  } catch (error) {
+    cryptoEcmResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factor via Lenstra ECM");
+  }
+}
+
+function clearCryptoEcm() {
+  cryptoEcmN.value = "1393429";
+  cryptoEcmB1.value = "50";
+  cryptoEcmB2.value = "500";
+  cryptoEcmCurves.value = "20";
+  cryptoEcmSeed.value = "42";
+  cryptoEcmResult.textContent = "Enter composite n, bounds B1, B2, and curve count.";
+  clearTelemetry(cryptoEcmResult);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2616,6 +2687,18 @@ document.querySelectorAll(".pm1-preset-btn").forEach(btn => {
     if (cryptoPm1B1 && btn.dataset.b1) cryptoPm1B1.value = btn.dataset.b1;
     if (cryptoPm1B2 && btn.dataset.b2) cryptoPm1B2.value = btn.dataset.b2;
     runCryptoPm1();
+  });
+});
+cryptoEcmForm?.addEventListener("submit", runCryptoEcm);
+clearCryptoEcmButton?.addEventListener("click", clearCryptoEcm);
+document.querySelectorAll(".ecm-preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (cryptoEcmN && btn.dataset.n) cryptoEcmN.value = btn.dataset.n;
+    if (cryptoEcmB1 && btn.dataset.b1) cryptoEcmB1.value = btn.dataset.b1;
+    if (cryptoEcmB2 && btn.dataset.b2) cryptoEcmB2.value = btn.dataset.b2;
+    if (cryptoEcmCurves && btn.dataset.curves) cryptoEcmCurves.value = btn.dataset.curves;
+    if (cryptoEcmSeed && btn.dataset.seed) cryptoEcmSeed.value = btn.dataset.seed;
+    runCryptoEcm();
   });
 });
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
