@@ -1612,7 +1612,7 @@ Executes Dixon's random squares integer factorization to factor composite intege
 Parameters:
 - `n` (integer, required): composite integer to factor ($n \ge 4$).
 - `b` (integer, optional, default: 50): smoothness bound $B$ limiting primes in the factor base ($2 \le B \le 1000$).
-- `max_steps` (integer, optional, default: 50000): maximum search candidates $x$ before termination ($1 \le \text{max\_steps} \le 500\,000$).
+- `max_steps` (integer, optional, default: 50000): maximum search candidates $x$ before termination (1 ≤ max_steps ≤ 500,000).
 
 ```bash
 curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dixon?n=84923&b=30"
