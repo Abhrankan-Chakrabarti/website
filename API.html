@@ -1204,6 +1204,10 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>None</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/dixon</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code></td>
       <td>Nginx Basic Auth</td>
     </tr>
@@ -1344,7 +1348,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.11.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.12.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1409,7 +1413,9 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"GET /v1/math/pm1"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/pm1"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/ecm"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/math/ecm"</span><span class="w">
+    </span><span class="s2">"POST /v1/math/ecm"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/dixon"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/dixon"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1786,6 +1792,16 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">1393429</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">1009</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">1381</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"curve_index"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"curves_tested"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"stage"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"b1"</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span><span class="nl">"b2"</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span><span class="nl">"a"</span><span class="p">:</span><span class="mi">237890</span><span class="p">,</span><span class="nl">"b"</span><span class="p">:</span><span class="mi">478392</span><span class="p">,</span><span class="nl">"steps"</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found non-trivial factor p = 1009 on curve 1 in Stage 1"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">142</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="dixon">Dixon's random squares integer factorization</h4>
+
+<p>Executes Dixon's random squares integer factorization to factor composite integer <em>n</em>. Assembles a factor base <em>F</em> = {-1, 2} &cup; {<em>p</em> &le; <em>B</em> | (<em>n</em>/<em>p</em>) = 1}, then searches for <em>B</em>-smooth centered residues <em>r</em> &equiv; <em>x</em><sup>2</sup> (mod <em>n</em>). Performs Gaussian elimination over GF(2) on residue prime exponent vectors to detect null-space linear dependencies yielding congruent squares <em>X</em><sup>2</sup> &equiv; <em>Y</em><sup>2</sup> (mod <em>n</em>). Non-trivial factors are retrieved via gcd(|<em>X</em> &minus; <em>Y</em>|, <em>n</em>).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/dixon?n=84923&amp;b=30"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">84923</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">163</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">521</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"b"</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span><span class="nl">"factor_base_size"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nl">"relations_needed"</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="nl">"relations_found"</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="nl">"x"</span><span class="p">:</span><span class="mi">505</span><span class="p">,</span><span class="nl">"y"</span><span class="p">:</span><span class="mi">16</span><span class="p">,</span><span class="nl">"congruence"</span><span class="p">:</span><span class="s2">"505² ≡ 16² (mod 84923)"</span><span class="p">,</span><span class="nl">"steps"</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found non-trivial factor p = 163 via Dixon's method"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">68</span><span class="p">}</span>
 </code></pre></div></div>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>

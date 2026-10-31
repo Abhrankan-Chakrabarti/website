@@ -962,6 +962,7 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **Perfect Numbers** | Euclid–Euler even perfect number verification (σ(n) = 2n) or generation for prime exponent p (2<sup>p−1</sup>(2<sup>p</sup> − 1)). |
 | **Pollard's p − 1** | Two-stage Pollard's $p-1$ algorithm ($B_1, B_2$) for composite integers with smooth prime factors. |
 | **Lenstra ECM** | Two-stage Lenstra elliptic curve factorization ($B_1, B_2$) with random Weierstrass curves. |
+| **Dixon's Factorization** | Dixon's random squares integer factorization ($B$-smooth quadratic residues with $\mathbb{F}_2$ Gaussian elimination). |
 
 ### Application information
 
@@ -973,7 +974,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1038,7 +1039,9 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/pm1",
     "POST /v1/math/pm1",
     "GET /v1/math/ecm",
-    "POST /v1/math/ecm"
+    "POST /v1/math/ecm",
+    "GET /v1/math/dixon",
+    "POST /v1/math/dixon"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1599,6 +1602,38 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/ecm?n=1393429&b1=50&c
   "steps": 15,
   "message": "Found non-trivial factor p = 1009 on curve 1 in Stage 1",
   "elapsed_us": 142
+}
+```
+
+#### Dixon's random squares integer factorization (`/v1/math/dixon`)
+
+Executes Dixon's random squares integer factorization to factor composite integer $n$. Assembles a factor base $F = \{-1, 2\} \cup \{p \le B \mid \left(\frac{n}{p}\right) = 1\}$, then searches for $B$-smooth centered residues $r \equiv x^2 \pmod n$. Performs Gaussian elimination over $\mathbb{F}_2$ on residue prime exponent vectors to detect null-space linear dependencies yielding congruent squares $X^2 \equiv Y^2 \pmod n$. Non-trivial factors are retrieved via $\gcd(|X - Y|, n)$.
+
+Parameters:
+- `n` (integer, required): composite integer to factor ($n \ge 4$).
+- `b` (integer, optional, default: 50): smoothness bound $B$ limiting primes in the factor base ($2 \le B \le 1000$).
+- `max_steps` (integer, optional, default: 50000): maximum search candidates $x$ before termination ($1 \le \text{max\_steps} \le 500\,000$).
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dixon?n=84923&b=30"
+```
+
+```json
+{
+  "n": 84923,
+  "factor": 163,
+  "cofactor": 521,
+  "success": true,
+  "b": 30,
+  "factor_base_size": 4,
+  "relations_needed": 14,
+  "relations_found": 14,
+  "x": 505,
+  "y": 16,
+  "congruence": "505² ≡ 16² (mod 84923)",
+  "steps": 14,
+  "message": "Found non-trivial factor p = 163 via Dixon's method",
+  "elapsed_us": 68
 }
 ```
 

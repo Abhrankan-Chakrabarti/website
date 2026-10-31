@@ -167,6 +167,12 @@ const cryptoEcmSeed = document.querySelector("#crypto-ecm-seed");
 const cryptoEcmResult = document.querySelector("#crypto-ecm-result");
 const clearCryptoEcmButton = document.querySelector("#clear-crypto-ecm");
 
+const cryptoDixonForm = document.querySelector("#crypto-dixon-form");
+const cryptoDixonN = document.querySelector("#crypto-dixon-n");
+const cryptoDixonB = document.querySelector("#crypto-dixon-b");
+const cryptoDixonResult = document.querySelector("#crypto-dixon-result");
+const clearCryptoDixonButton = document.querySelector("#clear-crypto-dixon");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -2061,6 +2067,56 @@ function clearCryptoEcm() {
   clearTelemetry(cryptoEcmResult);
 }
 
+async function runCryptoDixon(event) {
+  if (event) event.preventDefault();
+  const nRaw = cryptoDixonN.value.trim();
+  const bRaw = cryptoDixonB.value.trim();
+
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoDixonResult.textContent = "Enter a valid integer n ≥ 4.";
+    return;
+  }
+  const nVal = BigInt(nRaw);
+  if (nVal < 4n) {
+    cryptoDixonResult.textContent = "Integer n must be composite and ≥ 4.";
+    return;
+  }
+
+  const queryParams = new URLSearchParams({ n: nRaw });
+  if (bRaw && /^[1-9]\d*$/.test(bRaw)) queryParams.set("b", bRaw);
+
+  const button = cryptoDixonForm.querySelector("button[type='submit']");
+  cryptoDixonResult.textContent = "Factoring via Dixon's random squares...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/dixon?${queryParams.toString()}`,
+      {},
+      cryptoDixonResult
+    );
+    if (data.success && data.factor) {
+      let html = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.factor.toLocaleString()} &times; ${data.cofactor.toLocaleString()}</code><br>` +
+        `<span class="lab-muted">Congruence: <code>${data.congruence}</code> &bull; Factor base size: ${data.factor_base_size} (B = ${data.b.toLocaleString()})</span><br>` +
+        `<span class="lab-muted">Relations: ${data.relations_found} of ${data.relations_needed} needed &bull; ${data.steps} steps in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+      cryptoDixonResult.innerHTML = html;
+    } else {
+      cryptoDixonResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+        `<span class="lab-muted">Factor base size: ${data.factor_base_size} (B = ${data.b.toLocaleString()}) &bull; Relations: ${data.relations_found} of ${data.relations_needed} &bull; ${data.steps} steps in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+    }
+  } catch (error) {
+    cryptoDixonResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factor via Dixon's method");
+  }
+}
+
+function clearCryptoDixon() {
+  cryptoDixonN.value = "84923";
+  cryptoDixonB.value = "30";
+  cryptoDixonResult.textContent = "Enter composite n and smoothness bound B.";
+  clearTelemetry(cryptoDixonResult);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2699,6 +2755,15 @@ document.querySelectorAll(".ecm-preset-btn").forEach(btn => {
     if (cryptoEcmCurves && btn.dataset.curves) cryptoEcmCurves.value = btn.dataset.curves;
     if (cryptoEcmSeed && btn.dataset.seed) cryptoEcmSeed.value = btn.dataset.seed;
     runCryptoEcm();
+  });
+});
+cryptoDixonForm?.addEventListener("submit", runCryptoDixon);
+clearCryptoDixonButton?.addEventListener("click", clearCryptoDixon);
+document.querySelectorAll(".dixon-preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (cryptoDixonN && btn.dataset.n) cryptoDixonN.value = btn.dataset.n;
+    if (cryptoDixonB && btn.dataset.b) cryptoDixonB.value = btn.dataset.b;
+    runCryptoDixon();
   });
 });
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);

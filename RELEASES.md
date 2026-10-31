@@ -1,5 +1,27 @@
 # Releases
 
+### [v0.14.0] — 2026-10-31
+
+**Dixon's Random Squares Integer Factorization Suite, crypto-lab v0.12.0 & foxmath v0.18.0.**
+
+#### Added
+- Added **Dixon's Random Squares Integer Factorization** across the stack:
+  - **`crypto-lab` v0.12.0** (expanded registry to 66 endpoints):
+    - `GET, POST /crypto-api/v1/math/dixon`: sub-exponential integer factorization using quadratic residues over a prime factor base $F = \{-1, 2\} \cup \{p \le B \mid \left(\frac{n}{p}\right) = 1\}$. Identifies $B$-smooth centered residues $r \equiv x^2 \pmod n$ and computes linear dependencies via Gaussian elimination over $\mathbb{F}_2$ to construct congruent squares $X^2 \equiv Y^2 \pmod n$ and extract non-trivial factors $\gcd(|X - Y|, n)$.
+    - Returns factor $p$, cofactor $q$, factor base bound $B$, factor base size, relations needed, relations found, square values $X, Y$, congruence expression string, step count, and execution latency.
+    - Expanded deterministic problem generator (`/v1/math/challenge`) with topic `"dixon"` (now 15 topics).
+    - All 57 unit and HTTP integration tests passing with 0 Clippy warnings.
+  - **`foxmath` v0.18.0**:
+    - Pure Python implementation `dixon_factor(n, b, max_steps)` matching `crypto-lab` factor base filtering and $\mathbb{F}_2$ Gaussian elimination.
+    - CLI subcommand `foxmath dixon` and standalone symlink `foxmath-dixon`.
+    - Challenge topic `"dixon"` and all 356 unit/CLI tests passing.
+  - **The Lab** (`/lab.html`):
+    - Interactive **Dixon's random squares factoring tool** (`#crypto-dixon-form`) with congruence output, factor base telemetry, and one-click presets (*84923 (B=30)*, *1042387 (B=50)*, *1393429 (B=50)*, *4333703 (B=60)*).
+    - Added `"dixon"` option to the Challenge generator dropdown.
+- Updated `projects.html`, `API.md`, `API.html`, `now.html`, and `README.md`.
+
+---
+
 ### [v0.13.0] — 2026-10-31
 
 **Lenstra's ECM Elliptic Curve Factorization Suite, crypto-lab v0.11.0 & foxmath v0.17.0.**
