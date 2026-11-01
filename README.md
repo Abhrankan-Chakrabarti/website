@@ -97,10 +97,11 @@ and provides interactive tools for:
 - Two-stage Pollard's p - 1 integer factorization (B1, B2) with automatic prime backtracking and prime gap difference tables
 - Lenstra's ECM elliptic curve integer factorization (B1, B2) with random Weierstrass curves and SplitMix64 PRNG
 - Dixon's random squares integer factorization with quadratic residue factor base and GF(2) linear algebra
+- Quadratic Sieve (QS) integer factorization: polynomial sieving over [-M, M] with Tonelli-Shanks root initialization and GF(2) linear algebra
 - Fermat's difference of squares factorization engine & WebSocket streaming endpoint (`/v1/math/chamber/ws`)
 - Mersenne primes, deterministic Lucas–Lehmer primality testing, and prime sequence enumeration (M<sub>p</sub> = 2<sup>p</sup> − 1) with recurrence step tracing
 - Euclid–Euler even perfect numbers (2<sup>p−1</sup>(2<sup>p</sup> − 1)) and aliquot sum verification (σ(n) = 2n)
-- Seeded, reproducible challenge generation across 15 mathematical & cryptographic topics
+- Seeded, reproducible challenge generation across 16 mathematical & cryptographic topics
 - SHA-256 and SHA-512 hashing (authenticated)
 - HMAC generation (authenticated)
 - HMAC verification (authenticated)

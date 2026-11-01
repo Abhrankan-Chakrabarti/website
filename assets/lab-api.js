@@ -173,6 +173,13 @@ const cryptoDixonB = document.querySelector("#crypto-dixon-b");
 const cryptoDixonResult = document.querySelector("#crypto-dixon-result");
 const clearCryptoDixonButton = document.querySelector("#clear-crypto-dixon");
 
+const cryptoQsForm = document.querySelector("#crypto-qs-form");
+const cryptoQsN = document.querySelector("#crypto-qs-n");
+const cryptoQsB = document.querySelector("#crypto-qs-b");
+const cryptoQsM = document.querySelector("#crypto-qs-m");
+const cryptoQsResult = document.querySelector("#crypto-qs-result");
+const clearCryptoQsButton = document.querySelector("#clear-crypto-qs");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -2117,6 +2124,59 @@ function clearCryptoDixon() {
   clearTelemetry(cryptoDixonResult);
 }
 
+async function runCryptoQs(event) {
+  if (event) event.preventDefault();
+  const nRaw = cryptoQsN.value.trim();
+  const bRaw = cryptoQsB.value.trim();
+  const mRaw = cryptoQsM.value.trim();
+
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoQsResult.textContent = "Enter a valid integer n ≥ 4.";
+    return;
+  }
+  const nVal = BigInt(nRaw);
+  if (nVal < 4n) {
+    cryptoQsResult.textContent = "Integer n must be composite and ≥ 4.";
+    return;
+  }
+
+  const queryParams = new URLSearchParams({ n: nRaw });
+  if (bRaw && /^[1-9]\d*$/.test(bRaw)) queryParams.set("b", bRaw);
+  if (mRaw && /^[1-9]\d*$/.test(mRaw)) queryParams.set("m", mRaw);
+
+  const button = cryptoQsForm.querySelector("button[type='submit']");
+  cryptoQsResult.textContent = "Factoring via Quadratic Sieve...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/qs?${queryParams.toString()}`,
+      {},
+      cryptoQsResult
+    );
+    if (data.success && data.factor) {
+      let html = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.factor.toLocaleString()} &times; ${data.cofactor.toLocaleString()}</code><br>` +
+        `<span class="lab-muted">Congruence: <code>${data.congruence}</code> &bull; Factor base size: ${data.factor_base_size} (B = ${data.b.toLocaleString()})</span><br>` +
+        `<span class="lab-muted">Relations: ${data.relations_found} of ${data.relations_needed} needed &bull; ${data.candidates_checked.toLocaleString()} sieve candidates in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+      cryptoQsResult.innerHTML = html;
+    } else {
+      cryptoQsResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+        `<span class="lab-muted">Factor base size: ${data.factor_base_size} (B = ${data.b.toLocaleString()}) &bull; Relations: ${data.relations_found} of ${data.relations_needed} &bull; ${data.candidates_checked.toLocaleString()} candidates in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+    }
+  } catch (error) {
+    cryptoQsResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factor via Quadratic Sieve");
+  }
+}
+
+function clearCryptoQs() {
+  cryptoQsN.value = "84923";
+  cryptoQsB.value = "60";
+  cryptoQsM.value = "3000";
+  cryptoQsResult.textContent = "Enter composite n, smoothness bound B, and sieve radius M.";
+  clearTelemetry(cryptoQsResult);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2764,6 +2824,16 @@ document.querySelectorAll(".dixon-preset-btn").forEach(btn => {
     if (cryptoDixonN && btn.dataset.n) cryptoDixonN.value = btn.dataset.n;
     if (cryptoDixonB && btn.dataset.b) cryptoDixonB.value = btn.dataset.b;
     runCryptoDixon();
+  });
+});
+cryptoQsForm?.addEventListener("submit", runCryptoQs);
+clearCryptoQsButton?.addEventListener("click", clearCryptoQs);
+document.querySelectorAll(".qs-preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (cryptoQsN && btn.dataset.n) cryptoQsN.value = btn.dataset.n;
+    if (cryptoQsB && btn.dataset.b) cryptoQsB.value = btn.dataset.b;
+    if (cryptoQsM && btn.dataset.m) cryptoQsM.value = btn.dataset.m;
+    runCryptoQs();
   });
 });
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);

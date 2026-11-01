@@ -1,5 +1,27 @@
 # Releases
 
+### [v0.15.0] — 2026-11-01
+
+**Quadratic Sieve (QS) Integer Factorization Suite, crypto-lab v0.13.0 & foxmath v0.19.0.**
+
+#### Added
+- Added **Quadratic Sieve (QS) Integer Factorization** across the stack:
+  - **`crypto-lab` v0.13.0** (expanded registry to 68 endpoints):
+    - `GET, POST /crypto-api/v1/math/qs`: sub-exponential integer factorization using polynomial sieving over array interval $[-M, M]$ with $Q(x) = (x + \lfloor\sqrt{n}\rfloor)^2 - n$ and factor base $F = \{-1, 2\} \cup \{p \le B \mid (n/p) = 1\}$. Employs Tonelli-Shanks modular square roots to initialize sieve offsets, logarithmic subtraction for smooth candidate selection, and null-space linear algebra over $\mathbb{F}_2$ via Gaussian elimination to yield congruent squares $X^2 \equiv Y^2 \pmod n$ and non-trivial factors $\gcd(|X - Y|, n)$.
+    - Returns factor $p$, cofactor $q$, smoothness bound $B$, sieve radius $M$, factor base size, relations needed, relations found, square values $X, Y$, congruence expression string, candidates checked count, and execution latency in $\mu\text{s}$.
+    - Expanded deterministic problem generator (`/v1/math/challenge`) with topic `"qs"` (now 16 topics).
+    - All 60 unit and HTTP integration tests passing with 0 Clippy warnings.
+  - **`foxmath` v0.19.0**:
+    - Pure Python implementation `qs_factor(n, b, m)` matching `crypto-lab` polynomial logarithmic sieving and $\mathbb{F}_2$ Gaussian elimination.
+    - CLI subcommand `foxmath qs` and standalone symlink `foxmath-qs`.
+    - Challenge topic `"qs"` and all 367 unit/CLI tests passing.
+  - **The Lab** (`/lab.html`):
+    - Interactive **Quadratic Sieve factoring tool** (`#crypto-qs-form`) with sieve radius control, congruence output, factor base telemetry, and one-click presets (*84923*, *1042387*, *1393429*, *1074200609*).
+    - Added `"qs"` option to the Challenge generator dropdown.
+- Updated `projects.html`, `API.md`, `API.html`, `now.html`, and `README.md`.
+
+---
+
 ### [v0.14.0] — 2026-10-31
 
 **Dixon's Random Squares Integer Factorization Suite, crypto-lab v0.12.0 & foxmath v0.18.0.**

@@ -1208,6 +1208,10 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td>None</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET, POST /crypto-api/v1/math/qs</code></td>
+      <td>None</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">POST /crypto-api/v1/hash</code></td>
       <td>Nginx Basic Auth</td>
     </tr>
@@ -1337,6 +1341,34 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td><strong>DH Crack</strong></td>
       <td>Recovers private exponent $a$ via Baby-step Giant-step discrete logarithm solver.</td>
     </tr>
+    <tr>
+      <td><strong>Chamber WebSocket</strong></td>
+      <td>Real-time WebSocket streaming endpoint for step-by-step visual factorization (&ldquo;The Chamber of Primes&rdquo;).</td>
+    </tr>
+    <tr>
+      <td><strong>Mersenne Primality</strong></td>
+      <td>Deterministic Lucas&ndash;Lehmer primality test for Mersenne numbers M<sub>p</sub> = 2<sup>p</sup> &minus; 1 (2 &le; p &le; 5000) and Euclid&ndash;Euler even perfect numbers. Also enumerates known Mersenne primes via <code class="language-plaintext highlighter-rouge">?limit=...</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Perfect Numbers</strong></td>
+      <td>Euclid&ndash;Euler even perfect number verification (&sigma;(n) = 2n) or generation for prime exponent p (2<sup>p&minus;1</sup>(2<sup>p</sup> &minus; 1)).</td>
+    </tr>
+    <tr>
+      <td><strong>Pollard's p &minus; 1</strong></td>
+      <td>Two-stage Pollard's $p-1$ algorithm ($B_1, B_2$) for composite integers with smooth prime factors.</td>
+    </tr>
+    <tr>
+      <td><strong>Lenstra ECM</strong></td>
+      <td>Two-stage Lenstra elliptic curve factorization ($B_1, B_2$) with random Weierstrass curves.</td>
+    </tr>
+    <tr>
+      <td><strong>Dixon's Factorization</strong></td>
+      <td>Dixon's random squares integer factorization ($B$-smooth quadratic residues with $\mathbb{F}_2$ Gaussian elimination).</td>
+    </tr>
+    <tr>
+      <td><strong>Quadratic Sieve (QS)</strong></td>
+      <td>Quadratic Sieve integer factorization over polynomial sieve array and $\mathbb{F}_2$ Gaussian elimination.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -1348,7 +1380,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.12.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.13.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1415,7 +1447,9 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"GET /v1/math/ecm"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/ecm"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/dixon"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/math/dixon"</span><span class="w">
+    </span><span class="s2">"POST /v1/math/dixon"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/qs"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/qs"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1802,6 +1836,16 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">84923</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">163</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">521</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"b"</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span><span class="nl">"factor_base_size"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nl">"relations_needed"</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="nl">"relations_found"</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="nl">"x"</span><span class="p">:</span><span class="mi">505</span><span class="p">,</span><span class="nl">"y"</span><span class="p">:</span><span class="mi">16</span><span class="p">,</span><span class="nl">"congruence"</span><span class="p">:</span><span class="s2">"505² ≡ 16² (mod 84923)"</span><span class="p">,</span><span class="nl">"steps"</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found non-trivial factor p = 163 via Dixon's method"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">68</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="qs">Quadratic Sieve (QS) integer factorization</h4>
+
+<p>Executes Carl Pomerance's Quadratic Sieve (QS) algorithm to factor composite integer <em>n</em>. Forms factor base <em>F</em> = {-1, 2} &cup; {<em>p</em> &le; <em>B</em> | (<em>n</em>/<em>p</em>) = 1}, computes roots of <em>Q</em>(<em>x</em>) = (<em>x</em> + &lfloor;&radic;<em>n</em>&rfloor;)<sup>2</sup> &minus; <em>n</em> &equiv; 0 (mod <em>p</em>) via Tonelli-Shanks, sieves across interval [&minus;<em>M</em>, <em>M</em>] subtracting log<sub>2</sub> <em>p</em> from logarithmic approximations, and solves GF(2) linear relations via Gaussian elimination to extract congruent squares <em>X</em><sup>2</sup> &equiv; <em>Y</em><sup>2</sup> (mod <em>n</em>). Non-trivial factors are obtained via gcd(|<em>X</em> &minus; <em>Y</em>|, <em>n</em>).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/qs?n=84923&amp;b=60&amp;m=3000"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">84923</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">163</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">521</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"b"</span><span class="p">:</span><span class="mi">60</span><span class="p">,</span><span class="nl">"m"</span><span class="p">:</span><span class="mi">3000</span><span class="p">,</span><span class="nl">"factor_base_size"</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span><span class="nl">"relations_needed"</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span><span class="nl">"relations_found"</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="nl">"x"</span><span class="p">:</span><span class="mi">84625</span><span class="p">,</span><span class="nl">"y"</span><span class="p">:</span><span class="mi">20021</span><span class="p">,</span><span class="nl">"congruence"</span><span class="p">:</span><span class="s2">"84625² ≡ 20021² (mod 84923)"</span><span class="p">,</span><span class="nl">"candidates_checked"</span><span class="p">:</span><span class="mi">168</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found factor p = 163 via quadratic sieve congruence 84625² ≡ 20021² (mod 84923)"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">1631</span><span class="p">}</span>
 </code></pre></div></div>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>

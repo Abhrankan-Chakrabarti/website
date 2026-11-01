@@ -963,6 +963,7 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **Pollard's p − 1** | Two-stage Pollard's $p-1$ algorithm ($B_1, B_2$) for composite integers with smooth prime factors. |
 | **Lenstra ECM** | Two-stage Lenstra elliptic curve factorization ($B_1, B_2$) with random Weierstrass curves. |
 | **Dixon's Factorization** | Dixon's random squares integer factorization ($B$-smooth quadratic residues with $\mathbb{F}_2$ Gaussian elimination). |
+| **Quadratic Sieve (QS)** | Quadratic Sieve integer factorization over polynomial sieve array and $\mathbb{F}_2$ Gaussian elimination. |
 
 ### Application information
 
@@ -974,7 +975,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1041,7 +1042,9 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/ecm",
     "POST /v1/math/ecm",
     "GET /v1/math/dixon",
-    "POST /v1/math/dixon"
+    "POST /v1/math/dixon",
+    "GET /v1/math/qs",
+    "POST /v1/math/qs"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1634,6 +1637,39 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/dixon?n=84923&b=30"
   "steps": 14,
   "message": "Found non-trivial factor p = 163 via Dixon's method",
   "elapsed_us": 68
+}
+```
+
+#### Quadratic Sieve integer factorization (`/v1/math/qs`)
+
+Executes Carl Pomerance's Quadratic Sieve (QS) algorithm to factor composite integer $n$. Forms factor base $F = \{-1, 2\} \cup \{p \le B \mid (n/p) = 1\}$, computes roots of $Q(x) = (x + \lfloor\sqrt{n}\rfloor)^2 - n \equiv 0 \pmod p$ via Tonelli-Shanks, sieves across interval $[-M, M]$ subtracting $\log_2 p$ from logarithmic approximations, and solves $\mathbb{F}_2$ linear relations via Gaussian elimination to extract congruent squares $X^2 \equiv Y^2 \pmod n$. Non-trivial factors are obtained via $\gcd(|X - Y|, n)$.
+
+Parameters:
+- `n` (integer, required): composite integer to factor ($n \ge 4$).
+- `b` (integer, optional, default: 60): smoothness bound $B$ limiting primes in the factor base ($10 \le B \le 5000$).
+- `m` (integer, optional, default: 3000): sieve radius $M$ defining interval $[-M, M]$ (100 ≤ m ≤ 100,000).
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/qs?n=84923&b=60&m=3000"
+```
+
+```json
+{
+  "n": 84923,
+  "factor": 163,
+  "cofactor": 521,
+  "success": true,
+  "b": 60,
+  "m": 3000,
+  "factor_base_size": 8,
+  "relations_needed": 9,
+  "relations_found": 18,
+  "x": 84625,
+  "y": 20021,
+  "congruence": "84625² ≡ 20021² (mod 84923)",
+  "candidates_checked": 168,
+  "message": "Found factor p = 163 via quadratic sieve congruence 84625² ≡ 20021² (mod 84923)",
+  "elapsed_us": 1631
 }
 ```
 
