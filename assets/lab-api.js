@@ -23,50 +23,10 @@ const gcdAInput = document.querySelector("#gcd-a");
 const gcdBInput = document.querySelector("#gcd-b");
 const gcdResult = document.querySelector("#gcd-result");
 const clearGcdButton = document.querySelector("#clear-gcd");
-const primeForm = document.querySelector("#prime-form");
-const primeInput = document.querySelector("#prime-n");
-const primeResult = document.querySelector("#prime-result");
-const clearPrimeButton = document.querySelector("#clear-prime");
-const nextPrimeForm = document.querySelector("#next-prime-form");
-const nextPrimeInput = document.querySelector("#next-prime-n");
-const nextPrimeResult = document.querySelector("#next-prime-result");
-const clearNextPrimeButton = document.querySelector("#clear-next-prime");
-const previousPrimeForm = document.querySelector("#previous-prime-form");
-const previousPrimeInput = document.querySelector("#previous-prime-n");
-const previousPrimeResult = document.querySelector("#previous-prime-result");
-const clearPreviousPrimeButton = document.querySelector("#clear-previous-prime");
-const primeGapForm = document.querySelector("#prime-gap-form");
-const primeGapInput = document.querySelector("#prime-gap-n");
-const primeGapResult = document.querySelector("#prime-gap-result");
-const clearPrimeGapButton = document.querySelector("#clear-prime-gap");
-const primePiForm = document.querySelector("#prime-pi-form");
-const primePiInput = document.querySelector("#prime-pi-n");
-const primePiResult = document.querySelector("#prime-pi-result");
-const clearPrimePiButton = document.querySelector("#clear-prime-pi");
-const factorForm = document.querySelector("#factor-form");
-const factorInput = document.querySelector("#factor-n");
-const factorResult = document.querySelector("#factor-result");
-const clearFactorButton = document.querySelector("#clear-factor");
-const totientForm = document.querySelector("#totient-form");
-const totientInput = document.querySelector("#totient-n");
-const totientResult = document.querySelector("#totient-result");
-const clearTotientButton = document.querySelector("#clear-totient");
-const mobiusForm = document.querySelector("#mobius-form");
-const mobiusInput = document.querySelector("#mobius-n");
-const mobiusResult = document.querySelector("#mobius-result");
-const clearMobiusButton = document.querySelector("#clear-mobius");
-const divisorCountForm = document.querySelector("#divisor-count-form");
-const divisorCountInput = document.querySelector("#divisor-count-n");
-const divisorCountResult = document.querySelector("#divisor-count-result");
-const clearDivisorCountButton = document.querySelector("#clear-divisor-count");
-const divisorSumForm = document.querySelector("#divisor-sum-form");
-const divisorSumInput = document.querySelector("#divisor-sum-n");
-const divisorSumResult = document.querySelector("#divisor-sum-result");
-const clearDivisorSumButton = document.querySelector("#clear-divisor-sum");
-const divisorsForm = document.querySelector("#divisors-form");
-const divisorsInput = document.querySelector("#divisors-n");
-const divisorsResult = document.querySelector("#divisors-result");
-const clearDivisorsButton = document.querySelector("#clear-divisors");
+const ntExplorerForm = document.querySelector("#nt-explorer-form");
+const ntExplorerInput = document.querySelector("#nt-explorer-n");
+const ntExplorerResult = document.querySelector("#nt-explorer-result");
+const clearNtExplorerButton = document.querySelector("#clear-nt-explorer");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -827,295 +787,224 @@ function clearGcd() {
   clearTelemetry(gcdResult);
 }
 
-function primeInputValue(input, result, minimum) {
-  const n = Number(input.value);
-  if (!Number.isSafeInteger(n) || n < minimum || n > 1000000) {
-    result.textContent = `Enter an integer from ${minimum.toLocaleString()} to 1,000,000.`;
-    return null;
-  }
-  return n;
-}
-
-function validatePrimeInput(input, minimum, result) {
+function validateNtExplorerInput() {
   return validateBoundedIntegerInput(
-    input,
-    minimum,
+    ntExplorerInput,
+    1,
     1000000,
-    `Enter an integer from ${minimum.toLocaleString()} to 1,000,000.`,
-    result,
+    "Enter an integer from 1 to 1,000,000.",
+    ntExplorerResult,
   );
 }
 
-async function lookupPrime(event) {
-  event.preventDefault();
-  const n = primeInputValue(primeInput, primeResult, 0);
+function renderNtExplorerResult(data) {
+  const n = data.n;
+  const sigma = Number(data.divisorSum);
+  const s = sigma - n;
+
+  // Primality badge
+  let primeBadge;
+  if (n === 1) {
+    primeBadge = { cls: "nt-badge--unit", text: "Unit (neither prime nor composite)" };
+  } else if (data.isPrime) {
+    primeBadge = { cls: "nt-badge--prime", text: "Prime number" };
+  } else {
+    primeBadge = { cls: "nt-badge--composite", text: "Composite number" };
+  }
+
+  // Aliquot badge
+  let aliquotBadge;
+  if (n === 1) {
+    aliquotBadge = { cls: "nt-badge--unit", text: "Aliquot sum: 0" };
+  } else if (s === n) {
+    aliquotBadge = { cls: "nt-badge--perfect", text: `Perfect number (s(${n}) = ${n})` };
+  } else if (s > n) {
+    aliquotBadge = { cls: "nt-badge--abundant", text: `Abundant (abundance +${s - n})` };
+  } else {
+    aliquotBadge = { cls: "nt-badge--deficient", text: `Deficient (deficiency -${n - s})` };
+  }
+
+  // Square-free badge
+  let sqBadge;
+  if (data.mobius !== 0) {
+    sqBadge = { cls: "nt-badge--squarefree", text: "Square-free (no repeated prime factors)" };
+  } else {
+    sqBadge = { cls: "nt-badge--deficient", text: "Square-full (divisible by p²)" };
+  }
+
+  // Factorization
+  let factorStr;
+  let omega = 0;
+  let bigOmega = 0;
+  if (n === 1) {
+    factorStr = "1 (empty product)";
+  } else if (data.factors && data.factors.length > 0) {
+    factorStr = data.factors
+      .map((f) => (f.power > 1 ? `${f.prime}<sup>${f.power}</sup>` : `${f.prime}`))
+      .join(" &times; ");
+    omega = data.factors.length;
+    bigOmega = data.factors.reduce((acc, f) => acc + f.power, 0);
+  } else {
+    factorStr = "no prime factors";
+  }
+
+  // Totient
+  const totientVal = Number(data.totient);
+  const coprimePct = ((totientVal / n) * 100).toFixed(1);
+
+  // Möbius
+  let mobiusDesc;
+  if (data.mobius === 1) {
+    mobiusDesc = "1 (square-free, even parity of prime factors)";
+  } else if (data.mobius === -1) {
+    mobiusDesc = "-1 (square-free, odd parity of prime factors)";
+  } else {
+    mobiusDesc = "0 (contains at least one square factor p²)";
+  }
+
+  // Prime neighbors & gap
+  let neighborsVal;
+  let neighborsDesc;
+  if (data.prevPrime !== null && data.nextPrime !== null) {
+    const prev = Number(data.prevPrime);
+    const next = Number(data.nextPrime);
+    const gap = next - prev;
+    neighborsVal = `${prev} &larr; <strong style="color: var(--lab-accent);">${n}</strong> &rarr; ${next}`;
+    neighborsDesc = `Prime bracket (${prev}, ${next}) &middot; Prime gap = ${gap}`;
+  } else {
+    neighborsVal = `none &larr; <strong style="color: var(--lab-accent);">${n}</strong> &rarr; ${data.nextPrime}`;
+    neighborsDesc = `No smaller prime exists (p &ge; 2) &middot; Next prime is ${data.nextPrime}`;
+  }
+
+  // Divisors list
+  const divisorChips = (data.divisors || [])
+    .map((d) => `<span class="nt-divisor-chip">${d}</span>`)
+    .join("");
+
+  ntExplorerResult.innerHTML = `
+    <div class="nt-explorer-output">
+      <div class="nt-badges-row">
+        <span class="nt-badge ${primeBadge.cls}">${primeBadge.text}</span>
+        <span class="nt-badge ${aliquotBadge.cls}">${aliquotBadge.text}</span>
+        <span class="nt-badge ${sqBadge.cls}">${sqBadge.text}</span>
+      </div>
+      <div class="nt-grid">
+        <div class="nt-card">
+          <h3 class="nt-card-title">Prime Factorization</h3>
+          <div class="nt-card-val">${factorStr}</div>
+          <p class="nt-card-desc">&omega;(n) = ${omega} distinct, &Omega;(n) = ${bigOmega} total prime factors</p>
+        </div>
+        <div class="nt-card">
+          <h3 class="nt-card-title">Euler's Totient &phi;(n)</h3>
+          <div class="nt-card-val">${data.totient}</div>
+          <p class="nt-card-desc">${coprimePct}% coprime density (&le; ${n})</p>
+        </div>
+        <div class="nt-card">
+          <h3 class="nt-card-title">M&ouml;bius Function &mu;(n)</h3>
+          <div class="nt-card-val">${data.mobius}</div>
+          <p class="nt-card-desc">${mobiusDesc}</p>
+        </div>
+        <div class="nt-card">
+          <h3 class="nt-card-title">Divisor Structure &tau;(n), &sigma;(n)</h3>
+          <div class="nt-card-val">&tau; = ${data.divisorCount}, &sigma; = ${data.divisorSum}</div>
+          <p class="nt-card-desc">Proper divisor sum s(n) = ${s >= 0 ? s : 0}</p>
+        </div>
+        <div class="nt-card" style="grid-column: 1 / -1;">
+          <h3 class="nt-card-title">Prime Neighbors &amp; Gap</h3>
+          <div class="nt-card-val">${neighborsVal}</div>
+          <p class="nt-card-desc">${neighborsDesc}</p>
+        </div>
+      </div>
+      <div class="nt-divisors-wrapper">
+        <div class="nt-card-title">All Positive Divisors of ${n} (&tau; = ${data.divisors.length})</div>
+        <div class="nt-divisors-list">
+          ${divisorChips}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function runNtExplorer(event) {
+  if (event) {
+    event.preventDefault();
+  }
+  const n = validateNtExplorerInput();
   if (n === null) return;
-  const button = primeForm.querySelector("button[type='submit']");
-  primeResult.textContent = "Checking...";
-  setBusy(button, true, "Checking");
+
+  const button = ntExplorerForm?.querySelector("button[type='submit']");
+  if (button) setBusy(button, true, "Exploring");
+  ntExplorerResult.innerHTML = `<em>Analyzing arithmetic properties of ${n}...</em>`;
+
+  const startedAt = performance.now();
+
   try {
-    const data = await fetchJson(`/v1/math/is-prime/${n}`, {}, primeResult);
-    primeResult.innerHTML = `${data.n} is <strong>${data.prime ? "" : "not "}prime</strong>`;
+    const [
+      primeData,
+      factorData,
+      totientData,
+      mobiusData,
+      divisorCountData,
+      divisorSumData,
+      divisorsData,
+      nextPrimeData,
+      prevPrimeData,
+    ] = await Promise.all([
+      fetchJson(`/v1/math/is-prime/${n}`),
+      fetchJson(`/v1/math/factor/${n}`),
+      fetchJson(`/v1/math/totient/${n}`),
+      fetchJson(`/v1/math/mobius/${n}`),
+      fetchJson(`/v1/math/divisor-count/${n}`),
+      fetchJson(`/v1/math/divisor-sum/${n}`),
+      fetchJson(`/v1/math/divisors/${n}`),
+      fetchJson(`/v1/math/next-prime/${n}`),
+      n > 2 ? fetchJson(`/v1/math/previous-prime/${n}`) : Promise.resolve(null),
+    ]);
+
+    renderNtExplorerResult({
+      n,
+      isPrime: primeData.prime,
+      factors: factorData.factors || [],
+      totient: totientData.value,
+      mobius: mobiusData.value,
+      divisorCount: divisorCountData.value,
+      divisorSum: divisorSumData.value,
+      divisors: divisorsData.divisors || [],
+      nextPrime: nextPrimeData.value,
+      prevPrime: prevPrimeData ? prevPrimeData.value : null,
+    });
+
+    renderTelemetry(
+      ntExplorerResult,
+      "GET",
+      `/api/v1/math/factor/${n}`,
+      { status: 200, statusText: "OK" },
+      performance.now() - startedAt,
+      {},
+    );
   } catch (error) {
-    primeResult.textContent = error.message;
+    ntExplorerResult.textContent = error.message;
+    renderTelemetry(
+      ntExplorerResult,
+      "GET",
+      `/api/v1/math/factor/${n}`,
+      null,
+      performance.now() - startedAt,
+    );
   } finally {
-    setBusy(button, false, "Checking");
+    if (button) setBusy(button, false, "Exploring");
   }
 }
 
-async function lookupNextPrime(event) {
-  event.preventDefault();
-  const n = primeInputValue(nextPrimeInput, nextPrimeResult, 0);
-  if (n === null) return;
-  const button = nextPrimeForm.querySelector("button[type='submit']");
-  nextPrimeResult.textContent = "Calculating...";
-  setBusy(button, true, "Calculating");
-  try {
-    const data = await fetchJson(`/v1/math/next-prime/${n}`, {}, nextPrimeResult);
-    nextPrimeResult.innerHTML = `Next prime after ${data.n} = <strong>${data.value}</strong>`;
-  } catch (error) {
-    nextPrimeResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Calculating");
+function clearNtExplorer() {
+  if (ntExplorerInput) {
+    ntExplorerInput.value = "360";
   }
-}
-
-async function lookupPreviousPrime(event) {
-  event.preventDefault();
-  const n = primeInputValue(previousPrimeInput, previousPrimeResult, 3);
-  if (n === null) return;
-  const button = previousPrimeForm.querySelector("button[type='submit']");
-  previousPrimeResult.textContent = "Calculating...";
-  setBusy(button, true, "Calculating");
-  try {
-    const data = await fetchJson(`/v1/math/previous-prime/${n}`, {}, previousPrimeResult);
-    previousPrimeResult.innerHTML = `Previous prime before ${data.n} = <strong>${data.value}</strong>`;
-  } catch (error) {
-    previousPrimeResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Calculating");
+  validateNtExplorerInput();
+  if (ntExplorerResult) {
+    ntExplorerResult.textContent = "Ready to explore. Enter an integer from 1 to 1,000,000 or choose a preset above.";
+    clearTelemetry(ntExplorerResult);
   }
-}
-
-async function lookupPrimeGap(event) {
-  event.preventDefault();
-  const n = primeInputValue(primeGapInput, primeGapResult, 3);
-  if (n === null) return;
-  const button = primeGapForm.querySelector("button[type='submit']");
-  primeGapResult.textContent = "Calculating...";
-  setBusy(button, true, "Calculating");
-  try {
-    const data = await fetchJson(`/v1/math/prime-gap/${n}`, {}, primeGapResult);
-    primeGapResult.innerHTML = `${data.previous_prime} and ${data.next_prime}; gap = <strong>${data.gap}</strong>`;
-  } catch (error) {
-    primeGapResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Calculating");
-  }
-}
-
-async function lookupPrimePi(event) {
-  event.preventDefault();
-  const n = primeInputValue(primePiInput, primePiResult, 0);
-  if (n === null) return;
-  const button = primePiForm.querySelector("button[type='submit']");
-  primePiResult.textContent = "Counting...";
-  setBusy(button, true, "Counting");
-  try {
-    const data = await fetchJson(`/v1/math/prime-pi/${n}`, {}, primePiResult);
-    primePiResult.innerHTML = `π(${data.n}) = <strong>${data.value}</strong>`;
-  } catch (error) {
-    primePiResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Counting");
-  }
-}
-
-async function lookupFactor(event) {
-  event.preventDefault();
-  const n = primeInputValue(factorInput, factorResult, 0);
-  if (n === null) return;
-  const button = factorForm.querySelector("button[type='submit']");
-  factorResult.textContent = "Factoring...";
-  setBusy(button, true, "Factoring");
-  try {
-    const data = await fetchJson(`/v1/math/factor/${n}`, {}, factorResult);
-    if (!Array.isArray(data.factors) || !data.factors.every(
-      (factor) => Number.isInteger(factor.prime) && Number.isInteger(factor.power),
-    )) {
-      throw new Error("The API returned an invalid factorisation.");
-    }
-    const factors = data.factors.length
-      ? data.factors.map((factor) => `${factor.prime}^${factor.power}`).join(" × ")
-      : "no prime factors";
-    factorResult.textContent = `${data.n} = ${factors}`;
-  } catch (error) {
-    factorResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Factoring");
-  }
-}
-
-async function lookupTotient(event) {
-  event.preventDefault();
-  const n = primeInputValue(totientInput, totientResult, 0);
-  if (n === null) return;
-  const button = totientForm.querySelector("button[type='submit']");
-  totientResult.textContent = "Calculating...";
-  setBusy(button, true, "Calculating");
-  try {
-    const data = await fetchJson(`/v1/math/totient/${n}`, {}, totientResult);
-    totientResult.textContent = `φ(${data.n}) = ${data.value}`;
-  } catch (error) {
-    totientResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Calculating");
-  }
-}
-
-async function lookupMobius(event) {
-  event.preventDefault();
-  const n = primeInputValue(mobiusInput, mobiusResult, 0);
-  if (n === null) return;
-  const button = mobiusForm.querySelector("button[type='submit']");
-  mobiusResult.textContent = "Calculating...";
-  setBusy(button, true, "Calculating");
-  try {
-    const data = await fetchJson(`/v1/math/mobius/${n}`, {}, mobiusResult);
-    mobiusResult.textContent = `μ(${data.n}) = ${data.value}`;
-  } catch (error) {
-    mobiusResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Calculating");
-  }
-}
-
-async function lookupDivisorCount(event) {
-  event.preventDefault();
-  const n = primeInputValue(divisorCountInput, divisorCountResult, 0);
-  if (n === null) return;
-  const button = divisorCountForm.querySelector("button[type='submit']");
-  divisorCountResult.textContent = "Counting...";
-  setBusy(button, true, "Counting");
-  try {
-    const data = await fetchJson(`/v1/math/divisor-count/${n}`, {}, divisorCountResult);
-    divisorCountResult.textContent = `τ(${data.n}) = ${data.value}`;
-  } catch (error) {
-    divisorCountResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Counting");
-  }
-}
-
-async function lookupDivisorSum(event) {
-  event.preventDefault();
-  const n = primeInputValue(divisorSumInput, divisorSumResult, 0);
-  if (n === null) return;
-  const button = divisorSumForm.querySelector("button[type='submit']");
-  divisorSumResult.textContent = "Summing...";
-  setBusy(button, true, "Summing");
-  try {
-    const data = await fetchJson(`/v1/math/divisor-sum/${n}`, {}, divisorSumResult);
-    divisorSumResult.textContent = `σ(${data.n}) = ${data.value}`;
-  } catch (error) {
-    divisorSumResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Summing");
-  }
-}
-
-async function lookupDivisors(event) {
-  event.preventDefault();
-  const n = primeInputValue(divisorsInput, divisorsResult, 0);
-  if (n === null) return;
-  const button = divisorsForm.querySelector("button[type='submit']");
-  divisorsResult.textContent = "Listing...";
-  setBusy(button, true, "Listing");
-  try {
-    const data = await fetchJson(`/v1/math/divisors/${n}`, {}, divisorsResult);
-    divisorsResult.textContent = data.divisors.join(", ");
-  } catch (error) {
-    divisorsResult.textContent = error.message;
-  } finally {
-    setBusy(button, false, "Listing");
-  }
-}
-
-function clearPrime() {
-  primeInput.value = "97";
-  validatePrimeInput(primeInput, 0, primeResult);
-  primeResult.textContent = "Ready to calculate.";
-  clearTelemetry(primeResult);
-}
-
-function clearFactor() {
-  factorInput.value = "360";
-  validatePrimeInput(factorInput, 0, factorResult);
-  factorResult.textContent = "Ready to calculate.";
-  clearTelemetry(factorResult);
-}
-
-function clearTotient() {
-  totientInput.value = "36";
-  validatePrimeInput(totientInput, 0, totientResult);
-  totientResult.textContent = "Ready to calculate.";
-  clearTelemetry(totientResult);
-}
-
-function clearMobius() {
-  mobiusInput.value = "30";
-  validatePrimeInput(mobiusInput, 0, mobiusResult);
-  mobiusResult.textContent = "Ready to calculate.";
-  clearTelemetry(mobiusResult);
-}
-
-function clearDivisorCount() {
-  divisorCountInput.value = "360";
-  validatePrimeInput(divisorCountInput, 0, divisorCountResult);
-  divisorCountResult.textContent = "Ready to calculate.";
-  clearTelemetry(divisorCountResult);
-}
-
-function clearDivisorSum() {
-  divisorSumInput.value = "360";
-  validatePrimeInput(divisorSumInput, 0, divisorSumResult);
-  divisorSumResult.textContent = "Ready to calculate.";
-  clearTelemetry(divisorSumResult);
-}
-
-function clearDivisors() {
-  divisorsInput.value = "12";
-  validatePrimeInput(divisorsInput, 0, divisorsResult);
-  divisorsResult.textContent = "Ready to list divisors.";
-  clearTelemetry(divisorsResult);
-}
-
-function clearNextPrime() {
-  nextPrimeInput.value = "100";
-  validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
-  nextPrimeResult.textContent = "Ready to calculate.";
-  clearTelemetry(nextPrimeResult);
-}
-
-function clearPreviousPrime() {
-  previousPrimeInput.value = "100";
-  validatePrimeInput(previousPrimeInput, 3, previousPrimeResult);
-  previousPrimeResult.textContent = "Ready to calculate.";
-  clearTelemetry(previousPrimeResult);
-}
-
-function clearPrimeGap() {
-  primeGapInput.value = "1000";
-  validatePrimeInput(primeGapInput, 3, primeGapResult);
-  primeGapResult.textContent = "Ready to calculate.";
-  clearTelemetry(primeGapResult);
-}
-
-function clearPrimePi() {
-  primePiInput.value = "1000";
-  validatePrimeInput(primePiInput, 0, primePiResult);
-  primePiResult.textContent = "Ready to calculate.";
-  clearTelemetry(primePiResult);
 }
 
 async function refreshCryptoHealth() {
@@ -2784,39 +2673,17 @@ gcdForm.addEventListener("submit", lookupGcd);
 gcdAInput.addEventListener("input", validateGcdInputs);
 gcdBInput.addEventListener("input", validateGcdInputs);
 clearGcdButton.addEventListener("click", clearGcd);
-primeForm.addEventListener("submit", lookupPrime);
-primeInput.addEventListener("input", () => validatePrimeInput(primeInput, 0, primeResult));
-clearPrimeButton.addEventListener("click", clearPrime);
-nextPrimeForm.addEventListener("submit", lookupNextPrime);
-nextPrimeInput.addEventListener("input", () => validatePrimeInput(nextPrimeInput, 0, nextPrimeResult));
-clearNextPrimeButton.addEventListener("click", clearNextPrime);
-previousPrimeForm.addEventListener("submit", lookupPreviousPrime);
-previousPrimeInput.addEventListener("input", () => validatePrimeInput(previousPrimeInput, 3, previousPrimeResult));
-clearPreviousPrimeButton.addEventListener("click", clearPreviousPrime);
-primeGapForm.addEventListener("submit", lookupPrimeGap);
-primeGapInput.addEventListener("input", () => validatePrimeInput(primeGapInput, 3, primeGapResult));
-clearPrimeGapButton.addEventListener("click", clearPrimeGap);
-primePiForm.addEventListener("submit", lookupPrimePi);
-primePiInput.addEventListener("input", () => validatePrimeInput(primePiInput, 0, primePiResult));
-clearPrimePiButton.addEventListener("click", clearPrimePi);
-factorForm.addEventListener("submit", lookupFactor);
-factorInput.addEventListener("input", () => validatePrimeInput(factorInput, 0, factorResult));
-clearFactorButton.addEventListener("click", clearFactor);
-totientForm.addEventListener("submit", lookupTotient);
-totientInput.addEventListener("input", () => validatePrimeInput(totientInput, 0, totientResult));
-clearTotientButton.addEventListener("click", clearTotient);
-mobiusForm.addEventListener("submit", lookupMobius);
-mobiusInput.addEventListener("input", () => validatePrimeInput(mobiusInput, 0, mobiusResult));
-clearMobiusButton.addEventListener("click", clearMobius);
-divisorCountForm.addEventListener("submit", lookupDivisorCount);
-divisorCountInput.addEventListener("input", () => validatePrimeInput(divisorCountInput, 0, divisorCountResult));
-clearDivisorCountButton.addEventListener("click", clearDivisorCount);
-divisorSumForm.addEventListener("submit", lookupDivisorSum);
-divisorSumInput.addEventListener("input", () => validatePrimeInput(divisorSumInput, 0, divisorSumResult));
-clearDivisorSumButton.addEventListener("click", clearDivisorSum);
-divisorsForm.addEventListener("submit", lookupDivisors);
-divisorsInput.addEventListener("input", () => validatePrimeInput(divisorsInput, 0, divisorsResult));
-clearDivisorsButton.addEventListener("click", clearDivisors);
+ntExplorerForm?.addEventListener("submit", runNtExplorer);
+ntExplorerInput?.addEventListener("input", validateNtExplorerInput);
+clearNtExplorerButton?.addEventListener("click", clearNtExplorer);
+document.querySelectorAll(".nt-preset-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (ntExplorerInput && btn.dataset.n) {
+      ntExplorerInput.value = btn.dataset.n;
+      runNtExplorer();
+    }
+  });
+});
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
 hashForm.addEventListener("submit", runHash);
@@ -2937,14 +2804,4 @@ syncMersenneForm();
 validateCatalanInput();
 validateFibonacciInput();
 validateGcdInputs();
-validatePrimeInput(primeInput, 0, primeResult);
-validatePrimeInput(nextPrimeInput, 0, nextPrimeResult);
-validatePrimeInput(previousPrimeInput, 3, previousPrimeResult);
-validatePrimeInput(primeGapInput, 3, primeGapResult);
-validatePrimeInput(primePiInput, 0, primePiResult);
-validatePrimeInput(factorInput, 0, factorResult);
-validatePrimeInput(totientInput, 0, totientResult);
-validatePrimeInput(mobiusInput, 0, mobiusResult);
-validatePrimeInput(divisorCountInput, 0, divisorCountResult);
-validatePrimeInput(divisorSumInput, 0, divisorSumResult);
-validatePrimeInput(divisorsInput, 0, divisorsResult);
+validateNtExplorerInput();

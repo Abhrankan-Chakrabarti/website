@@ -135,124 +135,39 @@
           <output id="gcd-result" class="lab-result" aria-live="polite">Enter two integers from 0 to 18,446,744,073,709,551,615.</output>
         </article>
 
-        <article class="lab-panel lab-panel--wide" data-lab-category="math" aria-labelledby="prime-title">
+        <article class="lab-panel lab-panel--wide" data-lab-category="math" aria-labelledby="nt-explorer-title">
           <div class="lab-panel-heading">
             <div>
-              <p class="lab-eyebrow">Prime tools</p>
-              <h2 id="prime-title">Prime-number calculations</h2>
+              <p class="lab-eyebrow">Number theory</p>
+              <h2 id="nt-explorer-title">Number Theory Explorer</h2>
             </div>
+            <span class="status-badge status-badge--ok">Interactive</span>
           </div>
-          <div class="crypto-tools">
-            <form id="prime-form" class="lab-form crypto-tool">
-              <label for="prime-n">Test n for primality</label>
-              <input id="prime-n" name="n" type="number" min="0" max="1000000" step="1" value="97" inputmode="numeric" required>
+          <p class="lab-muted">
+            Unified arithmetic analyzer for positive integers: primality status, prime factorization,
+            Euler&rsquo;s totient &phi;(<em>n</em>), M&ouml;bius function &mu;(<em>n</em>), divisor count &tau;(<em>n</em>),
+            divisor sum &sigma;(<em>n</em>), complete divisor sequence, and adjacent prime bounds.
+          </p>
+          <form id="nt-explorer-form" class="lab-form">
+            <label for="nt-explorer-n">Positive integer <em>n</em> (1 &le; <em>n</em> &le; 1,000,000)</label>
+            <div class="lab-inline">
+              <input id="nt-explorer-n" name="n" type="number" min="1" max="1000000" step="1" value="360" inputmode="numeric" required>
               <div class="lab-actions">
-                <button class="lab-button" type="submit">Check prime</button>
-                <button id="clear-prime" class="lab-button lab-button--secondary" type="button">Clear</button>
+                <button class="lab-button" type="submit">Explore properties</button>
+                <button id="clear-nt-explorer" class="lab-button lab-button--secondary" type="button">Reset</button>
               </div>
-              <output id="prime-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="next-prime-form" class="lab-form crypto-tool">
-              <label for="next-prime-n">Find the next prime after n</label>
-              <input id="next-prime-n" name="n" type="number" min="0" max="1000000" step="1" value="100" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Find next prime</button>
-                <button id="clear-next-prime" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="next-prime-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="previous-prime-form" class="lab-form crypto-tool">
-              <label for="previous-prime-n">Find the previous prime before n</label>
-              <input id="previous-prime-n" name="n" type="number" min="3" max="1000000" step="1" value="100" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Find previous prime</button>
-                <button id="clear-previous-prime" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="previous-prime-result" class="lab-result" aria-live="polite">Enter an integer from 3 to 1,000,000.</output>
-            </form>
-
-            <form id="prime-gap-form" class="lab-form crypto-tool">
-              <label for="prime-gap-n">Find the prime gap around n</label>
-              <input id="prime-gap-n" name="n" type="number" min="3" max="1000000" step="1" value="1000" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Find gap</button>
-                <button id="clear-prime-gap" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="prime-gap-result" class="lab-result" aria-live="polite">Enter an integer from 3 to 1,000,000.</output>
-            </form>
-
-            <form id="prime-pi-form" class="lab-form crypto-tool">
-              <label for="prime-pi-n">Count primes up to n</label>
-              <input id="prime-pi-n" name="n" type="number" min="0" max="1000000" step="1" value="1000" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Count primes</button>
-                <button id="clear-prime-pi" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="prime-pi-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="factor-form" class="lab-form crypto-tool">
-              <label for="factor-n">Factor n into primes</label>
-              <input id="factor-n" name="n" type="number" min="0" max="1000000" step="1" value="360" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Factor n</button>
-                <button id="clear-factor" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="factor-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="totient-form" class="lab-form crypto-tool">
-              <label for="totient-n">Calculate Euler's totient φ(n)</label>
-              <input id="totient-n" name="n" type="number" min="0" max="1000000" step="1" value="36" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Calculate φ(n)</button>
-                <button id="clear-totient" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="totient-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="mobius-form" class="lab-form crypto-tool">
-              <label for="mobius-n">Calculate the Möbius function μ(n)</label>
-              <input id="mobius-n" name="n" type="number" min="0" max="1000000" step="1" value="30" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Calculate μ(n)</button>
-                <button id="clear-mobius" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="mobius-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="divisor-count-form" class="lab-form crypto-tool">
-              <label for="divisor-count-n">Count positive divisors τ(n)</label>
-              <input id="divisor-count-n" name="n" type="number" min="0" max="1000000" step="1" value="360" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Count divisors</button>
-                <button id="clear-divisor-count" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="divisor-count-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="divisor-sum-form" class="lab-form crypto-tool">
-              <label for="divisor-sum-n">Sum positive divisors σ(n)</label>
-              <input id="divisor-sum-n" name="n" type="number" min="0" max="1000000" step="1" value="360" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">Sum divisors</button>
-                <button id="clear-divisor-sum" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="divisor-sum-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-
-            <form id="divisors-form" class="lab-form crypto-tool">
-              <label for="divisors-n">List positive divisors of n</label>
-              <input id="divisors-n" name="n" type="number" min="0" max="1000000" step="1" value="12" inputmode="numeric" required>
-              <div class="lab-actions">
-                <button class="lab-button" type="submit">List divisors</button>
-                <button id="clear-divisors" class="lab-button lab-button--secondary" type="button">Clear</button>
-              </div>
-              <output id="divisors-result" class="lab-result" aria-live="polite">Enter an integer from 0 to 1,000,000.</output>
-            </form>
-          </div>
+            </div>
+            <div class="nt-preset-bar">
+              <span class="nt-preset-label">Presets:</span>
+              <button type="button" class="lab-button lab-button--secondary nt-preset-btn" data-n="360">360 (composite)</button>
+              <button type="button" class="lab-button lab-button--secondary nt-preset-btn" data-n="97">97 (prime)</button>
+              <button type="button" class="lab-button lab-button--secondary nt-preset-btn" data-n="28">28 (perfect)</button>
+              <button type="button" class="lab-button lab-button--secondary nt-preset-btn" data-n="30">30 (sphenic)</button>
+              <button type="button" class="lab-button lab-button--secondary nt-preset-btn" data-n="12">12 (twin sandwich)</button>
+              <button type="button" class="lab-button lab-button--secondary nt-preset-btn" data-n="1">1 (unit)</button>
+            </div>
+          </form>
+          <output id="nt-explorer-result" class="lab-result" aria-live="polite">Enter an integer from 1 to 1,000,000 or choose a preset above.</output>
         </article>
 
         <article class="lab-panel lab-panel--wide" data-lab-category="chaos" aria-labelledby="lorenz-title">

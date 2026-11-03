@@ -714,6 +714,166 @@ input:focus {
   white-space: pre-wrap;
 }
 
+/* Number Theory Explorer */
+.nt-preset-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.nt-preset-label {
+  font-size: 0.8rem;
+  color: var(--lab-muted);
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.nt-preset-btn {
+  padding: 3px 9px;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  line-height: 1.3;
+}
+
+.nt-explorer-output {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nt-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.nt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid var(--lab-line);
+}
+
+.nt-badge--prime {
+  background: color-mix(in srgb, var(--lab-accent), transparent 88%);
+  color: var(--lab-accent);
+  border-color: color-mix(in srgb, var(--lab-accent), transparent 60%);
+}
+
+.nt-badge--composite {
+  background: color-mix(in srgb, #c05621, transparent 90%);
+  color: #c05621;
+  border-color: color-mix(in srgb, #c05621, transparent 65%);
+}
+
+.nt-badge--unit {
+  background: color-mix(in srgb, var(--lab-muted), transparent 90%);
+  color: var(--lab-muted);
+  border-color: color-mix(in srgb, var(--lab-muted), transparent 65%);
+}
+
+.nt-badge--perfect {
+  background: color-mix(in srgb, #d4af37, transparent 86%);
+  color: #b7791f;
+  border-color: #d4af37;
+}
+
+.nt-badge--abundant {
+  background: color-mix(in srgb, var(--lab-success), transparent 90%);
+  color: var(--lab-success);
+  border-color: color-mix(in srgb, var(--lab-success), transparent 65%);
+}
+
+.nt-badge--deficient {
+  background: color-mix(in srgb, var(--lab-muted), transparent 90%);
+  color: var(--lab-muted);
+  border-color: var(--lab-line);
+}
+
+.nt-badge--squarefree {
+  background: color-mix(in srgb, #2b6cb0, transparent 90%);
+  color: #2b6cb0;
+  border-color: color-mix(in srgb, #2b6cb0, transparent 65%);
+}
+
+.nt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.nt-card {
+  padding: 10px 14px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 35%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nt-card-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--lab-muted);
+  font-weight: 650;
+  margin: 0;
+}
+
+.nt-card-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--lab-text);
+  word-break: break-word;
+}
+
+.nt-card-val sup {
+  font-size: 0.72em;
+  color: var(--lab-accent);
+}
+
+.nt-card-desc {
+  font-size: 0.78rem;
+  color: var(--lab-muted);
+  margin: 0;
+}
+
+.nt-divisors-wrapper {
+  padding: 10px 14px;
+  border: 1px solid var(--lab-line);
+  border-radius: var(--lab-radius);
+  background: color-mix(in srgb, var(--lab-surface), var(--lab-bg) 35%);
+}
+
+.nt-divisors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.nt-divisor-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--lab-surface);
+  border: 1px solid var(--lab-line);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--lab-text);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --lab-bg: #111413;
@@ -723,6 +883,18 @@ input:focus {
     --lab-line: #313830;
     --lab-accent: #55b6a9;
     --lab-accent-dark: #7acbc0;
+  }
+
+  .nt-badge--composite {
+    color: #f6ad55;
+  }
+
+  .nt-badge--perfect {
+    color: #ffd700;
+  }
+
+  .nt-badge--squarefree {
+    color: #63b3ed;
   }
 }
 
