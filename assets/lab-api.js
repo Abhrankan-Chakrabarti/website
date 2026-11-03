@@ -857,6 +857,14 @@ function renderNtExplorerResult(data) {
   const totientVal = Number(data.totient);
   const coprimePct = ((totientVal / n) * 100).toFixed(1);
 
+  // Prime Counting pi(n)
+  const piVal = Number(data.primePi);
+  const piDensity = ((piVal / n) * 100).toFixed(1);
+  const gaussEst = n > 1 ? Math.round(n / Math.log(n)) : 0;
+  const piDesc = n > 1
+    ? `${piDensity}% prime density (&le; ${n}) &middot; PNT est. ~${gaussEst}`
+    : `No primes &le; 1`;
+
   // Möbius
   let mobiusDesc;
   if (data.mobius === 1) {
@@ -905,6 +913,11 @@ function renderNtExplorerResult(data) {
           <p class="nt-card-desc">${coprimePct}% coprime density (&le; ${n})</p>
         </div>
         <div class="nt-card">
+          <h3 class="nt-card-title">Prime Counting &pi;(n)</h3>
+          <div class="nt-card-val">${data.primePi}</div>
+          <p class="nt-card-desc">${piDesc}</p>
+        </div>
+        <div class="nt-card">
           <h3 class="nt-card-title">M&ouml;bius Function &mu;(n)</h3>
           <div class="nt-card-val">${data.mobius}</div>
           <p class="nt-card-desc">${mobiusDesc}</p>
@@ -914,7 +927,7 @@ function renderNtExplorerResult(data) {
           <div class="nt-card-val">&tau; = ${data.divisorCount}, &sigma; = ${data.divisorSum}</div>
           <p class="nt-card-desc">Proper divisor sum s(n) = ${s >= 0 ? s : 0}</p>
         </div>
-        <div class="nt-card" style="grid-column: 1 / -1;">
+        <div class="nt-card">
           <h3 class="nt-card-title">Prime Neighbors &amp; Gap</h3>
           <div class="nt-card-val">${neighborsVal}</div>
           <p class="nt-card-desc">${neighborsDesc}</p>
@@ -954,6 +967,7 @@ async function runNtExplorer(event) {
       divisorsData,
       nextPrimeData,
       prevPrimeData,
+      primePiData,
     ] = await Promise.all([
       fetchJson(`/v1/math/is-prime/${n}`),
       fetchJson(`/v1/math/factor/${n}`),
@@ -964,6 +978,7 @@ async function runNtExplorer(event) {
       fetchJson(`/v1/math/divisors/${n}`),
       fetchJson(`/v1/math/next-prime/${n}`),
       n > 2 ? fetchJson(`/v1/math/previous-prime/${n}`) : Promise.resolve(null),
+      fetchJson(`/v1/math/prime-pi/${n}`),
     ]);
 
     renderNtExplorerResult({
@@ -977,6 +992,7 @@ async function runNtExplorer(event) {
       divisors: divisorsData.divisors || [],
       nextPrime: nextPrimeData.value,
       prevPrime: prevPrimeData ? prevPrimeData.value : null,
+      primePi: primePiData.value,
     });
 
     renderTelemetry(
