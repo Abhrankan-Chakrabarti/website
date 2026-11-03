@@ -29,7 +29,7 @@ body {
 sub,
 sup {
   font-size: 75%;
-  line-height: 0;
+  line-height: 1;
   position: relative;
   vertical-align: baseline;
 }
@@ -502,6 +502,10 @@ header nav a.active {
   color: var(--lab-muted);
   font-size: 0.95rem;
   font-weight: 650;
+}
+
+.lab-math {
+  white-space: nowrap;
 }
 
 .lab-auth-grid label {
