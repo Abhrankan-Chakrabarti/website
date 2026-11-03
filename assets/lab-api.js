@@ -788,13 +788,18 @@ function clearGcd() {
 }
 
 function validateNtExplorerInput() {
-  return validateBoundedIntegerInput(
+  const isValid = validateBoundedIntegerInput(
     ntExplorerInput,
     1,
     1000000,
     "Enter an integer from 1 to 1,000,000.",
     ntExplorerResult,
   );
+  if (!isValid) {
+    return null;
+  }
+  const n = Number(ntExplorerInput?.value?.trim());
+  return Number.isSafeInteger(n) && n >= 1 && n <= 1000000 ? n : null;
 }
 
 function renderNtExplorerResult(data) {
