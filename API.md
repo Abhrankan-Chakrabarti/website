@@ -964,6 +964,7 @@ Exact health/info and math prefix matches keep those exploration endpoints publi
 | **Lenstra ECM** | Two-stage Lenstra elliptic curve factorization ($B_1, B_2$) with random Weierstrass curves. |
 | **Dixon's Factorization** | Dixon's random squares integer factorization ($B$-smooth quadratic residues with $\mathbb{F}_2$ Gaussian elimination). |
 | **Quadratic Sieve (QS)** | Quadratic Sieve integer factorization over polynomial sieve array and $\mathbb{F}_2$ Gaussian elimination. |
+| **Shanks's SQUFOF** | Shanks's square forms integer factorization ($O(n^{1/4})$ infrastructure reduction). |
 
 ### Application information
 
@@ -975,7 +976,7 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
 {
   "service": "crypto-lab",
   "api": "v1",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "endpoints": [
     "GET /health",
     "GET /v1/info",
@@ -1044,7 +1045,9 @@ curl -sS https://abhrankan.duckdns.org/crypto-api/v1/info
     "GET /v1/math/dixon",
     "POST /v1/math/dixon",
     "GET /v1/math/qs",
-    "POST /v1/math/qs"
+    "POST /v1/math/qs",
+    "GET /v1/math/squfof",
+    "POST /v1/math/squfof"
   ],
   "build_profile": "release",
   "environment": "production"
@@ -1670,6 +1673,34 @@ curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/qs?n=84923&b=60&m=300
   "candidates_checked": 168,
   "message": "Found factor p = 163 via quadratic sieve congruence 84625² ≡ 20021² (mod 84923)",
   "elapsed_us": 1631
+}
+```
+
+#### Shanks's Square Forms Factorization (`/v1/math/squfof`)
+
+Executes Daniel Shanks's Square Forms Factorization (SQUFOF) algorithm to factor composite integer $n$ in $O(n^{1/4})$ time. Operates in the infrastructure of binary quadratic forms of discriminant $D = k n$. In Cycle 1, reduces forms until encountering a square form $Q_i = r^2$ at an even step index. In Cycle 2, descends from the square root form to an ambiguous form $P_0 = P_1$, yielding a non-trivial factor as $\gcd(n, P_1)$.
+
+Parameters:
+- `n` (integer, required): composite integer to factor ($n \ge 4$).
+- `max_steps` (integer, optional, default: 50000): maximum reduction steps per multiplier (1 ≤ max_steps ≤ 500,000).
+
+```bash
+curl -sS "https://abhrankan.duckdns.org/crypto-api/v1/math/squfof?n=84923"
+```
+
+```json
+{
+  "n": 84923,
+  "factor": 163,
+  "cofactor": 521,
+  "success": true,
+  "multiplier": 1,
+  "cycle1_steps": 4,
+  "cycle2_steps": 2,
+  "square_q": 1156,
+  "sqrt_q": 34,
+  "message": "Found non-trivial factor p = 163 via SQUFOF (multiplier k = 1, cycle 1 = 4 steps, cycle 2 = 2 steps)",
+  "elapsed_us": 25
 }
 ```
 

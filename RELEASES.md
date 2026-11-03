@@ -1,5 +1,27 @@
 # Releases
 
+### [v0.16.0] — 2026-11-03
+
+**Shanks's Square Forms Factorization (SQUFOF) Suite, crypto-lab v0.14.0 & foxmath v0.20.0.**
+
+#### Added
+- Added **Shanks's Square Forms Factorization (SQUFOF)** across the stack:
+  - **`crypto-lab` v0.14.0** (expanded registry to 70 endpoints):
+    - `GET, POST /crypto-api/v1/math/squfof`: unconditionally deterministic $O(n^{1/4})$ integer factorization operating in the infrastructure of binary quadratic forms of discriminant $D = k n$. Uses 16 square-free multipliers, Cycle 1 continued fraction reductions with even-step square form detection $Q_i = r^2$, and Cycle 2 square root form descent to ambiguous forms $P_0 = P_1$ extracting non-trivial factors $\gcd(n, P_1)$.
+    - Returns factor $p$, cofactor $q$, success status, multiplier $k$, Cycle 1 steps, Cycle 2 steps, square form $Q$, square root $r$, descriptive message, and execution latency in $\mu\text{s}$.
+    - Expanded deterministic problem generator (`/v1/math/challenge`) with topic `"squfof"` (now 17 topics).
+    - All 63 unit and HTTP integration tests passing with 0 Clippy warnings.
+  - **`foxmath` v0.20.0**:
+    - Pure Python implementation `squfof_factor(n, max_steps)` matching `crypto-lab` binary quadratic form infrastructure reductions.
+    - CLI subcommand `foxmath squfof` and standalone symlink `foxmath-squfof`.
+    - Challenge topic `"squfof"` and all 379 unit/CLI tests passing.
+  - **The Lab** (`/lab.html`):
+    - Interactive **Shanks's SQUFOF factoring tool** (`#crypto-squfof-form`) with reduction step controls, cycle breakdown telemetry, and one-click presets (*84923*, *1042387*, *1393429*, *2211749*, *1074200609*).
+    - Added `"squfof"` option to the Challenge generator dropdown.
+- Updated `projects.html`, `API.md`, `API.html`, `now.html`, and `README.md`.
+
+---
+
 ### [v0.15.0] — 2026-11-01
 
 **Quadratic Sieve (QS) Integer Factorization Suite, crypto-lab v0.13.0 & foxmath v0.19.0.**

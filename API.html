@@ -1369,6 +1369,10 @@ http://127.0.0.1:8089/v1/hmac/verify
       <td><strong>Quadratic Sieve (QS)</strong></td>
       <td>Quadratic Sieve integer factorization over polynomial sieve array and $\mathbb{F}_2$ Gaussian elimination.</td>
     </tr>
+    <tr>
+      <td><strong>Shanks's SQUFOF</strong></td>
+      <td>Shanks's square forms integer factorization ($O(n^{1/4})$ infrastructure reduction).</td>
+    </tr>
   </tbody>
 </table>
 
@@ -1380,7 +1384,7 @@ http://127.0.0.1:8089/v1/hmac/verify
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crypto-lab"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.13.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.14.0"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"GET /health"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/info"</span><span class="p">,</span><span class="w">
@@ -1449,7 +1453,9 @@ http://127.0.0.1:8089/v1/hmac/verify
     </span><span class="s2">"GET /v1/math/dixon"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"POST /v1/math/dixon"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"GET /v1/math/qs"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"POST /v1/math/qs"</span><span class="w">
+    </span><span class="s2">"POST /v1/math/qs"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"GET /v1/math/squfof"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"POST /v1/math/squfof"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nl">"build_profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"release"</span><span class="p">,</span><span class="w">
   </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="w">
@@ -1846,6 +1852,16 @@ curl <span class="nt">-sS</span> <span class="nt">-H</span> <span class="s2">"Co
 </code></pre></div></div>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">84923</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">163</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">521</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"b"</span><span class="p">:</span><span class="mi">60</span><span class="p">,</span><span class="nl">"m"</span><span class="p">:</span><span class="mi">3000</span><span class="p">,</span><span class="nl">"factor_base_size"</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span><span class="nl">"relations_needed"</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span><span class="nl">"relations_found"</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span><span class="nl">"x"</span><span class="p">:</span><span class="mi">84625</span><span class="p">,</span><span class="nl">"y"</span><span class="p">:</span><span class="mi">20021</span><span class="p">,</span><span class="nl">"congruence"</span><span class="p">:</span><span class="s2">"84625² ≡ 20021² (mod 84923)"</span><span class="p">,</span><span class="nl">"candidates_checked"</span><span class="p">:</span><span class="mi">168</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found factor p = 163 via quadratic sieve congruence 84625² ≡ 20021² (mod 84923)"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">1631</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="squfof">Shanks's square forms factorization (SQUFOF)</h4>
+
+<p>Executes Daniel Shanks's Square Forms Factorization (SQUFOF) algorithm to factor composite integer <em>n</em> in <em>O</em>(<em>n</em><sup>1/4</sup>) time. Operates in the infrastructure of binary quadratic forms of discriminant <em>D</em> = <em>k</em><em>n</em>. In Cycle 1, reduces forms until encountering a square form <em>Q</em><sub><em>i</em></sub> = <em>r</em><sup>2</sup> at an even step index. In Cycle 2, descends from the square root form to an ambiguous form <em>P</em><sub>0</sub> = <em>P</em><sub>1</sub>, yielding a non-trivial factor as gcd(<em>n</em>, <em>P</em><sub>1</sub>).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-sS</span> <span class="s2">"https://abhrankan.duckdns.org/crypto-api/v1/math/squfof?n=84923"</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"n"</span><span class="p">:</span><span class="mi">84923</span><span class="p">,</span><span class="nl">"factor"</span><span class="p">:</span><span class="mi">163</span><span class="p">,</span><span class="nl">"cofactor"</span><span class="p">:</span><span class="mi">521</span><span class="p">,</span><span class="nl">"success"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nl">"multiplier"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nl">"cycle1_steps"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nl">"cycle2_steps"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nl">"square_q"</span><span class="p">:</span><span class="mi">1156</span><span class="p">,</span><span class="nl">"sqrt_q"</span><span class="p">:</span><span class="mi">34</span><span class="p">,</span><span class="nl">"message"</span><span class="p">:</span><span class="s2">"Found non-trivial factor p = 163 via SQUFOF (multiplier k = 1, cycle 1 = 4 steps, cycle 2 = 2 steps)"</span><span class="p">,</span><span class="nl">"elapsed_us"</span><span class="p">:</span><span class="mi">25</span><span class="p">}</span>
 </code></pre></div></div>
 
 <h3 id="input-contract-and-status-codes">Input contract and status codes</h3>

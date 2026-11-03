@@ -180,6 +180,12 @@ const cryptoQsM = document.querySelector("#crypto-qs-m");
 const cryptoQsResult = document.querySelector("#crypto-qs-result");
 const clearCryptoQsButton = document.querySelector("#clear-crypto-qs");
 
+const cryptoSqufofForm = document.querySelector("#crypto-squfof-form");
+const cryptoSqufofN = document.querySelector("#crypto-squfof-n");
+const cryptoSqufofMaxSteps = document.querySelector("#crypto-squfof-max-steps");
+const cryptoSqufofResult = document.querySelector("#crypto-squfof-result");
+const clearCryptoSqufofButton = document.querySelector("#clear-crypto-squfof");
+
 const cryptoTotientForm = document.querySelector("#crypto-totient-form");
 const cryptoTotientN = document.querySelector("#crypto-totient-n");
 const cryptoTotientResult = document.querySelector("#crypto-totient-result");
@@ -2177,6 +2183,56 @@ function clearCryptoQs() {
   clearTelemetry(cryptoQsResult);
 }
 
+async function runCryptoSqufof(event) {
+  if (event) event.preventDefault();
+  const nRaw = cryptoSqufofN.value.trim();
+  const stepsRaw = cryptoSqufofMaxSteps.value.trim();
+
+  if (!/^[1-9]\d*$/.test(nRaw)) {
+    cryptoSqufofResult.textContent = "Enter a valid integer n ≥ 2.";
+    return;
+  }
+  const nVal = BigInt(nRaw);
+  if (nVal < 2n) {
+    cryptoSqufofResult.textContent = "Integer n must be ≥ 2.";
+    return;
+  }
+
+  const queryParams = new URLSearchParams({ n: nRaw });
+  if (stepsRaw && /^[1-9]\d*$/.test(stepsRaw)) queryParams.set("max_steps", stepsRaw);
+
+  const button = cryptoSqufofForm.querySelector("button[type='submit']");
+  cryptoSqufofResult.textContent = "Factoring via SQUFOF...";
+  setBusy(button, true, "Factoring");
+  try {
+    const data = await fetchCryptoJson(
+      `/v1/math/squfof?${queryParams.toString()}`,
+      {},
+      cryptoSqufofResult
+    );
+    if (data.success && data.factor) {
+      let html = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.factor.toLocaleString()} &times; ${data.cofactor.toLocaleString()}</code><br>` +
+        `<span class="lab-muted">Multiplier: <em>k</em> = ${data.multiplier} &bull; Cycle 1: ${data.cycle1_steps.toLocaleString()} steps &bull; Cycle 2: ${data.cycle2_steps.toLocaleString()} steps</span><br>` +
+        `<span class="lab-muted">${data.square_q ? `Square form: Q = ${data.square_q.toLocaleString()} (&radic;Q = ${data.sqrt_q.toLocaleString()}) &bull; ` : ""}${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+      cryptoSqufofResult.innerHTML = html;
+    } else {
+      cryptoSqufofResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+        `<span class="lab-muted">${data.elapsed_us.toLocaleString()} &mu;s</span>`;
+    }
+  } catch (error) {
+    cryptoSqufofResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Factor via SQUFOF");
+  }
+}
+
+function clearCryptoSqufof() {
+  cryptoSqufofN.value = "84923";
+  cryptoSqufofMaxSteps.value = "50000";
+  cryptoSqufofResult.textContent = "Enter composite n and maximum reduction steps.";
+  clearTelemetry(cryptoSqufofResult);
+}
+
 async function runCryptoTotient(event) {
   event.preventDefault();
   const nRaw = cryptoTotientN.value.trim();
@@ -2834,6 +2890,16 @@ document.querySelectorAll(".qs-preset-btn").forEach(btn => {
     if (cryptoQsB && btn.dataset.b) cryptoQsB.value = btn.dataset.b;
     if (cryptoQsM && btn.dataset.m) cryptoQsM.value = btn.dataset.m;
     runCryptoQs();
+  });
+});
+
+cryptoSqufofForm?.addEventListener("submit", runCryptoSqufof);
+clearCryptoSqufofButton?.addEventListener("click", clearCryptoSqufof);
+document.querySelectorAll(".squfof-preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (cryptoSqufofN && btn.dataset.n) cryptoSqufofN.value = btn.dataset.n;
+    if (cryptoSqufofMaxSteps && btn.dataset.maxSteps) cryptoSqufofMaxSteps.value = btn.dataset.maxSteps;
+    runCryptoSqufof();
   });
 });
 cryptoTotientForm?.addEventListener("submit", runCryptoTotient);
