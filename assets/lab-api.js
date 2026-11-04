@@ -804,6 +804,104 @@ function clearGcd() {
   clearTelemetry(gcdResult);
 }
 
+let currentNtData = null;
+
+function toSuperscript(num) {
+  const map = {
+    "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+    "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+  };
+  return String(num).split("").map((c) => map[c] || c).join("");
+}
+
+function formatNtSummaryText(data) {
+  const n = data.n;
+  const sigma = Number(data.divisorSum);
+  const s = sigma - n;
+
+  // Classifications
+  const classifications = [];
+  if (n === 1) {
+    classifications.push("Unit");
+  } else if (data.isPrime) {
+    classifications.push("Prime");
+  } else {
+    classifications.push("Composite");
+  }
+
+  if (n === 1) {
+    classifications.push("Aliquot sum: 0");
+  } else if (s === n) {
+    classifications.push(`Perfect (s(${n}) = ${n})`);
+  } else if (s > n) {
+    classifications.push(`Abundant (abundance +${s - n})`);
+  } else {
+    classifications.push(`Deficient (deficiency -${n - s})`);
+  }
+
+  if (data.mobius !== 0) {
+    classifications.push("Square-free");
+  } else {
+    classifications.push("Not square-free (divisible by p²)");
+  }
+
+  // Factorization
+  let factorStr = "1 (empty product)";
+  let omega = 0;
+  let bigOmega = 0;
+  if (n > 1 && data.factors && data.factors.length > 0) {
+    factorStr = data.factors
+      .map((f) => (f.power > 1 ? `${f.prime}${toSuperscript(f.power)}` : `${f.prime}`))
+      .join(" × ");
+    omega = data.factors.length;
+    bigOmega = data.factors.reduce((acc, f) => acc + f.power, 0);
+  }
+
+  // Totient
+  const totientVal = Number(data.totient);
+  const coprimePct = ((totientVal / n) * 100).toFixed(1);
+
+  // Prime counting
+  const piVal = Number(data.primePi);
+  const piDensity = ((piVal / n) * 100).toFixed(1);
+  const gaussEst = n > 1 ? Math.round(n / Math.log(n)) : 0;
+  const piLine = n > 1
+    ? `${data.primePi} (${piDensity}% prime density ≤ ${n} · PNT est. ~${gaussEst})`
+    : `0 (no primes ≤ 1)`;
+
+  // Möbius
+  let mobiusDesc = `${data.mobius}`;
+  if (data.mobius === 1) mobiusDesc += " (square-free, even parity of prime factors)";
+  else if (data.mobius === -1) mobiusDesc += " (square-free, odd parity of prime factors)";
+  else mobiusDesc += " (contains at least one square factor p²)";
+
+  // Prime neighbors
+  let neighborsLine;
+  if (data.prevPrime !== null && data.nextPrime !== null) {
+    const prev = Number(data.prevPrime);
+    const next = Number(data.nextPrime);
+    const gap = next - prev;
+    neighborsLine = `${prev} ← ${n} → ${next} (prime gap = ${gap})`;
+  } else {
+    neighborsLine = `none ← ${n} → ${data.nextPrime} (no smaller prime exists)`;
+  }
+
+  // Divisors
+  const divisorsStr = (data.divisors || []).join(", ");
+
+  return [
+    `Number Theory Explorer: n = ${n}`,
+    `Classification: ${classifications.join(", ")}`,
+    `Prime Factorization: ${factorStr} (ω = ${omega} distinct, Ω = ${bigOmega} total prime factors)`,
+    `Euler's Totient φ(n): ${data.totient} (${coprimePct}% coprime density ≤ ${n})`,
+    `Prime Counting π(n): ${piLine}`,
+    `Möbius Function μ(n): ${mobiusDesc}`,
+    `Divisor Structure: τ(${n}) = ${data.divisorCount}, σ(${n}) = ${data.divisorSum}, proper divisor sum s(${n}) = ${s >= 0 ? s : 0}`,
+    `Prime Neighbors & Gap: ${neighborsLine}`,
+    `All Positive Divisors (${(data.divisors || []).length}): ${divisorsStr}`,
+  ].join("\n");
+}
+
 function validateNtExplorerInput() {
   const isValid = validateBoundedIntegerInput(
     ntExplorerInput,
@@ -820,6 +918,7 @@ function validateNtExplorerInput() {
 }
 
 function renderNtExplorerResult(data) {
+  currentNtData = data;
   const n = data.n;
   const sigma = Number(data.divisorSum);
   const s = sigma - n;
@@ -1036,6 +1135,7 @@ async function runNtExplorer(event, options = {}) {
 }
 
 function clearNtExplorer(options = {}) {
+  currentNtData = null;
   if (ntExplorerInput) {
     ntExplorerInput.value = "360";
   }
@@ -1094,12 +1194,13 @@ function copyNtExplorerLink() {
 }
 
 function copyNtExplorerResults() {
-  const output = ntExplorerResult?.querySelector(".nt-explorer-output");
-  if (!output) {
-    copyButtonText(copyNtResultsButton, ntExplorerResult?.innerText, "Results copied");
+  if (currentNtData) {
+    copyButtonText(copyNtResultsButton, formatNtSummaryText(currentNtData), "Results copied");
     return;
   }
-  copyButtonText(copyNtResultsButton, output.innerText, "Results copied");
+  const output = ntExplorerResult?.querySelector(".nt-explorer-output");
+  const fallbackText = output ? output.innerText : ntExplorerResult?.innerText;
+  copyButtonText(copyNtResultsButton, fallbackText, "Results copied");
 }
 
 function initNtExplorerUrl() {
