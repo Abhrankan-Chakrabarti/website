@@ -79,11 +79,26 @@ const ecmulK = document.querySelector("#ecmul-k");
 const ecmulResult = document.querySelector("#ecmul-result");
 const clearEcmulButton = document.querySelector("#clear-ecmul");
 
+const ecaddForm = document.querySelector("#ecadd-form");
+const ecaddCurve = document.querySelector("#ecadd-curve");
+const ecaddX1 = document.querySelector("#ecadd-x1");
+const ecaddY1 = document.querySelector("#ecadd-y1");
+const ecaddX2 = document.querySelector("#ecadd-x2");
+const ecaddY2 = document.querySelector("#ecadd-y2");
+const ecaddResult = document.querySelector("#ecadd-result");
+const clearEcaddButton = document.querySelector("#clear-ecadd");
+
 const crtForm = document.querySelector("#crt-form");
 const crtRemainders = document.querySelector("#crt-remainders");
 const crtModuli = document.querySelector("#crt-moduli");
 const crtResult = document.querySelector("#crt-result");
 const clearCrtButton = document.querySelector("#clear-crt");
+
+const cfForm = document.querySelector("#cf-form");
+const cfNum = document.querySelector("#cf-num");
+const cfDen = document.querySelector("#cf-den");
+const cfResult = document.querySelector("#cf-result");
+const clearCfButton = document.querySelector("#clear-cf");
 
 const cryptoFactorForm = document.querySelector("#crypto-factor-form");
 const cryptoFactorN = document.querySelector("#crypto-factor-n");
@@ -1568,6 +1583,69 @@ function clearEcmul() {
   clearTelemetry(ecmulResult);
 }
 
+function syncEcaddCurve() {
+  if (ecaddCurve.value === "toy97") {
+    ecaddX1.value = "3";
+    ecaddY1.value = "6";
+    ecaddX2.value = "3";
+    ecaddY2.value = "6";
+  } else {
+    // toy193
+    ecaddX1.value = "1";
+    ecaddY1.value = "59";
+    ecaddX2.value = "1";
+    ecaddY2.value = "59";
+  }
+}
+
+async function runEcadd(event) {
+  event.preventDefault();
+  const curve = ecaddCurve.value;
+  const x1 = Number(ecaddX1.value);
+  const y1 = Number(ecaddY1.value);
+  const x2 = Number(ecaddX2.value);
+  const y2 = Number(ecaddY2.value);
+
+  if (!Number.isSafeInteger(x1) || !Number.isSafeInteger(y1) || !Number.isSafeInteger(x2) || !Number.isSafeInteger(y2)) {
+    ecaddResult.textContent = "Coordinates must be valid integers.";
+    return;
+  }
+
+  const button = ecaddForm.querySelector("button[type='submit']");
+  ecaddResult.textContent = "Adding points...";
+  setBusy(button, true, "Adding");
+
+  try {
+    const data = await fetchCryptoJson("/v1/math/ecadd", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ curve, x1, y1, x2, y2 }),
+    }, ecaddResult);
+
+    const pt1Str = `(${data.p1[0]}, ${data.p1[1]})`;
+    const pt2Str = `(${data.p2[0]}, ${data.p2[1]})`;
+    const resStr = data.result
+      ? `(${data.result[0]}, ${data.result[1]})`
+      : "&infin; (Point at Infinity &Omicron;)";
+    const onCurveStr = data.result_on_curve !== undefined
+      ? (data.result_on_curve ? " <span style='color: var(--lab-success); font-weight: 600;'>(on curve &check;)</span>" : " <span style='color: var(--lab-danger); font-weight: 600;'>(off curve &cross;)</span>")
+      : "";
+
+    ecaddResult.innerHTML = `${pt1Str} + ${pt2Str} = <strong>${resStr}</strong> on <em>${data.curve}</em>${onCurveStr}`;
+  } catch (error) {
+    ecaddResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Adding");
+  }
+}
+
+function clearEcadd() {
+  ecaddCurve.value = "toy193";
+  syncEcaddCurve();
+  ecaddResult.textContent = "Select curve and coordinates for P₁ and P₂.";
+  clearTelemetry(ecaddResult);
+}
+
 async function runCrt(event) {
   event.preventDefault();
   const rRaw = crtRemainders.value.split(",").map((s) => Number(s.trim()));
@@ -1598,6 +1676,64 @@ function clearCrt() {
   crtModuli.value = "3, 5, 7";
   crtResult.textContent = "Enter comma-separated r and m.";
   clearTelemetry(crtResult);
+}
+
+async function runCf(event) {
+  event.preventDefault();
+  const num = Number(cfNum.value);
+  const den = Number(cfDen.value);
+
+  if (!Number.isSafeInteger(num) || num < 0) {
+    cfResult.textContent = "Numerator must be a non-negative integer.";
+    return;
+  }
+  if (!Number.isSafeInteger(den) || den < 1) {
+    cfResult.textContent = "Denominator must be a positive integer (den ≥ 1).";
+    return;
+  }
+
+  const button = cfForm.querySelector("button[type='submit']");
+  cfResult.textContent = "Expanding continued fraction...";
+  setBusy(button, true, "Expanding");
+
+  try {
+    const data = await fetchCryptoJson("/v1/math/cf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ num, den }),
+    }, cfResult);
+
+    const cfNotation = data.cf.length === 1
+      ? `[${data.cf[0]}]`
+      : `[${data.cf[0]}; ${data.cf.slice(1).join(", ")}]`;
+
+    const convList = data.convergents
+      .map(([p, q]) => {
+        const dec = (p / q).toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+        return `<strong>${p}/${q}</strong> &approx; ${dec}`;
+      })
+      .join(" &rarr; ");
+
+    cfResult.innerHTML = `
+      <div>
+        ${data.num} / ${data.den} = <strong style="color: var(--lab-accent); font-family: ui-monospace, SFMono-Regular, monospace; font-size: 1.05rem;">${cfNotation}</strong>
+      </div>
+      <div style="margin-top: 6px; font-size: 0.88rem; color: var(--lab-muted);">
+        Convergents (${data.convergents.length}): ${convList}
+      </div>
+    `;
+  } catch (error) {
+    cfResult.textContent = error.message;
+  } finally {
+    setBusy(button, false, "Expanding");
+  }
+}
+
+function clearCf() {
+  cfNum.value = "355";
+  cfDen.value = "113";
+  cfResult.textContent = "Enter numerator and denominator.";
+  clearTelemetry(cfResult);
 }
 
 async function runCryptoFactor(event) {
@@ -2719,8 +2855,13 @@ legendreForm?.addEventListener("submit", runLegendre);
 clearLegendreButton?.addEventListener("click", clearLegendre);
 ecmulForm?.addEventListener("submit", runEcmul);
 clearEcmulButton?.addEventListener("click", clearEcmul);
+ecaddForm?.addEventListener("submit", runEcadd);
+ecaddCurve?.addEventListener("change", syncEcaddCurve);
+clearEcaddButton?.addEventListener("click", clearEcadd);
 crtForm?.addEventListener("submit", runCrt);
 clearCrtButton?.addEventListener("click", clearCrt);
+cfForm?.addEventListener("submit", runCf);
+clearCfButton?.addEventListener("click", clearCf);
 cryptoFactorForm?.addEventListener("submit", runCryptoFactor);
 clearCryptoFactorButton?.addEventListener("click", clearCryptoFactor);
 cryptoFermatForm?.addEventListener("submit", runCryptoFermat);

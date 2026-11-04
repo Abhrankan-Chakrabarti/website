@@ -360,7 +360,7 @@
               </div>
               <label for="ecmul-curve">Curve preset</label>
               <select id="ecmul-curve" name="curve">
-                <option value="toy193">toy193: y² = x³ - 3x + 137 (mod 193)</option>
+                <option value="toy193">toy193: y² = x³ + x + 5 (mod 193)</option>
                 <option value="toy97">toy97: y² = x³ + 2x + 3 (mod 97)</option>
               </select>
               <label for="ecmul-k">Scalar multiplier (k)</label>
@@ -370,6 +370,43 @@
                 <button id="clear-ecmul" class="lab-button lab-button--secondary" type="button">Clear</button>
               </div>
               <output id="ecmul-result" class="lab-result" aria-live="polite">Select curve and scalar k.</output>
+            </form>
+
+            <form id="ecadd-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Elliptic curves</p>
+                <h3>Point addition (P₁ + P₂)</h3>
+              </div>
+              <label for="ecadd-curve">Curve preset</label>
+              <select id="ecadd-curve" name="curve">
+                <option value="toy193">toy193: y² = x³ + x + 5 (mod 193)</option>
+                <option value="toy97">toy97: y² = x³ + 2x + 3 (mod 97)</option>
+              </select>
+              <div class="lab-auth-grid">
+                <div>
+                  <label for="ecadd-x1">Point P₁ (x₁)</label>
+                  <input id="ecadd-x1" name="x1" type="number" value="1" required>
+                </div>
+                <div>
+                  <label for="ecadd-y1">Point P₁ (y₁)</label>
+                  <input id="ecadd-y1" name="y1" type="number" value="59" required>
+                </div>
+              </div>
+              <div class="lab-auth-grid">
+                <div>
+                  <label for="ecadd-x2">Point P₂ (x₂)</label>
+                  <input id="ecadd-x2" name="x2" type="number" value="1" required>
+                </div>
+                <div>
+                  <label for="ecadd-y2">Point P₂ (y₂)</label>
+                  <input id="ecadd-y2" name="y2" type="number" value="59" required>
+                </div>
+              </div>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Add P₁ + P₂</button>
+                <button id="clear-ecadd" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="ecadd-result" class="lab-result" aria-live="polite">Select curve and coordinates for P₁ and P₂.</output>
             </form>
 
             <form id="crt-form" class="lab-form crypto-tool">
@@ -386,6 +423,22 @@
                 <button id="clear-crt" class="lab-button lab-button--secondary" type="button">Clear</button>
               </div>
               <output id="crt-result" class="lab-result" aria-live="polite">Enter comma-separated r and m.</output>
+            </form>
+
+            <form id="cf-form" class="lab-form crypto-tool">
+              <div>
+                <p class="lab-eyebrow">Rational approximation</p>
+                <h3>Continued fractions &amp; convergents</h3>
+              </div>
+              <label for="cf-num">Numerator (num &ge; 0)</label>
+              <input id="cf-num" name="num" type="number" min="0" value="355" required>
+              <label for="cf-den">Denominator (den &ge; 1)</label>
+              <input id="cf-den" name="den" type="number" min="1" value="113" required>
+              <div class="lab-actions">
+                <button class="lab-button" type="submit">Expand fraction</button>
+                <button id="clear-cf" class="lab-button lab-button--secondary" type="button">Clear</button>
+              </div>
+              <output id="cf-result" class="lab-result" aria-live="polite">Enter numerator and denominator.</output>
             </form>
 
             <form id="crypto-factor-form" class="lab-form crypto-tool">

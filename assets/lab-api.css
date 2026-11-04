@@ -820,9 +820,8 @@ input:focus {
 }
 
 .nt-card-title {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  letter-spacing: 0.2px;
   color: var(--lab-muted);
   font-weight: 650;
   margin: 0;
