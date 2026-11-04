@@ -66,7 +66,7 @@
 <ul>
   <li>Added the <strong>Unified Number Theory Explorer &amp; Sharing Suite</strong> to The Lab (<a href="/lab.html"><code class="language-plaintext highlighter-rouge">/lab.html</code></a>):
     <ul>
-      <li><strong>Unified Explorer Card</strong> (<code class="language-plaintext highlighter-rouge">#nt-explorer-form</code>): Consolidates 11 previously separate arithmetic and divisor tools into a single comprehensive, parallelized analysis dashboard. Analyzes any integer 0 &le; <em>n</em> &le; 1,000,000 to report:
+      <li><strong>Unified Explorer Card</strong> (<code class="language-plaintext highlighter-rouge">#nt-explorer-form</code>): Consolidates the number-theory tools into a single comprehensive, parallelized analysis dashboard. Analyzes any integer 1 &le; <em>n</em> &le; 1,000,000 to report:
         <ul>
           <li>Primality classification, prime factors with Unicode superscripts (2<sup>3</sup> &times; 3<sup>2</sup> &times; 5), distinct prime factor count &omega;(<em>n</em>), and total prime factors with multiplicity &Omega;(<em>n</em>).</li>
           <li>Euler's totient function &phi;(<em>n</em>) and coprime density percentage.</li>
@@ -81,17 +81,17 @@
       <li><strong>Deep-Linking &amp; History State Synchronization</strong>:
         <ul>
           <li>URL query parameter support via <code class="language-plaintext highlighter-rouge">?explore=&lt;n&gt;</code>.</li>
-          <li>Auto-explores on page load when the parameter is present, pre-populating the input and scrolling the card into view.</li>
-          <li>Updates browser history dynamically (<code class="language-plaintext highlighter-rouge">history.pushState</code> on manual lookup, <code class="language-plaintext highlighter-rouge">history.replaceState</code> on presets) and syncs seamlessly with browser back/forward navigation (<code class="language-plaintext highlighter-rouge">popstate</code>).</li>
+          <li>Auto-explores on page load when the parameter is present and pre-populates the explorer input.</li>
+          <li>Updates browser history dynamically (<code class="language-plaintext highlighter-rouge">history.pushState</code> for exploratory lookups and <code class="language-plaintext highlighter-rouge">replaceState</code> for URL initialization or back/forward normalization) and syncs with browser navigation (<code class="language-plaintext highlighter-rouge">popstate</code>).</li>
         </ul>
       </li>
       <li><strong>One-Click Sharing Suite</strong>:
         <ul>
-          <li><strong>Copy link</strong> (<code class="language-plaintext highlighter-rouge">#copy-nt-link</code>): Copies canonical exploration permalinks directly to the clipboard with toast feedback.</li>
+          <li><strong>Copy link</strong> (<code class="language-plaintext highlighter-rouge">#copy-nt-link</code>): Copies canonical exploration permalinks directly to the clipboard with button-label feedback.</li>
           <li><strong>Copy results</strong> (<code class="language-plaintext highlighter-rouge">#copy-nt-results</code>): Formats a clean, structured mathematical plain-text report of the complete analysis featuring Unicode superscripts and compact divisor formatting.</li>
         </ul>
       </li>
-      <li><strong>Curated Exploration Presets</strong>: Instant analysis buttons for <em>12</em> (abundant composite), <em>360</em> (highly composite), <em>997</em> (3-digit prime), <em>8128</em> (even perfect number), and <em>104729</em> (6-digit prime).</li>
+      <li><strong>Curated Exploration Presets</strong>: Instant analysis buttons for <em>360</em> (composite), <em>97</em> (prime), <em>28</em> (perfect), <em>30</em> (sphenic), <em>12</em> (twin-sandwich composite), and <em>1</em> (unit).</li>
     </ul>
   </li>
   <li>Added <strong>Elliptic Curve Point Addition</strong> tool (<code class="language-plaintext highlighter-rouge">#ecadd-form</code>) in the Crypto &amp; Number Theory section:

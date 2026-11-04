@@ -6,7 +6,7 @@
 
 #### Added
 - Added the **Unified Number Theory Explorer & Sharing Suite** to The Lab (`/lab.html`):
-  - **Unified Explorer Card** (`#nt-explorer-form`): Consolidates 11 previously separate arithmetic and divisor tools into a single comprehensive, parallelized analysis dashboard. Analyzes any integer $0 \le n \le 1{,}000{,}000$ to report:
+  - **Unified Explorer Card** (`#nt-explorer-form`): Consolidates the number-theory tools into a single comprehensive, parallelized analysis dashboard. Analyzes any integer $1 \le n \le 1{,}000{,}000$ to report:
     - Primality classification, prime factors with Unicode superscripts ($2^3 \times 3^2 \times 5$), distinct prime factor count $\omega(n)$, and total prime factors with multiplicity $\Omega(n)$.
     - Euler's totient function $\phi(n)$ and coprime density percentage.
     - Prime-counting function $\pi(n)$ with prime density percentage and Prime Number Theorem (PNT) asymptotic comparison ($\sim n / \ln n$).
@@ -17,12 +17,12 @@
     - Complete ordered list of all positive divisors.
   - **Deep-Linking & History State Synchronization**:
     - URL query parameter support via `?explore=<n>`.
-    - Auto-explores on page load when the parameter is present, pre-populating the input and scrolling the card into view.
-    - Updates browser history dynamically (`history.pushState` on manual lookup, `replaceState` on presets) and syncs seamlessly with browser back/forward navigation (`popstate`).
+    - Auto-explores on page load when the parameter is present and pre-populates the explorer input.
+    - Updates browser history dynamically (`history.pushState` for exploratory lookups and `replaceState` for URL initialization or back/forward normalization) and syncs with browser navigation (`popstate`).
   - **One-Click Sharing Suite**:
-    - **Copy link** (`#copy-nt-link`): Copies canonical exploration permalinks directly to the clipboard with toast feedback.
+    - **Copy link** (`#copy-nt-link`): Copies canonical exploration permalinks directly to the clipboard with button-label feedback.
     - **Copy results** (`#copy-nt-results`): Formats a clean, structured mathematical plain-text report of the complete analysis featuring Unicode superscripts and compact divisor formatting.
-  - **Curated Exploration Presets**: Instant analysis buttons for *12* (abundant composite), *360* (highly composite), *997* (3-digit prime), *8128* (even perfect number), and *104729* (6-digit prime).
+  - **Curated Exploration Presets**: Instant analysis buttons for *360* (composite), *97* (prime), *28* (perfect), *30* (sphenic), *12* (twin-sandwich composite), and *1* (unit).
 - Added **Elliptic Curve Point Addition** tool (`#ecadd-form`) in the Crypto & Number Theory section:
   - Interactive point addition $P_1 + P_2$ on named Weierstrass curves (`toy193`, `toy97`) with point at infinity $\mathcal{O}$ handling and coordinate validation.
 - Added **Continued Fractions** tool (`#cf-form`) in the Crypto & Number Theory section:
