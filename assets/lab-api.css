@@ -312,8 +312,7 @@ header nav a.active {
   color: var(--lab-accent);
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  letter-spacing: 0.2px;
 }
 
 .lab-hero h1 {
