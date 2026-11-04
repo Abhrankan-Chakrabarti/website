@@ -78,8 +78,9 @@ its public routes for:
 The factorisation, totient, Möbius, divisor-count, divisor-sum, and divisors
 tools support `0 ≤ n ≤ 1,000,000`
 and use bounded trial division for demonstrations rather than general-purpose
-factoring. The Lab page includes interactive forms for the arithmetic
-endpoints, with request latency, status, and cURL telemetry.
+factoring. The Lab page includes a unified Number Theory Explorer dashboard
+consolidating these endpoints with deep-linking (`?explore=<n>`), permalink sharing,
+and structured mathematical plain-text copying, alongside request latency, status, and cURL telemetry.
 
 The School portal is served by the same backend below `/school/`. The website
 documents the complete route and authentication contract in [API.md](API.md).

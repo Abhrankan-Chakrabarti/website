@@ -58,6 +58,67 @@
 
       <h1 id="releases">Releases</h1>
 
+<h3 id="v0170--2026-11-04">[v0.17.0] — 2026-11-04</h3>
+
+<p><strong>Number Theory Explorer &amp; Sharing Suite, Elliptic Curve Point Addition, Continued Fractions, and Typography Integrity.</strong></p>
+
+<h4 id="added-v0170">Added</h4>
+<ul>
+  <li>Added the <strong>Unified Number Theory Explorer &amp; Sharing Suite</strong> to The Lab (<a href="/lab.html"><code class="language-plaintext highlighter-rouge">/lab.html</code></a>):
+    <ul>
+      <li><strong>Unified Explorer Card</strong> (<code class="language-plaintext highlighter-rouge">#nt-explorer-form</code>): Consolidates 11 previously separate arithmetic and divisor tools into a single comprehensive, parallelized analysis dashboard. Analyzes any integer 0 &le; <em>n</em> &le; 1,000,000 to report:
+        <ul>
+          <li>Primality classification, prime factors with Unicode superscripts (2<sup>3</sup> &times; 3<sup>2</sup> &times; 5), distinct prime factor count &omega;(<em>n</em>), and total prime factors with multiplicity &Omega;(<em>n</em>).</li>
+          <li>Euler's totient function &phi;(<em>n</em>) and coprime density percentage.</li>
+          <li>Prime-counting function &pi;(<em>n</em>) with prime density percentage and Prime Number Theorem (PNT) asymptotic comparison (~ <em>n</em> / ln <em>n</em>).</li>
+          <li>M&ouml;bius function &mu;(<em>n</em>) with square-factor status.</li>
+          <li>Divisor count &tau;(<em>n</em>), divisor sum &sigma;(<em>n</em>), and proper aliquot sum <em>s</em>(<em>n</em>) = &sigma;(<em>n</em>) &minus; <em>n</em>.</li>
+          <li>Structural classification badges: Composite / Prime, Abundant / Deficient / Perfect (with abundance value), and Square-free / Not square-free.</li>
+          <li>Prime neighbors and gap (<em>p</em><sub>prev</sub> &larr; <em>n</em> &rarr; <em>p</em><sub>next</sub>, prime bracket, and gap distance).</li>
+          <li>Complete ordered list of all positive divisors.</li>
+        </ul>
+      </li>
+      <li><strong>Deep-Linking &amp; History State Synchronization</strong>:
+        <ul>
+          <li>URL query parameter support via <code class="language-plaintext highlighter-rouge">?explore=&lt;n&gt;</code>.</li>
+          <li>Auto-explores on page load when the parameter is present, pre-populating the input and scrolling the card into view.</li>
+          <li>Updates browser history dynamically (<code class="language-plaintext highlighter-rouge">history.pushState</code> on manual lookup, <code class="language-plaintext highlighter-rouge">history.replaceState</code> on presets) and syncs seamlessly with browser back/forward navigation (<code class="language-plaintext highlighter-rouge">popstate</code>).</li>
+        </ul>
+      </li>
+      <li><strong>One-Click Sharing Suite</strong>:
+        <ul>
+          <li><strong>Copy link</strong> (<code class="language-plaintext highlighter-rouge">#copy-nt-link</code>): Copies canonical exploration permalinks directly to the clipboard with toast feedback.</li>
+          <li><strong>Copy results</strong> (<code class="language-plaintext highlighter-rouge">#copy-nt-results</code>): Formats a clean, structured mathematical plain-text report of the complete analysis featuring Unicode superscripts and compact divisor formatting.</li>
+        </ul>
+      </li>
+      <li><strong>Curated Exploration Presets</strong>: Instant analysis buttons for <em>12</em> (abundant composite), <em>360</em> (highly composite), <em>997</em> (3-digit prime), <em>8128</em> (even perfect number), and <em>104729</em> (6-digit prime).</li>
+    </ul>
+  </li>
+  <li>Added <strong>Elliptic Curve Point Addition</strong> tool (<code class="language-plaintext highlighter-rouge">#ecadd-form</code>) in the Crypto &amp; Number Theory section:
+    <ul>
+      <li>Interactive point addition <em>P</em><sub>1</sub> + <em>P</em><sub>2</sub> on named Weierstrass curves (<code class="language-plaintext highlighter-rouge">toy193</code>, <code class="language-plaintext highlighter-rouge">toy97</code>) with point at infinity &Oscr; handling and coordinate validation.</li>
+    </ul>
+  </li>
+  <li>Added <strong>Continued Fractions</strong> tool (<code class="language-plaintext highlighter-rouge">#cf-form</code>) in the Crypto &amp; Number Theory section:
+    <ul>
+      <li>Computes continued fraction expansions [<em>a</em><sub>0</sub>; <em>a</em><sub>1</sub>, &hellip;] and rational convergents <em>p</em><sub><em>k</em></sub> / <em>q</em><sub><em>k</em></sub> for rational inputs <em>num</em> / <em>den</em>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="fixed-v0170">Fixed</h4>
+<ul>
+  <li><strong>Mathematical Symbol &amp; Typography Integrity</strong>:
+    <ul>
+      <li>Removed <code class="language-plaintext highlighter-rouge">text-transform: uppercase</code> from <code class="language-plaintext highlighter-rouge">.nt-card-title</code>, <code class="language-plaintext highlighter-rouge">.lab-eyebrow</code>, and <code class="language-plaintext highlighter-rouge">.lab-kicker</code> in <code class="language-plaintext highlighter-rouge">assets/lab-api.css</code>, preventing Greek letters (&phi;, &pi;, &mu;, &tau;, &sigma;, &rho;) from being capitalized and resolving the Pollard's &rho; algorithm label collision ("POLLARD'S P ALGORITHM").</li>
+      <li>Corrected classification badge terminology from "Square-full" to "Not square-free (divisible by <em>p</em><sup>2</sup>)".</li>
+    </ul>
+  </li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">projects.html</code>, <code class="language-plaintext highlighter-rouge">now.html</code>, and <code class="language-plaintext highlighter-rouge">README.md</code>.</li>
+</ul>
+
+<hr />
+
 <h3 id="v0160--2026-11-03">[v0.16.0] — 2026-11-03</h3>
 
 <p><strong>Shanks's Square Forms Factorization (SQUFOF) Suite, crypto-lab v0.14.0 &amp; foxmath v0.20.0.</strong></p>

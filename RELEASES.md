@@ -1,5 +1,41 @@
 # Releases
 
+### [v0.17.0] — 2026-11-04
+
+**Number Theory Explorer & Sharing Suite, Elliptic Curve Point Addition, Continued Fractions, and Typography Integrity.**
+
+#### Added
+- Added the **Unified Number Theory Explorer & Sharing Suite** to The Lab (`/lab.html`):
+  - **Unified Explorer Card** (`#nt-explorer-form`): Consolidates 11 previously separate arithmetic and divisor tools into a single comprehensive, parallelized analysis dashboard. Analyzes any integer $0 \le n \le 1{,}000{,}000$ to report:
+    - Primality classification, prime factors with Unicode superscripts ($2^3 \times 3^2 \times 5$), distinct prime factor count $\omega(n)$, and total prime factors with multiplicity $\Omega(n)$.
+    - Euler's totient function $\phi(n)$ and coprime density percentage.
+    - Prime-counting function $\pi(n)$ with prime density percentage and Prime Number Theorem (PNT) asymptotic comparison ($\sim n / \ln n$).
+    - Möbius function $\mu(n)$ with square-factor status.
+    - Divisor count $\tau(n)$, divisor sum $\sigma(n)$, and proper aliquot sum $s(n) = \sigma(n) - n$.
+    - Structural classification badges: Composite / Prime, Abundant / Deficient / Perfect (with abundance value), and Square-free / Not square-free.
+    - Prime neighbors and gap ($p_{\text{prev}} \leftarrow n \rightarrow p_{\text{next}}$, prime bracket, and gap distance).
+    - Complete ordered list of all positive divisors.
+  - **Deep-Linking & History State Synchronization**:
+    - URL query parameter support via `?explore=<n>`.
+    - Auto-explores on page load when the parameter is present, pre-populating the input and scrolling the card into view.
+    - Updates browser history dynamically (`history.pushState` on manual lookup, `replaceState` on presets) and syncs seamlessly with browser back/forward navigation (`popstate`).
+  - **One-Click Sharing Suite**:
+    - **Copy link** (`#copy-nt-link`): Copies canonical exploration permalinks directly to the clipboard with toast feedback.
+    - **Copy results** (`#copy-nt-results`): Formats a clean, structured mathematical plain-text report of the complete analysis featuring Unicode superscripts and compact divisor formatting.
+  - **Curated Exploration Presets**: Instant analysis buttons for *12* (abundant composite), *360* (highly composite), *997* (3-digit prime), *8128* (even perfect number), and *104729* (6-digit prime).
+- Added **Elliptic Curve Point Addition** tool (`#ecadd-form`) in the Crypto & Number Theory section:
+  - Interactive point addition $P_1 + P_2$ on named Weierstrass curves (`toy193`, `toy97`) with point at infinity $\mathcal{O}$ handling and coordinate validation.
+- Added **Continued Fractions** tool (`#cf-form`) in the Crypto & Number Theory section:
+  - Computes continued fraction expansions $[a_0; a_1, \dots]$ and rational convergents $p_k / q_k$ for rational inputs $num / den$.
+
+#### Fixed
+- **Mathematical Symbol & Typography Integrity**:
+  - Removed `text-transform: uppercase` from `.nt-card-title`, `.lab-eyebrow`, and `.lab-kicker` in `assets/lab-api.css`, preventing Greek letters ($\phi, \pi, \mu, \tau, \sigma, \rho$) from being capitalized and resolving the Pollard's $\rho$ algorithm label collision ("POLLARD'S P ALGORITHM").
+  - Corrected classification badge terminology from "Square-full" to "Not square-free (divisible by $p^2$)".
+- Updated `projects.html`, `now.html`, and `README.md`.
+
+---
+
 ### [v0.16.0] — 2026-11-03
 
 **Shanks's Square Forms Factorization (SQUFOF) Suite, crypto-lab v0.14.0 & foxmath v0.20.0.**
