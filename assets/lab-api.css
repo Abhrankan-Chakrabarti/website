@@ -714,6 +714,18 @@ input:focus {
 }
 
 /* Number Theory Explorer */
+.nt-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nt-share-actions .lab-button {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
 .nt-preset-bar {
   display: flex;
   flex-wrap: wrap;

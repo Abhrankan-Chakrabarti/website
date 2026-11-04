@@ -27,6 +27,8 @@ const ntExplorerForm = document.querySelector("#nt-explorer-form");
 const ntExplorerInput = document.querySelector("#nt-explorer-n");
 const ntExplorerResult = document.querySelector("#nt-explorer-result");
 const clearNtExplorerButton = document.querySelector("#clear-nt-explorer");
+const copyNtLinkButton = document.querySelector("#copy-nt-link");
+const copyNtResultsButton = document.querySelector("#copy-nt-results");
 const refreshInfoButton = document.querySelector("#refresh-info");
 const infoOutput = document.querySelector("#info-output");
 const refreshCryptoInfoButton = document.querySelector("#refresh-crypto-info");
@@ -958,12 +960,13 @@ function renderNtExplorerResult(data) {
   `;
 }
 
-async function runNtExplorer(event) {
+async function runNtExplorer(event, options = {}) {
   if (event) {
     event.preventDefault();
   }
   const n = validateNtExplorerInput();
   if (n === null) return;
+  syncNtExplorerUrl(n, options.historyMode || "push");
 
   const button = ntExplorerForm?.querySelector("button[type='submit']");
   if (button) setBusy(button, true, "Exploring");
@@ -1032,7 +1035,7 @@ async function runNtExplorer(event) {
   }
 }
 
-function clearNtExplorer() {
+function clearNtExplorer(options = {}) {
   if (ntExplorerInput) {
     ntExplorerInput.value = "360";
   }
@@ -1041,6 +1044,78 @@ function clearNtExplorer() {
     ntExplorerResult.textContent = "Ready to explore. Enter an integer from 1 to 1,000,000 or choose a preset above.";
     clearTelemetry(ntExplorerResult);
   }
+  if (options.updateUrl !== false) {
+    syncNtExplorerUrl(null, "push");
+  }
+}
+
+function syncNtExplorerUrl(n, historyMode = "replace") {
+  const url = new URL(window.location.href);
+  if (n === null) {
+    url.searchParams.delete("explore");
+  } else {
+    url.searchParams.set("explore", String(n));
+  }
+  url.hash = "";
+
+  if (url.href !== window.location.href) {
+    if (historyMode === "push") {
+      window.history.pushState({}, "", url);
+    } else {
+      window.history.replaceState({}, "", url);
+    }
+  }
+}
+
+async function copyButtonText(button, text, successLabel) {
+  if (!button || !text) return;
+  const idleLabel = button.textContent;
+  try {
+    await copyText(text);
+    button.textContent = successLabel;
+    window.setTimeout(() => {
+      button.textContent = idleLabel;
+    }, 1400);
+  } catch (error) {
+    button.textContent = error.message;
+    window.setTimeout(() => {
+      button.textContent = idleLabel;
+    }, 1800);
+  }
+}
+
+function copyNtExplorerLink() {
+  const n = validateNtExplorerInput();
+  if (n === null) return;
+  const url = new URL(window.location.href);
+  url.searchParams.set("explore", String(n));
+  url.hash = "";
+  copyButtonText(copyNtLinkButton, url.href, "Link copied");
+}
+
+function copyNtExplorerResults() {
+  const output = ntExplorerResult?.querySelector(".nt-explorer-output");
+  if (!output) {
+    copyButtonText(copyNtResultsButton, ntExplorerResult?.innerText, "Results copied");
+    return;
+  }
+  copyButtonText(copyNtResultsButton, output.innerText, "Results copied");
+}
+
+function initNtExplorerUrl() {
+  const raw = new URL(window.location.href).searchParams.get("explore");
+  if (!raw) return;
+  if (!/^\d+$/.test(raw)) {
+    syncNtExplorerUrl(null, "replace");
+    return;
+  }
+  const n = Number(raw);
+  if (!Number.isSafeInteger(n) || n < 1 || n > 1000000) {
+    syncNtExplorerUrl(null, "replace");
+    return;
+  }
+  ntExplorerInput.value = String(n);
+  runNtExplorer(null, { historyMode: "replace" });
 }
 
 async function refreshCryptoHealth() {
@@ -2833,6 +2908,8 @@ clearGcdButton.addEventListener("click", clearGcd);
 ntExplorerForm?.addEventListener("submit", runNtExplorer);
 ntExplorerInput?.addEventListener("input", validateNtExplorerInput);
 clearNtExplorerButton?.addEventListener("click", clearNtExplorer);
+copyNtLinkButton?.addEventListener("click", copyNtExplorerLink);
+copyNtResultsButton?.addEventListener("click", copyNtExplorerResults);
 document.querySelectorAll(".nt-preset-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (ntExplorerInput && btn.dataset.n) {
@@ -2840,6 +2917,19 @@ document.querySelectorAll(".nt-preset-btn").forEach((btn) => {
       runNtExplorer();
     }
   });
+});
+window.addEventListener("popstate", () => {
+  const raw = new URL(window.location.href).searchParams.get("explore");
+  if (raw && /^\d+$/.test(raw)) {
+    const n = Number(raw);
+    if (Number.isSafeInteger(n) && n >= 1 && n <= 1000000) {
+      ntExplorerInput.value = String(n);
+      runNtExplorer(null, { historyMode: "replace" });
+      return;
+    }
+  }
+  syncNtExplorerUrl(null, "replace");
+  clearNtExplorer({ updateUrl: false });
 });
 snapshotForm.addEventListener("submit", loadSnapshot);
 clearSnapshotButton.addEventListener("click", clearSnapshot);
@@ -2967,3 +3057,4 @@ validateCatalanInput();
 validateFibonacciInput();
 validateGcdInputs();
 validateNtExplorerInput();
+initNtExplorerUrl();
