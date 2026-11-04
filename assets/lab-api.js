@@ -849,7 +849,7 @@ function renderNtExplorerResult(data) {
   if (data.mobius !== 0) {
     sqBadge = { cls: "nt-badge--squarefree", text: "Square-free (no repeated prime factors)" };
   } else {
-    sqBadge = { cls: "nt-badge--deficient", text: "Square-full (divisible by p²)" };
+    sqBadge = { cls: "nt-badge--deficient", text: "Not square-free (divisible by p²)" };
   }
 
   // Factorization
