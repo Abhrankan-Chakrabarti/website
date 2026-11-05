@@ -1,6 +1,13 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
 
+// Determine report folder dynamically based on project argument or environment variable
+const reportDir = process.env.PLAYWRIGHT_REPORT_DIR || (
+  process.argv.includes('--project=live') ? 'playwright-live-report' :
+  process.argv.includes('--project=local') ? 'playwright-local-report' :
+  'playwright-report'
+);
+
 /**
  * Playwright configuration for testing the Lab at https://abhrankan.duckdns.org
  * Supports both live cloud deployment and local static preview.
@@ -16,10 +23,10 @@ module.exports = defineConfig({
   retries: 1,
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['html', { outputFolder: reportDir, open: 'never' }],
   ],
   use: {
-    channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome',
+    channel: process.env.PLAYWRIGHT_CHANNEL || 'chromium',
     headless: true,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

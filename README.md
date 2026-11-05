@@ -186,6 +186,8 @@ The repository includes a persistent, reusable Playwright smoke and regression t
 - **Mobile Viewport & Overflow**: Audits iPhone SE ($375 \times 667$) and iPhone 13/14 ($390 \times 844$) viewports to ensure zero horizontal page scroll (`document.documentElement.scrollWidth <= window.innerWidth`).
 - **Category Filter Navigation**: Tests dynamic filtering across Number Theory, Simulation, Crypto & Stego, and System categories with `aria-pressed` states.
 - **Browser History & State Sync**: Traverses multi-step navigation (`pushState` → `goBack()` → `goForward()`) to confirm input values, search parameters, and explorer cards restore correctly without reloads.
+- **Protected API Authentication**: Validates client-side credential requirements, verifies HTTP 401 rejection and password wipe on invalid Basic Auth credentials (`#snapshot-form`, `#hash-form`), and asserts Nginx edge `WWW-Authenticate` realm headers across `/api/v1/snapshot`, `/crypto-api/v1/hash`, and `/school/api/tables` while keeping health routes public.
+- **Crypto & Factorization Tools**: Tests operational status badges and metadata discovery, Pollard's rho integer factorization (prime 104729 and composite 8051 = 83 × 97), Fermat's difference of squares (5959 = 59 × 101), Mersenne prime verification via Lucas–Lehmer test (M_31 = 2^31 - 1), and Diffie–Hellman key exchange (g=5, p=23, a=6 → A=8).
 - **Console & Network Error Tracking**: Asserts zero uncaught runtime exceptions (`pageerror`) and zero unhandled rejections during interaction flows.
 
 To run the suite:
@@ -194,12 +196,19 @@ To run the suite:
 # Run all projects
 npm test
 
-# Run against live production deployment (https://abhrankan.duckdns.org)
+# Run against live production deployment (https://abhrankan.duckdns.org) -> generates playwright-live-report
 npm run test:live
 
-# Run against local static preview (auto-starts python http.server and transparently proxies /api to backend)
+# Run against local static preview (auto-starts python server with contract mocks) -> generates playwright-local-report
 npm run test:local
 ```
+
+### GitHub Actions CI
+
+The `.github/workflows/playwright.yml` workflow runs a parallel matrix job on every push and pull request to `main`, plus daily scheduled health checks at 04:00 UTC:
+- **`live`**: Runs `npm run test:live` against production and publishes `playwright-live-report` artifact on failure.
+- **`local`**: Runs `npm run test:local` against the local static preview with contract mocks and publishes `playwright-local-report` artifact on failure.
+- Both matrix jobs use Chromium `stable` pinned via `browser-actions/setup-chrome@v2` with `--with-deps`.
 
 ## Updating and deploying
 

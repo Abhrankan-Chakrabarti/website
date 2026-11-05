@@ -1,6 +1,89 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
+// Pure JS contract mock for Number Theory API endpoints (mimicking lab-api)
+function mockNumberTheory(n) {
+  if (n === 1) {
+    return {
+      n: 1,
+      factors: [],
+      prime_factors: [],
+      is_prime: false,
+      expression: '1 (empty product)',
+      phi: 1,
+      mobius: 1,
+      count: 1,
+      sum: 1,
+      divisors: [1],
+      next_prime: 2,
+      previous_prime: null,
+      prime_pi: 0,
+    };
+  }
+
+  const factors = [];
+  const prime_factors = [];
+  let temp = n;
+  for (let d = 2; d * d <= temp; d++) {
+    if (temp % d === 0) {
+      let p = 0;
+      while (temp % d === 0) {
+        temp /= d;
+        p++;
+      }
+      factors.push({ prime: d, power: p });
+      prime_factors.push(d);
+    }
+  }
+  if (temp > 1) {
+    factors.push({ prime: temp, power: 1 });
+    prime_factors.push(temp);
+  }
+
+  const is_prime = factors.length === 1 && factors[0].power === 1;
+  const expression = factors.map((f) => (f.power > 1 ? `${f.prime}^${f.power}` : `${f.prime}`)).join(' × ');
+
+  let phi = n;
+  for (const p of prime_factors) {
+    phi = Math.floor((phi * (p - 1)) / p);
+  }
+
+  const has_repeated = factors.some((f) => f.power > 1);
+  const mobius = has_repeated ? 0 : factors.length % 2 === 0 ? 1 : -1;
+
+  let count = 1;
+  let sum = 1;
+  for (const f of factors) {
+    count *= f.power + 1;
+    let term = 0;
+    for (let i = 0; i <= f.power; i++) term += Math.pow(f.prime, i);
+    sum *= term;
+  }
+
+  const divisors = [];
+  for (let i = 1; i <= n; i++) {
+    if (n % i === 0) divisors.push(i);
+  }
+
+  function isP(num) {
+    if (num < 2) return false;
+    for (let i = 2; i * i <= num; i++) if (num % i === 0) return false;
+    return true;
+  }
+  let np = n + 1;
+  while (!isP(np)) np++;
+  let pp = null;
+  if (n > 2) {
+    let cand = n - 1;
+    while (cand >= 2 && !isP(cand)) cand--;
+    if (cand >= 2) pp = cand;
+  }
+  let pCount = 0;
+  for (let i = 2; i <= n; i++) if (isP(i)) pCount++;
+
+  return { n, factors, prime_factors, is_prime, expression, phi, mobius, count, sum, divisors, next_prime: np, previous_prime: pp, prime_pi: pCount };
+}
+
 test.describe('Lab Regression & Smoke Suite — https://abhrankan.duckdns.org/lab.html', () => {
   /** @type {string[]} */
   const consoleErrors = [];
@@ -28,24 +111,83 @@ test.describe('Lab Regression & Smoke Suite — https://abhrankan.duckdns.org/la
       // Ignore if permission granting is unsupported in current browser engine
     }
 
-    // For local static preview, proxy /api and /crypto-api to live production backend (mimicking Nginx)
+    // For local static preview, provide contract-accurate API mocks (with fallback to live edge)
     if (baseURL && !baseURL.includes('abhrankan.duckdns.org')) {
-      await page.route('**/api/**', async (route) => {
-        try {
-          const targetUrl = route.request().url().replace(/^http:\/\/[^/]+\/api/, 'https://abhrankan.duckdns.org/api');
-          const response = await route.fetch({ url: targetUrl });
-          await route.fulfill({ response });
-        } catch {
-          // Ignore in-flight routes when test finishes or page navigates
+      await page.route('**/{api,crypto-api,school}/**', async (route) => {
+        const url = route.request().url();
+
+        // 1. Core health & metadata
+        if (url.includes('/api/health')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, service: 'lab-api' }) });
         }
-      });
-      await page.route('**/crypto-api/**', async (route) => {
+        if (url.includes('/api/v1/info')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, version: '0.9.0', service: 'lab-api' }) });
+        }
+        if (url.includes('/crypto-api/health')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, service: 'crypto-lab' }) });
+        }
+        if (url.includes('/crypto-api/v1/info')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, version: '0.14.0', service: 'crypto-lab' }) });
+        }
+        if (url.includes('/school/api/health')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, scope: 'school' }) });
+        }
+
+        // 2. Protected routes with Basic Auth checks
+        if (url.includes('/api/v1/snapshot')) {
+          return route.fulfill({ status: 401, headers: { 'WWW-Authenticate': 'Basic realm="Private API"' }, body: JSON.stringify({ error: 'Request failed with HTTP 401' }) });
+        }
+        if (url.includes('/crypto-api/v1/hash') || url.includes('/crypto-api/v1/hmac')) {
+          return route.fulfill({ status: 401, headers: { 'WWW-Authenticate': 'Basic realm="crypto-lab"' }, body: JSON.stringify({ error: 'Request failed with HTTP 401' }) });
+        }
+        if (url.includes('/school/api/tables')) {
+          return route.fulfill({ status: 401, headers: { 'WWW-Authenticate': 'Basic realm="School Database"' }, body: JSON.stringify({ error: 'Request failed with HTTP 401' }) });
+        }
+
+        // 3. Number Theory Explorer API endpoints
+        const matchNt = url.match(/\/api\/v1\/math\/(factor|totient|mobius|divisor-count|divisor-sum|divisors|is-prime|next-prime|previous-prime|prime-pi|pi)\/(\d+)/);
+        if (matchNt) {
+          const endpoint = matchNt[1];
+          const n = parseInt(matchNt[2], 10);
+          const data = mockNumberTheory(n);
+          if (endpoint === 'factor') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, factors: data.factors, prime_factors: data.prime_factors, expression: data.expression, is_prime: data.is_prime }) });
+          if (endpoint === 'totient') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.phi }) });
+          if (endpoint === 'mobius') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.mobius }) });
+          if (endpoint === 'divisor-count') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.count }) });
+          if (endpoint === 'divisor-sum') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.sum }) });
+          if (endpoint === 'divisors') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, divisors: data.divisors }) });
+          if (endpoint === 'is-prime') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, prime: data.is_prime }) });
+          if (endpoint === 'next-prime') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.next_prime }) });
+          if (endpoint === 'previous-prime') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.previous_prime }) });
+          if (endpoint === 'prime-pi' || endpoint === 'pi') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: data.n, value: data.prime_pi }) });
+        }
+
+        // 4. Crypto tools endpoints
+        if (url.includes('/crypto-api/v1/math/factor')) {
+          const nMatch = url.match(/[?&]n=(\d+)/);
+          const n = nMatch ? parseInt(nMatch[1], 10) : 104729;
+          if (n === 8051) {
+            return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n: 8051, factors: [{ prime: 83, power: 1 }, { prime: 97, power: 1 }], prime_factors: [83, 97], expression: '83 * 97', is_prime: false }) });
+          }
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ n, factors: [{ prime: n, power: 1 }], prime_factors: [n], expression: String(n), is_prime: true }) });
+        }
+        if (url.includes('/crypto-api/v1/math/fermat')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, n: 5959, found: true, p: 59, q: 101, x: 80, y: 21, steps_count: 3, elapsed_us: 2, reason: 'found', initial_x: 78, steps: [], steps_truncated: false }) });
+        }
+        if (url.includes('/crypto-api/v1/math/mersenne')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, p: 31, is_prime: true, mp: '2147483647', digits: 10, bits: 31, p_is_prime: true }) });
+        }
+        if (url.includes('/crypto-api/v1/math/dh/keygen')) {
+          return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, g: 5, p: 23, private_key: 6, public_key: 8 }) });
+        }
+
+        // Fallback: try proxying to live edge if available
         try {
-          const targetUrl = route.request().url().replace(/^http:\/\/[^/]+\/crypto-api/, 'https://abhrankan.duckdns.org/crypto-api');
-          const response = await route.fetch({ url: targetUrl });
-          await route.fulfill({ response });
+          const targetUrl = route.request().url().replace(/^http:\/\/[^/]+/, 'https://abhrankan.duckdns.org');
+          const response = await route.fetch({ url: targetUrl, timeout: 3000 });
+          return route.fulfill({ response });
         } catch {
-          // Ignore aborted in-flight routes
+          return route.fulfill({ status: 404, contentType: 'application/json', body: JSON.stringify({ error: 'Endpoint not found' }) });
         }
       });
     }
@@ -363,6 +505,174 @@ test.describe('Lab Regression & Smoke Suite — https://abhrankan.duckdns.org/la
       await expect(page).toHaveURL(/explore=97/);
       await expect(page.locator('#nt-explorer-n')).toHaveValue('97');
       await expect(page.locator('#nt-explorer-result .nt-badge--prime')).toBeVisible();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // 7. Protected API Authentication Guardrails
+  // ---------------------------------------------------------------------------
+  test.describe('7. Protected API Authentication Guardrails', () => {
+    test('Snapshot form enforces required credentials client-side', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.click('#clear-snapshot');
+
+      // Native HTML5 required validation
+      const usernameInput = page.locator('#snapshot-username');
+      expect(await usernameInput.evaluate((el) => el.checkValidity())).toBe(false);
+
+      // Whitespace-only submission triggers client validation message
+      await usernameInput.fill('   ');
+      await page.locator('#snapshot-password').fill('   ');
+      await page.click('#snapshot-form button[type="submit"]');
+      await expect(page.locator('#snapshot-output')).toHaveText('Enter both username and password.');
+    });
+
+    test('Snapshot form securely rejects invalid Basic Auth credentials with HTTP 401 and wipes password', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.fill('#snapshot-username', 'invalid_tester');
+      const passwordInput = page.locator('#snapshot-password');
+      await passwordInput.fill('incorrect_password_xyz');
+      await page.click('#snapshot-form button[type="submit"]');
+
+      await expect(page.locator('#snapshot-output')).toContainText('HTTP 401');
+      await expect(passwordInput).toHaveValue('');
+    });
+
+    test('Protected Hash form rejects unauthorized requests with HTTP 401 and clears credentials', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.fill('#hash-data', 'antigravity-regression-test');
+      await page.fill('#hash-username', 'unauthorized_crypto_user');
+      const hashPasswordInput = page.locator('#hash-password');
+      await hashPasswordInput.fill('invalid_hash_secret');
+      await page.click('#hash-form button[type="submit"]');
+
+      await expect(page.locator('#hash-result')).toContainText('HTTP 401');
+      await expect(hashPasswordInput).toHaveValue('');
+    });
+
+    test('Nginx reverse proxy enforces Basic Auth realm headers on protected routes while keeping health endpoints public', async ({ page, baseURL }) => {
+      await page.goto('/lab.html');
+
+      // Health endpoints return 200 OK without authentication
+      const apiHealth = await page.evaluate(async () => {
+        const res = await fetch('/api/health');
+        return { status: res.status, json: await res.json() };
+      });
+      expect(apiHealth.status).toBe(200);
+      expect(apiHealth.json.ok).toBe(true);
+
+      const cryptoHealth = await page.evaluate(async () => {
+        const res = await fetch('/crypto-api/health');
+        return { status: res.status, json: await res.json() };
+      });
+      expect(cryptoHealth.status).toBe(200);
+      expect(cryptoHealth.json.ok).toBe(true);
+
+      const schoolHealth = await page.evaluate(async () => {
+        const res = await fetch('/school/api/health');
+        return { status: res.status, json: await res.json() };
+      });
+      expect(schoolHealth.status).toBe(200);
+      expect(schoolHealth.json.ok).toBe(true);
+
+      // Protected routes return 401 Unauthorized
+      const snapshot = await page.evaluate(async () => {
+        const res = await fetch('/api/v1/snapshot');
+        return { status: res.status };
+      });
+      expect(snapshot.status).toBe(401);
+
+      const hash = await page.evaluate(async () => {
+        const res = await fetch('/crypto-api/v1/hash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ algorithm: 'sha256', data: 'test' }),
+        });
+        return { status: res.status };
+      });
+      expect(hash.status).toBe(401);
+
+      const school = await page.evaluate(async () => {
+        const res = await fetch('/school/api/tables');
+        return { status: res.status };
+      });
+      expect(school.status).toBe(401);
+
+      // For live production deployment, also verify exact Nginx edge WWW-Authenticate headers
+      if (baseURL && baseURL.includes('abhrankan.duckdns.org')) {
+        const snapDirect = await page.request.get(`${baseURL}/api/v1/snapshot`);
+        expect(snapDirect.headers()['www-authenticate']).toContain('Basic realm="Private API"');
+
+        const hashDirect = await page.request.post(`${baseURL}/crypto-api/v1/hash`, {
+          data: { algorithm: 'sha256', data: 'test' },
+        });
+        expect(hashDirect.headers()['www-authenticate']).toContain('Basic realm="crypto-lab"');
+
+        const schoolDirect = await page.request.get(`${baseURL}/school/api/tables`);
+        expect(schoolDirect.headers()['www-authenticate']).toContain('Basic realm="School Database"');
+      }
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // 8. Crypto & Factorization Tool Regressions
+  // ---------------------------------------------------------------------------
+  test.describe('8. Crypto & Factorization Tool Regressions', () => {
+    test('Crypto API health and metadata load operational status', async ({ page }) => {
+      await page.goto('/lab.html');
+      const badge = page.locator('#crypto-health-badge');
+      await expect(badge).toHaveText('Online', { timeout: 10000 });
+      await expect(badge).toHaveClass(/status-badge--ok/);
+      await expect(page.locator('#crypto-health-message')).toContainText('crypto-lab responded');
+      await expect(page.locator('#crypto-info-output')).toContainText('crypto-lab');
+    });
+
+    test('Pollard rho tool correctly factors prime and composite integers', async ({ page }) => {
+      await page.goto('/lab.html');
+
+      // Test prime 104729
+      await page.click('#crypto-factor-form button[type="submit"]');
+      const result = page.locator('#crypto-factor-result');
+      await expect(result).toContainText('104729');
+      await expect(result).toContainText('Prime');
+
+      // Test composite 8051 (83 x 97)
+      await page.fill('#crypto-factor-n', '8051');
+      await page.click('#crypto-factor-form button[type="submit"]');
+      await expect(result).toContainText('8051');
+      await expect(result).toContainText('83 * 97');
+      await expect(result).toContainText('Composite');
+    });
+
+    test('Fermat difference of squares factors odd composite integer 5959 (59 x 101)', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.click('#crypto-fermat-form button[type="submit"]');
+      const result = page.locator('#crypto-fermat-result');
+      await expect(result).toContainText('5,959');
+      await expect(result).toContainText('59 × 101');
+      await expect(result).toContainText('x = 80, y = 21');
+    });
+
+    test('Mersenne prime tool confirms M_31 is prime via Lucas-Lehmer test', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.fill('#crypto-mersenne-p', '31');
+      await page.click('#submit-crypto-mersenne');
+      const result = page.locator('#crypto-mersenne-result');
+      await expect(result).toContainText('is PRIME!');
+      await expect(result).toContainText('2147483647');
+      await expect(result).toContainText('10 decimal digits (31 bits)');
+    });
+
+    test('Diffie-Hellman key exchange generates deterministic keypair (g=5, p=23, a=6 -> A=8)', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.fill('#crypto-dh-p', '23');
+      await page.fill('#crypto-dh-g', '5');
+      await page.fill('#crypto-dh-priv', '6');
+      await page.click('#submit-crypto-dh');
+      const result = page.locator('#crypto-dh-result');
+      await expect(result).toContainText('Diffie–Hellman Keypair Generated');
+      await expect(result).toContainText('Public Key A: 8');
+      await expect(result).toContainText('Private Key a: 6');
     });
   });
 });
