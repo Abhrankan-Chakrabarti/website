@@ -33,6 +33,11 @@ website/
 ├── RELEASES.md               # Source Markdown for RELEASES.html
 ├── RELEASES.html             # Generated release history page
 ├── style.css                 # Shared site styles
+├── package.json              # Project metadata & test scripts
+├── package-lock.json         # Lockfile for dev dependencies
+├── playwright.config.js      # Playwright multi-project test configuration
+├── tests/
+│   └── lab-smoke.spec.js     # End-to-end smoke & regression test suite
 ├── assets/
 │   ├── chamber.css           # Chamber visualizer styles
 │   ├── chamber.js            # Chamber WebSocket client & canvas visualizer
@@ -76,7 +81,7 @@ its public routes for:
 - Sorted positive divisors
 
 The factorisation, totient, Möbius, divisor-count, divisor-sum, and divisors
-tools support `0 ≤ n ≤ 1,000,000`
+tools support `0 ≤ n ≤ 1,000,000` (Number Theory Explorer: `1 ≤ n ≤ 1,000,000`)
 and use bounded trial division for demonstrations rather than general-purpose
 factoring. The Lab page includes a unified Number Theory Explorer dashboard
 consolidating these endpoints with deep-linking (`?explore=<n>`), permalink sharing,
@@ -168,22 +173,26 @@ and `/crypto-api/` paths expected from the Nginx deployment.
 
 ## Automated testing
 
-The repository includes a reusable Playwright smoke and regression test suite covering:
-- Number Theory Explorer presets (`360`, `97`, `28`, `30`, `12`, `1`) and arithmetic accuracy
-- Parameter bounds and malformed `?explore=` parameter cleanup
-- One-click copy actions (`Link copied` permalinks and structured Unicode plain-text reports)
-- Mobile viewport rendering and horizontal overflow audits (`375x667`, `390x844`)
-- Tool category filtering and visibility states
-- Browser navigation history (`pushState`, `replaceState`, `popstate`)
-- Console and network error tracking
+The repository includes a persistent, reusable Playwright smoke and regression test suite covering:
+
+- **Explorer Presets**: Mathematical verification of presets `360` (composite, abundant, not square-free), `97` (prime, deficient, square-free), `28` (perfect number, $2^2 \times 7$), `30` (sphenic composite, $\mu = -1$), `12` (twin-sandwich composite), and `1` (unit, empty product).
+- **Bounds & Parameter Sanitization**: Verifies that out-of-bounds ($n < 1, n > 1{,}000{,}000$) or malformed (`?explore=abc`, `?explore=-15`) query parameters are cleaned on load via `replaceState` without triggering invalid queries, and that manual out-of-bounds input is blocked client-side.
+- **Sharing Actions**: Verifies clipboard write permissions, button-label feedback (`Link copied` and `Results copied`), permalink format, and structured Unicode plain-text report generation ($2³ \times 3² \times 5$).
+- **Mobile Viewport & Overflow**: Audits iPhone SE ($375 \times 667$) and iPhone 13/14 ($390 \times 844$) viewports to ensure zero horizontal page scroll (`document.documentElement.scrollWidth <= window.innerWidth`).
+- **Category Filter Navigation**: Tests dynamic filtering across Number Theory, Simulation, Crypto & Stego, and System categories with `aria-pressed` states.
+- **Browser History & State Sync**: Traverses multi-step navigation (`pushState` → `goBack()` → `goForward()`) to confirm input values, search parameters, and explorer cards restore correctly without reloads.
+- **Console & Network Error Tracking**: Asserts zero uncaught runtime exceptions (`pageerror`) and zero unhandled rejections during interaction flows.
 
 To run the suite:
 
 ```bash
+# Run all projects
+npm test
+
 # Run against live production deployment (https://abhrankan.duckdns.org)
 npm run test:live
 
-# Run against local static preview (auto-starts local preview server with API proxying)
+# Run against local static preview (auto-starts python http.server and transparently proxies /api to backend)
 npm run test:local
 ```
 
