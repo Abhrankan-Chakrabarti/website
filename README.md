@@ -20,6 +20,9 @@ The production site is served as a static website by Nginx at:
 
 ```text
 website/
+├── .github/
+│   └── workflows/
+│       └── playwright.yml    # CI workflow for Playwright smoke tests & daily checks
 ├── index.html                 # Home page
 ├── projects.html              # Project portfolio
 ├── writing.html               # Writing index

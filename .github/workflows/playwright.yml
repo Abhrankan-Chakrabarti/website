@@ -1,0 +1,56 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run daily live smoke checks at 04:00 UTC (09:30 IST)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Playwright Live Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pin Google Chrome availability
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: stable
+
+      - name: Verify Google Chrome installation
+        run: |
+          which google-chrome || which chrome
+          google-chrome --version || chrome --version
+
+      - name: Install Playwright Chromium & dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright live smoke tests
+        run: npm run test:live
+        env:
+          LIVE_URL: https://abhrankan.duckdns.org
+
+      - name: Upload Playwright report on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

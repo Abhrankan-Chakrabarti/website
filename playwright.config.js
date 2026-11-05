@@ -19,7 +19,7 @@ module.exports = defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
   ],
   use: {
-    channel: 'chrome',
+    channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome',
     headless: true,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
