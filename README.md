@@ -1,5 +1,7 @@
 # Abhrankan Chakrabarti's website
 
+[![Playwright Tests](https://github.com/Abhrankan-Chakrabarti/website/actions/workflows/playwright.yml/badge.svg?branch=main)](https://github.com/Abhrankan-Chakrabarti/website/actions/workflows/playwright.yml)
+
 Personal website and portfolio for Abhrankan Chakrabarti:
 
 - [Home](index.html) — introduction and featured work
