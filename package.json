@@ -1,0 +1,26 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "Personal website and portfolio for Abhrankan Chakrabarti",
+  "scripts": {
+    "test": "playwright test",
+    "test:live": "playwright test --project=live",
+    "test:local": "playwright test --project=local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abhrankan-Chakrabarti/website.git"
+  },
+  "keywords": [
+    "number-theory",
+    "cryptography",
+    "playwright",
+    "e2e"
+  ],
+  "author": "Abhrankan Chakrabarti",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}

@@ -166,6 +166,27 @@ When opening `lab.html` directly as a `file:` URL, the frontend falls back to
 the production API host. When served over HTTP, it uses the relative `/api/`
 and `/crypto-api/` paths expected from the Nginx deployment.
 
+## Automated testing
+
+The repository includes a reusable Playwright smoke and regression test suite covering:
+- Number Theory Explorer presets (`360`, `97`, `28`, `30`, `12`, `1`) and arithmetic accuracy
+- Parameter bounds and malformed `?explore=` parameter cleanup
+- One-click copy actions (`Link copied` permalinks and structured Unicode plain-text reports)
+- Mobile viewport rendering and horizontal overflow audits (`375x667`, `390x844`)
+- Tool category filtering and visibility states
+- Browser navigation history (`pushState`, `replaceState`, `popstate`)
+- Console and network error tracking
+
+To run the suite:
+
+```bash
+# Run against live production deployment (https://abhrankan.duckdns.org)
+npm run test:live
+
+# Run against local static preview (auto-starts local preview server with API proxying)
+npm run test:local
+```
+
 ## Updating and deploying
 
 1. Edit the source HTML, CSS, JavaScript, or Markdown files.
