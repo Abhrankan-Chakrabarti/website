@@ -86,6 +86,7 @@
   let restTimer = null;
   let restStepsQueue = [];
   let restStepIndex = 0;
+  let currentRestSummary = null;
 
   // DOM Elements
   const elStatusDot = document.getElementById('chamber-status-dot');
@@ -527,13 +528,8 @@
     return await resp.json();
   }
 
-  function startRestPlayback(summary) {
-    restStepsQueue = summary.steps || [];
-    restStepIndex = 0;
-    isRunning = true;
-    isPaused = false;
-    updatePlayButton();
-
+  function resumeRestPlayback() {
+    clearTimeout(restTimer);
     function tick() {
       if (!isRunning || isPaused) return;
 
@@ -549,29 +545,95 @@
           stepData.y
         );
 
-        if (stepData.is_square && summary.found) {
-          showFoundResult(summary.p, summary.q, summary.x, summary.y, summary.elapsed_us, summary.steps_count);
+        if (stepData.is_square && currentRestSummary && currentRestSummary.found) {
+          showFoundResult(
+            currentRestSummary.p,
+            currentRestSummary.q,
+            currentRestSummary.x,
+            currentRestSummary.y,
+            currentRestSummary.elapsed_us,
+            currentRestSummary.steps_count
+          );
           return;
         }
 
         restTimer = setTimeout(tick, delayMs);
       } else {
-        if (summary.found) {
-          showFoundResult(summary.p, summary.q, summary.x, summary.y, summary.elapsed_us, summary.steps_count);
-        } else if (summary.reason === 'trivial') {
-          showTrivialResult(summary.p, summary.q, summary.steps_count);
+        if (currentRestSummary && currentRestSummary.found) {
+          showFoundResult(
+            currentRestSummary.p,
+            currentRestSummary.q,
+            currentRestSummary.x,
+            currentRestSummary.y,
+            currentRestSummary.elapsed_us,
+            currentRestSummary.steps_count
+          );
+        } else if (currentRestSummary && currentRestSummary.reason === 'trivial') {
+          showTrivialResult(currentRestSummary.p, currentRestSummary.q, currentRestSummary.steps_count);
         } else {
           isRunning = false;
           updatePlayButton();
         }
       }
     }
-
     tick();
   }
 
+  function startRestPlayback(summary) {
+    currentRestSummary = summary;
+    restStepsQueue = summary.steps || [];
+    restStepIndex = 0;
+    isRunning = true;
+    isPaused = false;
+    updatePlayButton();
+    resumeRestPlayback();
+  }
+
+  function executeRestStep() {
+    if (!currentRestSummary || restStepIndex >= restStepsQueue.length) {
+      if (currentRestSummary && currentRestSummary.found) {
+        showFoundResult(
+          currentRestSummary.p,
+          currentRestSummary.q,
+          currentRestSummary.x,
+          currentRestSummary.y,
+          currentRestSummary.elapsed_us,
+          currentRestSummary.steps_count
+        );
+      } else if (currentRestSummary && currentRestSummary.reason === 'trivial') {
+        showTrivialResult(currentRestSummary.p, currentRestSummary.q, currentRestSummary.steps_count);
+      } else {
+        isRunning = false;
+        updatePlayButton();
+      }
+      return;
+    }
+
+    const stepData = restStepsQueue[restStepIndex++];
+    updateTelemetry(
+      stepData.step,
+      stepData.x,
+      stepData.r,
+      stepData.sieve_passed,
+      stepData.rejected_by,
+      stepData.is_square,
+      stepData.y
+    );
+
+    if (stepData.is_square && currentRestSummary.found) {
+      showFoundResult(
+        currentRestSummary.p,
+        currentRestSummary.q,
+        currentRestSummary.x,
+        currentRestSummary.y,
+        currentRestSummary.elapsed_us,
+        currentRestSummary.steps_count
+      );
+    }
+  }
+
   // --- Control Actions ---
-  function startFactorization() {
+  function startFactorization(startPaused = false) {
     if (elResultBanner) elResultBanner.style.display = 'none';
     resetSieveVisuals();
 
@@ -601,7 +663,7 @@
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       isRunning = true;
-      isPaused = false;
+      isPaused = !!startPaused;
       updatePlayButton();
       ws.send(
         JSON.stringify({
@@ -611,11 +673,25 @@
           max_steps: maxSteps,
         })
       );
+      if (startPaused) {
+        ws.send(JSON.stringify({ action: 'pause' }));
+        ws.send(JSON.stringify({ action: 'step' }));
+      }
     } else {
       // Fallback REST path
       fetchRestFactorization(currentN)
         .then((summary) => {
-          startRestPlayback(summary);
+          currentRestSummary = summary;
+          restStepsQueue = summary.steps || [];
+          restStepIndex = 0;
+          isRunning = true;
+          if (startPaused) {
+            isPaused = true;
+            updatePlayButton();
+            executeRestStep();
+          } else {
+            startRestPlayback(summary);
+          }
         })
         .catch((err) => {
           alert(`Factorization failed: ${err.message}`);
@@ -627,17 +703,14 @@
 
   function togglePlayPause() {
     if (!isRunning) {
-      startFactorization();
+      startFactorization(false);
     } else if (isPaused) {
       isPaused = false;
       updatePlayButton();
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ action: 'resume' }));
       } else {
-        // Resume REST timer
-        if (restStepsQueue.length > 0) {
-          startRestPlayback({ steps: restStepsQueue, found: false });
-        }
+        resumeRestPlayback();
       }
     } else {
       isPaused = true;
@@ -654,33 +727,26 @@
     if (elResultBanner) elResultBanner.style.display = 'none';
 
     if (!isRunning) {
-      startFactorization();
-      isPaused = true;
-      updatePlayButton();
+      startFactorization(true);
       return;
     }
 
     isPaused = true;
     updatePlayButton();
+    clearTimeout(restTimer);
 
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ action: 'step' }));
-    } else if (restStepIndex < restStepsQueue.length) {
-      const stepData = restStepsQueue[restStepIndex++];
-      updateTelemetry(
-        stepData.step,
-        stepData.x,
-        stepData.r,
-        stepData.sieve_passed,
-        stepData.rejected_by,
-        stepData.is_square,
-        stepData.y
-      );
+    } else {
+      executeRestStep();
     }
   }
 
   function resetChamber() {
     clearTimeout(restTimer);
+    currentRestSummary = null;
+    restStepsQueue = [];
+    restStepIndex = 0;
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ action: 'stop' }));
     }
