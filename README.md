@@ -42,6 +42,7 @@ website/
 ├── package-lock.json         # Lockfile for dev dependencies
 ├── playwright.config.js      # Playwright multi-project test configuration
 ├── tests/
+│   ├── chamber.spec.js       # The Chamber of Primes E2E visualizer & WebSocket test suite
 │   └── lab-smoke.spec.js     # End-to-end smoke & regression test suite
 ├── assets/
 │   ├── chamber.css           # Chamber visualizer styles
@@ -187,7 +188,14 @@ The repository includes a persistent, reusable Playwright smoke and regression t
 - **Category Filter Navigation**: Tests dynamic filtering across Number Theory, Simulation, Crypto & Stego, and System categories with `aria-pressed` states.
 - **Browser History & State Sync**: Traverses multi-step navigation (`pushState` → `goBack()` → `goForward()`) to confirm input values, search parameters, and explorer cards restore correctly without reloads.
 - **Protected API Authentication**: Validates client-side credential requirements, verifies HTTP 401 rejection and password wipe on invalid Basic Auth credentials (`#snapshot-form`, `#hash-form`), and asserts Nginx edge `WWW-Authenticate` realm headers across `/api/v1/snapshot`, `/crypto-api/v1/hash`, and `/school/api/tables` while keeping health routes public.
-- **Crypto & Factorization Tools**: Tests operational status badges and metadata discovery, Pollard's rho integer factorization (prime 104729 and composite 8051 = 83 × 97), Fermat's difference of squares (5959 = 59 × 101), Mersenne prime verification via Lucas–Lehmer test (M_31 = 2^31 - 1), and Diffie–Hellman key exchange (g=5, p=23, a=6 → A=8).
+- **Crypto & Factorization Tools**: Tests operational status badges and metadata discovery, Pollard's rho integer factorization (prime 104729 and composite 8051 = 83 × 97), Fermat's difference of squares (5959 = 59 × 101), Mersenne prime verification via Lucas–Lehmer test (M_31 = 2^31 - 1), Diffie–Hellman key exchange (g=5, p=23, a=6 → A=8), Shanks's SQUFOF factorization ($84{,}923 = 163 \times 521$ with Cycle 1 & Cycle 2 verification), Lenstra's ECM elliptic curve factorization ($1{,}393{,}429 = 1{,}009 \times 1{,}381$), and Two-stage Pollard's $p - 1$ factorization ($1{,}393{,}429 = 1{,}009 \times 1{,}381$).
+- **The Chamber of Primes Suite (`tests/chamber.spec.js`)**: Full E2E coverage for the interactive visualizer on `/chamber.html`:
+  - **Cartouche & Stone Tablet**: Verifies page title, cartouche header, stone tablet default values ($n = 5{,}959, x = 78, r = 125$), and Unicode Egyptian hieroglyphic numerals (`𓆼`).
+  - **Pharaoh Presets**: Validates interactive preset switching across Cleopatra ($8{,}051$), Ramses II ($10{,}969{,}629{,}527$), Nefertiti ($1{,}000{,}000{,}007$), and Tutankhamun ($5{,}959$), asserting tablet synchronization and hieroglyph updates.
+  - **Factorization Victory**: Triggers factorization and asserts revelation of the gold victory banner displaying non-trivial factors ($5959 = 59 \times 101$) and final tablet dimensions ($x = 80, y = 21$).
+  - **Manual Single-Step Iteration**: Tests `#chamber-btn-step` executing individual Fermat iterations without runaway timer advancement in REST simulation or WebSocket streaming.
+  - **Animation Speed Slider**: Validates interactive animation delay slider adjustments and telemetry label sync (`60 ms` → `150 ms`).
+  - **Mobile Responsiveness**: Asserts zero horizontal overflow (`scrollWidth <= innerWidth`) on mobile viewport benchmarks (iPhone SE and iPhone 13/14).
 - **Console & Network Error Tracking**: Asserts zero uncaught runtime exceptions (`pageerror`) and zero unhandled rejections during interaction flows.
 
 To run the suite:
@@ -206,8 +214,8 @@ npm run test:local
 ### GitHub Actions CI
 
 The `.github/workflows/playwright.yml` workflow runs a parallel matrix job on every push and pull request to `main`, plus daily scheduled health checks at 04:00 UTC:
-- **`live`**: Runs `npm run test:live` against production and publishes `playwright-live-report` artifact on failure.
-- **`local`**: Runs `npm run test:local` against the local static preview with contract mocks and publishes `playwright-local-report` artifact on failure.
+- **`live`**: Runs `npm run test:live` (32 tests across `lab-smoke.spec.js` and `chamber.spec.js`) against production and publishes `playwright-live-report` artifact on failure.
+- **`local`**: Runs `npm run test:local` (32 tests across `lab-smoke.spec.js` and `chamber.spec.js`) against the local static preview with contract mocks and publishes `playwright-local-report` artifact on failure.
 - Both matrix jobs use Chromium `stable` pinned via `browser-actions/setup-chrome@v2` with `--with-deps`.
 
 ## Updating and deploying
