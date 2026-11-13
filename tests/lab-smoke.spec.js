@@ -204,6 +204,69 @@ test.describe('Lab Regression & Smoke Suite — https://abhrankan.duckdns.org/la
         if (url.includes('/crypto-api/v1/math/dh/keygen')) {
           return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, g: 5, p: 23, private_key: 6, public_key: 8 }) });
         }
+        if (url.includes('/crypto-api/v1/math/pm1')) {
+          return route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              n: 1393429,
+              factor: 1009,
+              cofactor: 1381,
+              success: true,
+              stage: 1,
+              b1: 20,
+              b2: 100,
+              base: 2,
+              p_minus_1: 1008,
+              p_minus_1_factors: [{ prime: 2, power: 4 }, { prime: 3, power: 2 }, { prime: 7, power: 1 }],
+              p_minus_1_expression: '2^4 * 3^2 * 7',
+              steps: 4,
+              message: 'Found non-trivial factor p = 1009 in Stage 1 at prime 7',
+              elapsed_us: 9,
+            }),
+          });
+        }
+        if (url.includes('/crypto-api/v1/math/squfof')) {
+          return route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              n: 84923,
+              factor: 163,
+              cofactor: 521,
+              success: true,
+              multiplier: 1,
+              cycle1_steps: 10,
+              cycle2_steps: 6,
+              square_q: 179,
+              sqrt_q: 17,
+              message: 'Found non-trivial factor p = 163 via SQUFOF (multiplier k = 1, cycle 1 = 10 steps, cycle 2 = 6 steps)',
+              elapsed_us: 4,
+            }),
+          });
+        }
+        if (url.includes('/crypto-api/v1/math/ecm')) {
+          return route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              n: 1393429,
+              factor: 1009,
+              cofactor: 1381,
+              success: true,
+              curve_index: 1,
+              curves_tested: 1,
+              stage: 1,
+              b1: 50,
+              b2: 500,
+              a: 963403,
+              b: 80231,
+              steps: 5,
+              message: 'Found non-trivial factor p = 1009 on curve 1 in Stage 1 at prime 11',
+              elapsed_us: 562,
+            }),
+          });
+        }
 
         // Fallback: try proxying to live edge if available
         try {
@@ -697,6 +760,35 @@ test.describe('Lab Regression & Smoke Suite — https://abhrankan.duckdns.org/la
       await expect(result).toContainText('Diffie–Hellman Keypair Generated');
       await expect(result).toContainText('Public Key A: 8');
       await expect(result).toContainText('Private Key a: 6');
+    });
+
+    test('Shanks\'s SQUFOF factors composite integer 84923 (163 × 521)', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.click('#crypto-squfof-form button[type="submit"]');
+      const result = page.locator('#crypto-squfof-result');
+      await expect(result).toContainText('84,923');
+      await expect(result).toContainText('163 × 521');
+      await expect(result).toContainText('Cycle 1');
+      await expect(result).toContainText('Cycle 2');
+    });
+
+    test('Lenstra\'s ECM factors composite integer 1393429 (1009 × 1381)', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.click('#crypto-ecm-form button[type="submit"]');
+      const result = page.locator('#crypto-ecm-result');
+      await expect(result).toContainText('1,393,429');
+      await expect(result).toContainText('1,009 × 1,381');
+      await expect(result).toContainText('Stage 1');
+      await expect(result).toContainText('Weierstrass curve');
+    });
+
+    test('Two-stage Pollard\'s p - 1 factors composite integer 1393429 (1009 × 1381)', async ({ page }) => {
+      await page.goto('/lab.html');
+      await page.click('#crypto-pm1-form button[type="submit"]');
+      const result = page.locator('#crypto-pm1-result');
+      await expect(result).toContainText('1,393,429');
+      await expect(result).toContainText('1,009 × 1,381');
+      await expect(result).toContainText('Stage 1');
     });
   });
 });
