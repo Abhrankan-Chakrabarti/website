@@ -7,6 +7,13 @@ const CRYPTO_API_BASE =
     ? "https://abhrankan.duckdns.org/crypto-api"
     : "/crypto-api");
 
+// Server-supplied text is data, not markup: escape it before interpolating it into
+// innerHTML templates, so a compromised or misbehaving backend cannot inject HTML.
+const HTML_ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]);
+}
+
 const healthBadge = document.querySelector("#health-badge");
 const healthMessage = document.querySelector("#health-message");
 const refreshHealthButton = document.querySelector("#refresh-health");
@@ -1744,7 +1751,7 @@ async function runEcmul(event) {
       body: JSON.stringify({ curve, k }),
     }, ecmulResult);
     const ptStr = data.result ? `(${data.result[0]}, ${data.result[1]})` : "&infin; (Point at Infinity)";
-    ecmulResult.innerHTML = `${data.k} &middot; G = <strong>${ptStr}</strong> on <em>${data.curve}</em> ${data.result_on_curve ? "(on curve &check;)" : ""}`;
+    ecmulResult.innerHTML = `${data.k} &middot; G = <strong>${ptStr}</strong> on <em>${escapeHtml(data.curve)}</em> ${data.result_on_curve ? "(on curve &check;)" : ""}`;
   } catch (error) {
     ecmulResult.textContent = error.message;
   } finally {
@@ -1807,7 +1814,7 @@ async function runEcadd(event) {
       ? (data.result_on_curve ? " <span style='color: var(--lab-success); font-weight: 600;'>(on curve &check;)</span>" : " <span style='color: var(--lab-danger); font-weight: 600;'>(off curve &cross;)</span>")
       : "";
 
-    ecaddResult.innerHTML = `${pt1Str} + ${pt2Str} = <strong>${resStr}</strong> on <em>${data.curve}</em>${onCurveStr}`;
+    ecaddResult.innerHTML = `${pt1Str} + ${pt2Str} = <strong>${resStr}</strong> on <em>${escapeHtml(data.curve)}</em>${onCurveStr}`;
   } catch (error) {
     ecaddResult.textContent = error.message;
   } finally {
@@ -1925,7 +1932,7 @@ async function runCryptoFactor(event) {
   try {
     const data = await fetchCryptoJson(`/v1/math/factor?n=${encodeURIComponent(nRaw)}`, {}, cryptoFactorResult);
     const status = data.is_prime ? "Prime" : (data.n === 1 ? "Unit" : "Composite");
-    cryptoFactorResult.innerHTML = `<strong>${data.n}</strong> = <code>${data.expression}</code> (${status})`;
+    cryptoFactorResult.innerHTML = `<strong>${data.n}</strong> = <code>${escapeHtml(data.expression)}</code> (${status})`;
   } catch (error) {
     cryptoFactorResult.textContent = error.message;
   } finally {
@@ -1970,7 +1977,7 @@ async function runCryptoFermat(event) {
     if (data.found) {
       cryptoFermatResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.p.toLocaleString()} × ${data.q.toLocaleString()}</code><br><span class="lab-muted">x = ${data.x.toLocaleString()}, y = ${data.y.toLocaleString()} (x² - y² = ${data.x}² - ${data.y}²), ${data.steps_count} ${data.steps_count === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} µs</span>`;
     } else {
-      cryptoFermatResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: No non-trivial factors found (${data.reason}).<br><span class="lab-muted">Initial x = ${data.initial_x.toLocaleString()}, evaluated ${data.steps_count} ${data.steps_count === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} µs</span>`;
+      cryptoFermatResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: No non-trivial factors found (${escapeHtml(data.reason)}).<br><span class="lab-muted">Initial x = ${data.initial_x.toLocaleString()}, evaluated ${data.steps_count} ${data.steps_count === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} µs</span>`;
     }
   } catch (error) {
     cryptoFermatResult.textContent = error.message;
@@ -2218,11 +2225,11 @@ async function runCryptoPm1(event) {
       let html = `<strong>${data.n.toLocaleString()}</strong> = <code>${data.factor.toLocaleString()} &times; ${data.cofactor.toLocaleString()}</code><br>` +
         `<span class="lab-muted">Found in <strong>${stageLabel}</strong> (B1 = ${data.b1.toLocaleString()}, B2 = ${data.b2.toLocaleString()}) &bull; ${data.steps} ${data.steps === 1 ? "step" : "steps"} in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
       if (data.p_minus_1_expression) {
-        html += `<br><span class="lab-muted">Smoothness: p &minus; 1 = ${data.p_minus_1.toLocaleString()} = <code>${data.p_minus_1_expression}</code></span>`;
+        html += `<br><span class="lab-muted">Smoothness: p &minus; 1 = ${data.p_minus_1.toLocaleString()} = <code>${escapeHtml(data.p_minus_1_expression)}</code></span>`;
       }
       cryptoPm1Result.innerHTML = html;
     } else {
-      cryptoPm1Result.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+      cryptoPm1Result.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${escapeHtml(data.message)}<br>` +
         `<span class="lab-muted">Evaluated ${data.steps} steps (B1 = ${data.b1.toLocaleString()}, B2 = ${data.b2.toLocaleString()}) in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
     }
   } catch (error) {
@@ -2282,7 +2289,7 @@ async function runCryptoEcm(event) {
       }
       cryptoEcmResult.innerHTML = html;
     } else {
-      cryptoEcmResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+      cryptoEcmResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${escapeHtml(data.message)}<br>` +
         `<span class="lab-muted">Tested ${data.curves_tested} curves (${data.steps} point ops, B1 = ${data.b1.toLocaleString()}, B2 = ${data.b2.toLocaleString()}) in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
     }
   } catch (error) {
@@ -2335,7 +2342,7 @@ async function runCryptoDixon(event) {
         `<span class="lab-muted">Relations: ${data.relations_found} of ${data.relations_needed} needed &bull; ${data.steps} steps in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
       cryptoDixonResult.innerHTML = html;
     } else {
-      cryptoDixonResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+      cryptoDixonResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${escapeHtml(data.message)}<br>` +
         `<span class="lab-muted">Factor base size: ${data.factor_base_size} (B = ${data.b.toLocaleString()}) &bull; Relations: ${data.relations_found} of ${data.relations_needed} &bull; ${data.steps} steps in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
     }
   } catch (error) {
@@ -2387,7 +2394,7 @@ async function runCryptoQs(event) {
         `<span class="lab-muted">Relations: ${data.relations_found} of ${data.relations_needed} needed &bull; ${data.candidates_checked.toLocaleString()} sieve candidates in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
       cryptoQsResult.innerHTML = html;
     } else {
-      cryptoQsResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+      cryptoQsResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${escapeHtml(data.message)}<br>` +
         `<span class="lab-muted">Factor base size: ${data.factor_base_size} (B = ${data.b.toLocaleString()}) &bull; Relations: ${data.relations_found} of ${data.relations_needed} &bull; ${data.candidates_checked.toLocaleString()} candidates in ${data.elapsed_us.toLocaleString()} &mu;s</span>`;
     }
   } catch (error) {
@@ -2438,7 +2445,7 @@ async function runCryptoSqufof(event) {
         `<span class="lab-muted">${data.square_q ? `Square form: Q = ${data.square_q.toLocaleString()} (&radic;Q = ${data.sqrt_q.toLocaleString()}) &bull; ` : ""}${data.elapsed_us.toLocaleString()} &mu;s</span>`;
       cryptoSqufofResult.innerHTML = html;
     } else {
-      cryptoSqufofResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${data.message}<br>` +
+      cryptoSqufofResult.innerHTML = `<strong>${data.n.toLocaleString()}</strong>: ${escapeHtml(data.message)}<br>` +
         `<span class="lab-muted">${data.elapsed_us.toLocaleString()} &mu;s</span>`;
     }
   } catch (error) {
