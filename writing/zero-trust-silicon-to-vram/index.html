@@ -82,7 +82,7 @@
             </p>
             <ul>
                 <li><strong>Partition Keys (PKeys) &amp; GUID Binding:</strong> Switch ports and Host Channel Adapters (HCAs) enforce 16-bit Partition Keys in hardware on every packet, preventing cross-tenant RDMA memory access.</li>
-                <li><strong>The Kernel &amp; Network Telemetry Gap:</strong> Because RDMA bypasses the traditional Linux kernel TCP/IP stack (kernel-bypass), conventional userspace IDS agents and socket monitors are blind to anomalous east-west traffic, unauthorized control-plane bursts, or rogue egress attempts from compromised inference pods. Bridging this blind spot requires kernel-level eBPF/XDP hooks capable of inspecting packet headers and socket events at wire speed without breaking zero-copy performance.</li>
+                <li><strong>The Kernel &amp; Network Telemetry Gap:</strong> Because RDMA bypasses the traditional Linux kernel TCP/IP stack (kernel-bypass), conventional userspace IDS agents and socket monitors are blind to anomalous east-west traffic, unauthorized control-plane bursts, or rogue egress attempts from compromised inference pods. To bridge this blind spot, I built and open-sourced <a href="https://github.com/foxhackerzdevs/enclave-xdp" target="_blank" rel="noopener noreferrer"><code>enclave-xdp</code> (v0.1.0)</a>—a zero-copy eBPF/XDP probe inspecting packet headers and RoCEv2 BTH opcodes at wire speed without breaking zero-copy performance.</li>
             </ul>
 
             <h2>Layer 4: Closing the Artifact Supply-Chain Gap with stverify</h2>
@@ -137,10 +137,11 @@ stverify verify-dir /models/llama-3-70b-instruct /etc/stverify/signing.pub</code
 
             <h2>Project Links &amp; Resources</h2>
             <ul>
-                <li><strong>Repository:</strong> <a href="https://github.com/foxhackerzdevs/stverify" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs/stverify</a></li>
-                <li><strong>Package:</strong> <a href="https://crates.io/crates/stverify" target="_blank" rel="noopener noreferrer">crates.io/crates/stverify</a></li>
+                <li><strong>Layer 4 Model Verifier (stverify):</strong> <a href="https://github.com/foxhackerzdevs/stverify" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs/stverify</a></li>
+                <li><strong>Layer 3 Fabric Guard (enclave-xdp):</strong> <a href="https://github.com/foxhackerzdevs/enclave-xdp" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs/enclave-xdp</a></li>
+                <li><strong>Rust Crate:</strong> <a href="https://crates.io/crates/stverify" target="_blank" rel="noopener noreferrer">crates.io/crates/stverify</a></li>
                 <li><strong>API Documentation:</strong> <a href="https://docs.rs/stverify" target="_blank" rel="noopener noreferrer">docs.rs/stverify</a></li>
-                <li><strong>Container Registry:</strong> <a href="https://github.com/foxhackerzdevs/stverify/pkgs/container/stverify" target="_blank" rel="noopener noreferrer">ghcr.io/foxhackerzdevs/stverify</a></li>
+                <li><strong>Container Registries:</strong> <a href="https://github.com/foxhackerzdevs/stverify/pkgs/container/stverify" target="_blank" rel="noopener noreferrer">ghcr.io/foxhackerzdevs/stverify</a> &bull; <a href="https://github.com/foxhackerzdevs/enclave-xdp/pkgs/container/enclave-xdp" target="_blank" rel="noopener noreferrer">ghcr.io/foxhackerzdevs/enclave-xdp</a></li>
                 <li><strong>Fox Hackerz:</strong> <a href="https://github.com/foxhackerzdevs" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs</a></li>
             </ul>
         </article>
