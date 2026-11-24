@@ -6,7 +6,7 @@ Personal website and portfolio for Abhrankan Chakrabarti:
 
 - [Home](index.html) — introduction and featured work
 - [Projects](projects.html) — current projects and external repositories
-- [Writing](writing.html) — notes on mathematics, algorithms, cryptography, and related topics
+- [Writing](writing.html) — notes on systems security, AI infrastructure, mathematics, algorithms, and cryptography
 - [Now](now.html) — current focus and activity
 - [Lab](lab.html) — live service checks and interactive API tools
 - [Chamber](chamber.html) — The Chamber of Primes: Fermat's difference of squares visualizer & Sieve of Ma'at
@@ -56,7 +56,8 @@ website/
     ├── golden-ratio/
     ├── history-of-cryptography/
     ├── mersenne-primes/
-    └── pythagorean-triples/
+    ├── pythagorean-triples/
+    └── zero-trust-silicon-to-vram/
 ```
 
 `API.html` and `RELEASES.html` are generated from their Markdown sources. Update
