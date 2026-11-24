@@ -63,8 +63,8 @@
             </p>
             <ul>
                 <li><strong>Immutable Fused Keys:</strong> Each Blackwell GPU embeds an asymmetric device identity key fused into silicon at manufacturing, inaccessible to the host kernel, hypervisor, or Baseboard Management Controller (BMC).</li>
-                <li><strong>SPDM Measurement Quotes:</strong> Using the Security Protocol and Data Model (SPDM), the GPU generates a signed cryptographic quote measuring its boot firmware, microcode version, and debug-fuse state.</li>
-                <li><strong>KMS Release Gate:</strong> The tenant’s Key Management Service (KMS) verifies the GPU's SPDM quote against NVIDIA’s Remote Attestation Service (NRAS) and a Reference Integrity Manifest (RIM) before releasing the decryption keys for the tenant's storage volume.</li>
+                <li><strong>SPDM Measurement Quotes &amp; Verification:</strong> Using the Security Protocol and Data Model (SPDM 1.2/1.3), the GPU generates a signed cryptographic quote measuring its boot firmware, microcode version, and debug-fuse state. To automate this pre-release gate, I open-sourced <a href="https://github.com/foxhackerzdevs/spdm-attest" target="_blank" rel="noopener noreferrer"><code>spdm-attest</code> (v0.1.0)</a>—a pure-Rust validator for PCIe SPDM quotes, DICE certificate chains, and golden PCR manifests.</li>
+                <li><strong>KMS Release Gate:</strong> The tenant’s Key Management Service (KMS) verifies the GPU's SPDM quote against the manufacturer's Remote Attestation Service and Reference Integrity Manifest (RIM) before releasing the decryption keys for the tenant's storage volume.</li>
             </ul>
 
             <h2>Layer 2: CPU-to-GPU TEE Extension &amp; Inline NVLink Encryption</h2>
@@ -139,8 +139,9 @@ stverify verify-dir /models/llama-3-70b-instruct /etc/stverify/signing.pub</code
             <ul>
                 <li><strong>Layer 4 Model Verifier (stverify):</strong> <a href="https://github.com/foxhackerzdevs/stverify" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs/stverify</a></li>
                 <li><strong>Layer 3 Fabric Guard (enclave-xdp):</strong> <a href="https://github.com/foxhackerzdevs/enclave-xdp" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs/enclave-xdp</a></li>
-                <li><strong>Rust Crate:</strong> <a href="https://crates.io/crates/stverify" target="_blank" rel="noopener noreferrer">crates.io/crates/stverify</a></li>
-                <li><strong>API Documentation:</strong> <a href="https://docs.rs/stverify" target="_blank" rel="noopener noreferrer">docs.rs/stverify</a></li>
+                <li><strong>Layer 1/2 Hardware Attestation (spdm-attest):</strong> <a href="https://github.com/foxhackerzdevs/spdm-attest" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs/spdm-attest</a></li>
+                <li><strong>Rust Crates:</strong> <a href="https://crates.io/crates/stverify" target="_blank" rel="noopener noreferrer">crates.io/crates/stverify</a> &bull; <a href="https://crates.io/crates/spdm-attest" target="_blank" rel="noopener noreferrer">crates.io/crates/spdm-attest</a></li>
+                <li><strong>API Documentation:</strong> <a href="https://docs.rs/stverify" target="_blank" rel="noopener noreferrer">docs.rs/stverify</a> &bull; <a href="https://docs.rs/spdm-attest" target="_blank" rel="noopener noreferrer">docs.rs/spdm-attest</a></li>
                 <li><strong>Container Registries:</strong> <a href="https://github.com/foxhackerzdevs/stverify/pkgs/container/stverify" target="_blank" rel="noopener noreferrer">ghcr.io/foxhackerzdevs/stverify</a> &bull; <a href="https://github.com/foxhackerzdevs/enclave-xdp/pkgs/container/enclave-xdp" target="_blank" rel="noopener noreferrer">ghcr.io/foxhackerzdevs/enclave-xdp</a></li>
                 <li><strong>Fox Hackerz:</strong> <a href="https://github.com/foxhackerzdevs" target="_blank" rel="noopener noreferrer">github.com/foxhackerzdevs</a></li>
             </ul>
