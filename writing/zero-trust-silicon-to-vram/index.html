@@ -82,7 +82,7 @@
             </p>
             <ul>
                 <li><strong>Partition Keys (PKeys) &amp; GUID Binding:</strong> Switch ports and Host Channel Adapters (HCAs) enforce 16-bit Partition Keys in hardware on every packet, preventing cross-tenant RDMA memory access.</li>
-                <li><strong>The Kernel &amp; Network Telemetry Gap:</strong> Because RDMA bypasses the traditional Linux kernel TCP/IP stack (kernel-bypass), conventional userspace IDS agents and socket monitors are blind to anomalous east-west traffic, unauthorized control-plane bursts, or rogue egress attempts from compromised inference pods. To bridge this blind spot, I built and open-sourced <a href="https://github.com/foxhackerzdevs/enclave-xdp" target="_blank" rel="noopener noreferrer"><code>enclave-xdp</code> (v0.1.0)</a>—a zero-copy eBPF/XDP probe inspecting packet headers and RoCEv2 BTH opcodes at wire speed without breaking zero-copy performance.</li>
+                <li><strong>The Kernel &amp; Network Telemetry Gap:</strong> Because RDMA bypasses the traditional Linux kernel TCP/IP stack (kernel-bypass), conventional userspace IDS agents and socket monitors are blind to anomalous east-west traffic, unauthorized control-plane bursts, or rogue egress attempts from compromised inference pods. To bridge this blind spot, I built and open-sourced <a href="https://github.com/foxhackerzdevs/enclave-xdp" target="_blank" rel="noopener noreferrer"><code>enclave-xdp</code> (v0.1.1)</a>—a zero-copy eBPF/XDP probe inspecting packet headers and RoCEv2 BTH opcodes at wire speed without breaking zero-copy performance.</li>
             </ul>
 
             <h2>Layer 4: Closing the Artifact Supply-Chain Gap with stverify</h2>
