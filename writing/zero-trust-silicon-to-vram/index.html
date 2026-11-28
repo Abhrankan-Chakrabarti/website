@@ -90,7 +90,7 @@
                 Silicon isolation protects data in use, and interconnect encryption protects data in transit—but neither can stop a workload that voluntarily loads poisoned model weights into VRAM at startup.
             </p>
             <p>
-                To close this pre-load supply-chain gap, I built and open-sourced <a href="https://github.com/foxhackerzdevs/stverify" target="_blank" rel="noopener noreferrer"><code>stverify</code> (v0.2.4)</a>—a zero-bloat cryptographic signer and integrity verifier written in pure Rust for <code>.safetensors</code> model shards.
+                To close this pre-load supply-chain gap, I built and open-sourced <a href="https://github.com/foxhackerzdevs/stverify" target="_blank" rel="noopener noreferrer"><code>stverify</code> (v0.2.5)</a>—a zero-bloat cryptographic signer and integrity verifier written in pure Rust for <code>.safetensors</code> model shards.
             </p>
 
             <h3>Architectural Design Principles</h3>
@@ -113,7 +113,7 @@ stverify verify-dir /models/llama-3-70b-instruct /etc/stverify/signing.pub</code
 
             <pre><code><span style="color: #79c0ff;">initContainers:</span>
   - <span style="color: #7ee787;">name:</span> <span style="color: #a5d6ff;">verify-weights</span>
-    <span style="color: #7ee787;">image:</span> <span style="color: #a5d6ff;">ghcr.io/foxhackerzdevs/stverify:0.2.4</span>
+    <span style="color: #7ee787;">image:</span> <span style="color: #a5d6ff;">ghcr.io/foxhackerzdevs/stverify:0.2.5</span>
     <span style="color: #7ee787;">securityContext:</span>
       <span style="color: #7ee787;">readOnlyRootFilesystem:</span> <span style="color: #79c0ff;">true</span>
       <span style="color: #7ee787;">runAsNonRoot:</span> <span style="color: #79c0ff;">true</span>
